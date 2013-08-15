@@ -59,15 +59,17 @@ class PendingCommands
     @command_list[id.to_s] = command
   end
 
+  def commands
+    @command_list
+  end
+
   def succeed(id)
-    puts "ID #{id} succeeded"
     # For now we're going to succeed silently
     @command_list.delete(id.to_s)
   end
 
   def fail(id, msg = "")
-    puts "WARNING: Command #{id} (#{@command_list[id]}) failed with error: #{msg}"
-    #puts @command_list.inspect
+    puts "WARNING: Command '#{@command_list[id]}' failed with error: #{msg}"
     @command_list.delete(id.to_s)
   end
 end
@@ -98,7 +100,7 @@ def process_server_response(resp)
 
   case hsh["header"]
   when "ACK"
-    PendingCommands.instance.succeed(break_data_into_segments(hsh["data"])[1])
+    PendingCommands.instance.succeed(break_data_into_segments(hsh["data"])[0])
 
     {}
   when "CAPABILITY"
@@ -115,7 +117,7 @@ def process_server_response(resp)
     segments = break_data_into_segments(hsh["data"])
     segments[1] = Time.at(segments[1].to_i)
     fields = ["version", "start_time", "server_name", "build_revision", "command_id"]
-    
+
     { "server_info" => Hash[fields.zip(segments)] }
   when "PROTOCOLS"
     status_protocols = ["ack", "capability", "error", "kismet", "protocols",
@@ -125,7 +127,7 @@ def process_server_response(resp)
     available_protocols.reject! { |r| status_protocols.include?(r) }
     available_protocols = available_protocols.each_with_object({}) { |p, o| o[p] = nil }
     
-    { "protocols" => available_protocols, "protocols_dirty" => true }
+    { "protocols" => available_protocols, "discover_capabilities" => true }
   when "TERMINATE"
     # Time to die...
     puts "Server closed the connection"
@@ -134,9 +136,18 @@ def process_server_response(resp)
   else
     # Check and see if we're dealing with a data protocol message
     if (ServerInfo.instance.data["protocols"] || {}).keys.include?(hsh["header"].downcase)
-      puts "Got data information (#{hsh['header']}): #{hsh['data']}"
+      #puts "Got data information (#{hsh['header']}): #{hsh['data']}"
+
+      keys = ServerInfo.instance.data["protocols"][hsh["header"].downcase]
+      data = break_data_into_segments(hsh['data'])
+
+      data[0...keys.count]
+      puts Hash[keys.zip(data)]
+
+      {}
     else
-      raise "Unrecognized server response processed."
+      #raise "Unrecognized server response processed #{hsh['header']}."
+      {}
     end
   end
 end
@@ -168,18 +179,32 @@ command_id = 1
 while l = s.readline
   ServerInfo.instance.merge(process_server_response(l))
 
-  # If we have data protocols we don't know the capabilities for
-  # TODO send_command(command_id, "CAPABILITIES something")
-  if ServerInfo.instance.data["protocols_dirty"]
+  # If we've received a protocols packet from the server, refresh all the
+  # capabilities on each of the protocols from the server.
+  if ServerInfo.instance.data["discover_capabilities"]
     ServerInfo.instance.data["protocols"].keys.each do |p|
       send_command(s, command_id, "CAPABILITY #{p.upcase}")
       command_id += 1
     end
-    ServerInfo.instance.data.delete("protocols_dirty")
+
+    ServerInfo.instance.data.delete("discover_capabilities")
+    ServerInfo.instance.data["enable_capabilities"] = true
   end
 
-  puts JSON.generate(ServerInfo.instance.data)
-  puts
+  # If we aren't waiting on the response of any commands and we need to enable
+  # capabilities... do it...
+  if ServerInfo.instance.data["enable_capabilities"] && PendingCommands.instance.commands.empty?
+    ServerInfo.instance.data["protocols"].each do |k, v|
+      send_command(s, command_id, "ENABLE #{k.upcase} #{v.join(",")}")
+      command_id += 1
+    end
+
+    ServerInfo.instance.data.delete("enable_capabilities")
+  end
+
+  # When in debug...
+  #puts JSON.generate(ServerInfo.instance.data)
+  #puts
 end
 
 # The first time is information about the server:
@@ -188,3 +213,4 @@ end
 #   *PROTOCOLS: KISMET,ERROR,ACK,PROTOCOLS,CAPABILITY,TERMINATE,TIME,PACKET,STATUS,SOURCE,ALERT,PHYMAP,DEVICE,DEVICEDONE,TRACKINFO,DEVTAG,DOT11SSID,DOT11DEVICE,DOT11CLIENT,PLUGIN,GPS,BSSID,SSID,CLIENT,BSSIDSRC,CLISRC,NETTAG,CLITAG,REMOVE,CHANNEL,SPECTRUM,INFO,BATTERY,CRITFAIL\n
 
 s.close
+
