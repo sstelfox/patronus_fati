@@ -46,6 +46,48 @@ class Hash
   end
 end
 
+require 'singleton'
+
+class PendingCommands
+  include Singleton
+
+  def initialize
+    @command_list = {}
+  end
+
+  def add_command(id, command)
+    @command_list[id.to_s] = command
+  end
+
+  def succeed(id)
+    puts "ID #{id} succeeded"
+    # For now we're going to succeed silently
+    @command_list.delete(id.to_s)
+  end
+
+  def fail(id, msg = "")
+    puts "WARNING: Command #{id} (#{@command_list[id]}) failed with error: #{msg}"
+    #puts @command_list.inspect
+    @command_list.delete(id.to_s)
+  end
+end
+
+class ServerInfo
+  include Singleton
+
+  def initialize
+    @info = {}
+  end
+
+  def merge(data)
+    @info.deep_merge!(data)
+  end
+
+  def data
+    @info
+  end
+end
+
 def unimplemented_message(type, message)
   puts "Received unimplemented message #{type}: #{message}"
   {}
@@ -56,11 +98,18 @@ def process_server_response(resp)
 
   case hsh["header"]
   when "ACK"
-    unimplemented_message(hsh["header"], hsh["data"])
+    PendingCommands.instance.succeed(break_data_into_segments(hsh["data"])[1])
+
+    {}
   when "CAPABILITY"
-    unimplemented_message(hsh["header"], hsh["data"])
+    segs = break_data_into_segments(hsh["data"])
+
+    { "protocols" => { segs[0].downcase => segs[1].split(",") }}
   when "ERROR"
-    unimplemented_message(hsh["header"], hsh["data"])
+    segs = break_data_into_segments(hsh["data"])
+    PendingCommands.instance.fail(segs.shift, segs.join(" "))
+
+    {}
   when "KISMET"
     # Initial server informational line
     segments = break_data_into_segments(hsh["data"])
@@ -69,15 +118,26 @@ def process_server_response(resp)
     
     { "server_info" => Hash[fields.zip(segments)] }
   when "PROTOCOLS"
+    status_protocols = ["ack", "capability", "error", "kismet", "protocols",
+      "terminate", "time"]
+
     available_protocols = hsh["data"].split(",").map(&:strip).map(&:downcase)
+    available_protocols.reject! { |r| status_protocols.include?(r) }
+    available_protocols = available_protocols.each_with_object({}) { |p, o| o[p] = nil }
     
-    { "protocols" => available_protocols.each_with_object({}) { |p, o| o[p] = {} } }
+    { "protocols" => available_protocols, "protocols_dirty" => true }
   when "TERMINATE"
-    unimplemented_message(hsh["header"], hsh["data"])
+    # Time to die...
+    puts "Server closed the connection"
   when "TIME"
     { "server_info" => { "last_timestamp" => Time.at(hsh["data"].to_i) } }
   else
-    raise "Unrecognized server response processed."
+    # Check and see if we're dealing with a data protocol message
+    if (ServerInfo.instance.data["protocols"] || {}).keys.include?(hsh["header"].downcase)
+      puts "Got data information (#{hsh['header']}): #{hsh['data']}"
+    else
+      raise "Unrecognized server response processed."
+    end
   end
 end
 
@@ -97,14 +157,28 @@ def extract_response(resp)
   Hash[SERVER_RESPONSE.names.zip(SERVER_RESPONSE.match(resp).captures)]
 end
 
-s = TCPSocket.new('127.0.0.1', 2501)
+def send_command(socket, id, command)
+  PendingCommands.instance.add_command(id, command)
+  socket.puts("!#{id} #{command}")
+end
 
-info = {}
+s = TCPSocket.new('127.0.0.1', 2501)
+command_id = 1
 
 while l = s.readline
-  info.deep_merge!(process_server_response(l))
+  ServerInfo.instance.merge(process_server_response(l))
 
-  puts JSON.generate(info)
+  # If we have data protocols we don't know the capabilities for
+  # TODO send_command(command_id, "CAPABILITIES something")
+  if ServerInfo.instance.data["protocols_dirty"]
+    ServerInfo.instance.data["protocols"].keys.each do |p|
+      send_command(s, command_id, "CAPABILITY #{p.upcase}")
+      command_id += 1
+    end
+    ServerInfo.instance.data.delete("protocols_dirty")
+  end
+
+  puts JSON.generate(ServerInfo.instance.data)
   puts
 end
 
