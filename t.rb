@@ -1,10 +1,11 @@
 
 require 'json'
+require 'singleton'
 require 'socket'
 require 'strscan'
 
 SERVER_RESPONSE = %r{
-  (?<header> .+){0}
+  (?<header> [A-Z]+){0}
   (?<data> .+){0}
 
   ^\*\g<header>:\s+\g<data>$
@@ -45,8 +46,6 @@ class Hash
     self
   end
 end
-
-require 'singleton'
 
 class PendingCommands
   include Singleton
@@ -128,25 +127,26 @@ def process_server_response(resp)
     available_protocols = available_protocols.each_with_object({}) { |p, o| o[p] = nil }
     
     { "protocols" => available_protocols, "discover_capabilities" => true }
+  when "STATUS"
+    puts "LOG: #{hsh['data']}"
+    {}
   when "TERMINATE"
     # Time to die...
     puts "Server closed the connection"
+    {}
   when "TIME"
     { "server_info" => { "last_timestamp" => Time.at(hsh["data"].to_i) } }
   else
     # Check and see if we're dealing with a data protocol message
     if (ServerInfo.instance.data["protocols"] || {}).keys.include?(hsh["header"].downcase)
-      #puts "Got data information (#{hsh['header']}): #{hsh['data']}"
-
       keys = ServerInfo.instance.data["protocols"][hsh["header"].downcase]
-      data = break_data_into_segments(hsh['data'])
+      data = break_data_into_segments(hsh['data'])[0...keys.count]
 
-      data[0...keys.count]
-      puts Hash[keys.zip(data)]
+      puts Hash[hsh['header'].downcase, Hash[keys.zip(data)]]
 
       {}
     else
-      #raise "Unrecognized server response processed #{hsh['header']}."
+      raise "Unrecognized server response processed #{hsh['header']}."
       {}
     end
   end
@@ -194,10 +194,20 @@ while l = s.readline
   # If we aren't waiting on the response of any commands and we need to enable
   # capabilities... do it...
   if ServerInfo.instance.data["enable_capabilities"] && PendingCommands.instance.commands.empty?
-    ServerInfo.instance.data["protocols"].each do |k, v|
-      send_command(s, command_id, "ENABLE #{k.upcase} #{v.join(",")}")
+    useful_protocols = [ "status", "info", "ssid", "bssid", "source", "gps",
+      "battery", "client", "bssidsrc" ]
+
+    useful_protocols.each do |k|
+      caps = ServerInfo.instance.data["protocols"][k]
+      send_command(s, command_id, "ENABLE #{k.upcase} #{caps.join(",")}")
       command_id += 1
     end
+
+    # This enables all messages
+    #ServerInfo.instance.data["protocols"].each do |k, v|
+    #  send_command(s, command_id, "ENABLE #{k.upcase} #{v.join(",")}")
+    #  command_id += 1
+    #end
 
     ServerInfo.instance.data.delete("enable_capabilities")
   end
@@ -210,7 +220,10 @@ end
 # The first time is information about the server:
 #   *KISMET: 0.0.0 1376572253 \x01procrustes.internal.0x378.net\x01 \x01\x01 0 \n
 # The second line is a list of protocols supported by the server
-#   *PROTOCOLS: KISMET,ERROR,ACK,PROTOCOLS,CAPABILITY,TERMINATE,TIME,PACKET,STATUS,SOURCE,ALERT,PHYMAP,DEVICE,DEVICEDONE,TRACKINFO,DEVTAG,DOT11SSID,DOT11DEVICE,DOT11CLIENT,PLUGIN,GPS,BSSID,SSID,CLIENT,BSSIDSRC,CLISRC,NETTAG,CLITAG,REMOVE,CHANNEL,SPECTRUM,INFO,BATTERY,CRITFAIL\n
+#   *PROTOCOLS: KISMET,ERROR,ACK,PROTOCOLS,CAPABILITY,TERMINATE,TIME,PACKET,
+#     STATUS,SOURCE,ALERT,PHYMAP,DEVICE,DEVICEDONE,TRACKINFO,DEVTAG,DOT11SSID,
+#     DOT11DEVICE,DOT11CLIENT,PLUGIN,GPS,BSSID,SSID,CLIENT,BSSIDSRC,CLISRC,
+#     NETTAG,CLITAG,REMOVE,CHANNEL,SPECTRUM,INFO,BATTERY,CRITFAIL\n
 
 s.close
 
