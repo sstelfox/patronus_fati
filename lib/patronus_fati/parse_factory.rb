@@ -2,7 +2,7 @@
 module PatronusFati
   class ParseFactory
     def self.parse(line)
-      line
+      puts line
     end
   end
 end
