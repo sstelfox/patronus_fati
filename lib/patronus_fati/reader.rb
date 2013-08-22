@@ -23,7 +23,7 @@ module PatronusFati
       if ready_socket && ready_socket.first.first == @socket
         # Yes there is, add what we can to the buffer
         begin
-          @buffer.string = (@buffer.rest + ready_socket.read_nonblock(2048))
+          @buffer.string = (@buffer.rest + @socket.read_nonblock(2048))
         rescue Errno::EAGAIN, Errno::EWOULDBLOCK
           # Socket would block, try again later
         end
