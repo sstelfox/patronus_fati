@@ -8,6 +8,7 @@ Gem::Specification.new do |gem|
   gem.name          = "patronus_fati"
   gem.version       = PatronusFati::VERSION
   gem.authors       = [ "Sam Stelfox" ]
+  gem.license       = "LGPL"
   gem.email         = [ "sstelfox@bedroomprogrammers.net" ]
   gem.description   = %q{ A ruby implementation of the Kismet client protocol. }
   gem.summary       = %q{ A ruby implementation of the Kismet client protocol. }
