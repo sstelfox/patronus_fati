@@ -12,7 +12,7 @@ module PatronusFati
       if PatronusFati::Parsers.const_defined?(message["header"].to_sym)
         PatronusFati::Parsers.const_get(message["header"].to_sym).parse(message["data"])
       else
-        { message["header"].downcase => PatronusFati::Parsers::Default.parse(message["data"]) }
+        { "type" => message["header"].downcase, "data" => PatronusFati::Parsers::Default.parse(message["data"]) }
       end
     end
   end
