@@ -12,6 +12,7 @@ module PatronusFati
       messages = []
       while line = @buffer.scan_until(/^.+?\r?\n/)
         messages << @parser.parse(line.strip)
+        puts line.strip
       end
       messages
     end
