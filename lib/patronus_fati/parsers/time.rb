@@ -1,7 +1,9 @@
 
 module PatronusFati
   module Parsers
-    class Default
+    class TIME
+      @@headers = ["timestamp"]
+
       def self.parse(data)
         strscan = StringScanner.new(data)
         results = []
@@ -10,7 +12,7 @@ module PatronusFati
           results << e.scan(/[[:print:]]/).join.strip
         end
 
-        results
+        Hash[@@headers.zip(results)]
       end
     end
   end

@@ -1,16 +1,18 @@
 
 module PatronusFati
   class ParseFactory
-    def self.parse(line)
-      strscan = StringScanner.new(line)
-      results = []
+    def initialize(client = nil)
+      @client = client
+    end
 
-      while e = strscan.scan_until(PatronusFati::SERVER_DATA)
-        results << e.scan(/[[:print:]]/).join.strip
-      end
+    def parse(line)
+      return unless line =~ SERVER_RESPONSE
+      message = Hash[SERVER_RESPONSE.names.zip(SERVER_RESPONSE.match(line).captures)]
 
-      results.map do |r|
-        PatronusFati::Parsers::Default.parse(line)
+      if PatronusFati::Parsers.const_defined?(message["header"].to_sym)
+        PatronusFati::Parsers.const_get(message["header"].to_sym).parse(message["data"])
+      else
+        { message["header"].downcase => PatronusFati::Parsers::Default.parse(message["data"]) }
       end
     end
   end
