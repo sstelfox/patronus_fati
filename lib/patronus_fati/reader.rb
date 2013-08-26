@@ -9,9 +9,11 @@ module PatronusFati
 
     # Parse all the whole lines out of the buffer
     def parse_buffer
+      messages = []
       while line = @buffer.scan_until(/^.+?\r?\n/)
-        @parser.parse(line.strip)
+        messages << @parser.parse(line.strip)
       end
+      messages
     end
 
     def buffer_available_data
