@@ -10,9 +10,7 @@ require "patronus_fati/parse_factory"
 require "patronus_fati/parsers/default"
 require "patronus_fati/parsers/kismet"
 require "patronus_fati/parsers/time"
-require "patronus_fati/parsers/time"
 require "patronus_fati/reader"
-require "patronus_fati/server_info"
 require "patronus_fati/version"
 
 module PatronusFati
