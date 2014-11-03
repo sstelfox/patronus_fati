@@ -125,7 +125,7 @@ def process_server_response(resp)
     available_protocols = hsh["data"].split(",").map(&:strip).map(&:downcase)
     available_protocols.reject! { |r| status_protocols.include?(r) }
     available_protocols = available_protocols.each_with_object({}) { |p, o| o[p] = nil }
-    
+
     { "protocols" => available_protocols, "discover_capabilities" => true }
   when "STATUS"
     puts "LOG: #{hsh['data']}"
