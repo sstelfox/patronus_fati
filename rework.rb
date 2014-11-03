@@ -1,11 +1,7 @@
-require 'json'
 require 'openssl'
 require 'socket'
 require 'timeout'
 require 'thread'
-
-require 'hiredis'
-require 'redis'
 
 DATA_DELIMITER = /(\x01[^\x01]+\x01)|(\S+)/
 
