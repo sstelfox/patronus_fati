@@ -440,6 +440,14 @@ write_thread = Thread.new do
   end
 end
 
+# Used to disable StatsD logger as it bypasses us, and doesn't log anything
+# valuable
+class NullObject < BasicObject
+  def method_missing(*args, &block)
+    self
+  end
+end
+
 # We receive some messages before we specifically request the abilities of the
 # server, when this happens we'll attempt to map the data using the default
 # attribute ordering that was provided by the Kismet server this client was
@@ -453,6 +461,10 @@ def parse_msg(line)
   h = Hash[resp.names.zip(resp.captures)]
   h['data'] = h['data'].scan(DATA_DELIMITER)
     .map { |a, b| (a || b).tr("\x01", '') }
+
+  unless MessageModels.const_defined?(h['header'].downcase.capitalize.to_sym)
+    return NullObject.new
+  end
 
   cap_class = MessageModels.const_get(h['header'].downcase.capitalize.to_sym)
   unless cap_class
@@ -485,6 +497,8 @@ process_thread = Thread.new do
         # command. We don't want to mess up our parsing so we work around it by
         # ignoring these messages.
         next if obj.name == 'CAPABILITY'
+
+        next unless MessageModels.const_defined?(obj.name.downcase.capitalize)
 
         target_cap = MessageModels.const_get(obj.name.downcase.capitalize)
         target_cap.supported_keys = obj.capabilities.split(',').map(&:to_sym)
