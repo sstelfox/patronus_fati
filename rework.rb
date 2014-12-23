@@ -440,8 +440,6 @@ write_thread = Thread.new do
   end
 end
 
-# Used to disable StatsD logger as it bypasses us, and doesn't log anything
-# valuable
 class NullObject < BasicObject
   def method_missing(*args, &block)
     self
