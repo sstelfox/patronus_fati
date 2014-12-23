@@ -397,7 +397,7 @@ end
 
 begin
   Timeout.timeout(10) do
-    conn = TCPSocket.new('10.13.37.124', 2501)
+    conn = TCPSocket.new('127.0.0.1', 2501)
   end
 rescue Timeout::Error
   puts 'Timed out while attempting to connect to kismet'
