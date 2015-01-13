@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+
+$:.push(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
+
+require 'optparse'
+require 'patronus_fati'
+
+options = {
+  'server' => '127.0.0.1',
+  'port'   => 2501
+}
+
+OptionParser.new(nil, 32, '  ') do |opts|
+  opts.on('-s', '--server SERVER', 'IP or hostname of running kismet server.') do |srv|
+    options['server'] = srv
+  end
+
+  opts.on('-p', '--port PORT', 'Port that kismet server is running on.') do |port|
+    options['port'] = port.to_i
+  end
+end.parse(ARGV)
+
+# Do the bin thing here...

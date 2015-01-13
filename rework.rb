@@ -1,7 +1,5 @@
-require 'openssl'
-require 'socket'
-require 'timeout'
-require 'thread'
+
+
 
 DATA_DELIMITER = /(\x01[^\x01]+\x01)|(\S+)/
 
