@@ -1,15 +1,14 @@
-
 require "bundler/gem_tasks"
 
-task "environment" do
+task :environment do
+  base_path = File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
+  $LOAD_PATH.unshift(base_path) unless $LOAD_PATH.include?(base_path)
+
   require 'patronus_fati'
 end
 
-desc "Run all the tests"
-task :test => [:environment] do
-  require 'minitest/autorun'
-
-  base_spec_path = File.expand_path(File.dirname(__FILE__))
-  test_files = Dir.glob(File.join(base_spec_path, 'spec', '**', '*_spec.rb'))
-  test_files.each { |f| require_relative f }
+desc "Start a pry session with the code loaded"
+task :console => [:environment] do
+  require 'pry'
+  pry
 end
