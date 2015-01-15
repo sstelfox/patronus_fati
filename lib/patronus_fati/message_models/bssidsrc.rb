@@ -1,0 +1,11 @@
+module PatronusFati
+  module MessageModels
+    Bssidsrc = CapStruct.new(
+      :bssid, :uuid, :lasttime, :numpackets, :signal_dbm, :noise_dbm,
+      :minsignal_dbm, :minnoise_dbm, :maxsignal_dbm, :maxnoise_dbm, :signal_rssi,
+      :noise_rssi, :minsignal_rssi, :minnoise_rssi, :maxsignal_rssi,
+      :maxnoise_rssi
+    )
+    Bssidsrc.set_data_filter(:bssid) { |val| val.downcase }
+  end
+end
