@@ -6,64 +6,17 @@ require 'patronus_fati'
 
 include PatronusFati
 
-conn = nil
+class NullObject < BasicObject
+  def method_missing(*args, &block)
+    self
+  end
+end
 
 def exception_logger(tag)
   yield
 rescue => e
   puts "(#{tag}) Rescued from error: #{e.message}"
   puts e.backtrace
-end
-
-begin
-  Timeout.timeout(10) do
-    conn = TCPSocket.new('127.0.0.1', 2501)
-  end
-rescue Timeout::Error
-  puts 'Timed out while attempting to connect to kismet'
-  exit 1
-end
-
-read_queue = Queue.new
-write_queue = Queue.new
-
-read_thread = Thread.new do
-  puts 'Read thread starting...'
-
-  exception_logger('read') do
-    begin
-      while (line = conn.readline)
-        read_queue << line
-      end
-    rescue Timeout::Error
-      puts 'Connection timed out.'
-      exit 1
-    rescue EOFError
-      puts 'Lost connection.'
-      exit 1
-    rescue => e
-      puts "Received error: #{e.message}"
-      exit 1
-    end
-  end
-end
-
-write_thread = Thread.new do
-  puts 'Write thread starting...'
-
-  exception_logger('write') do
-    count = 0
-    while (msg = write_queue.pop)
-      conn.write("!#{count} #{msg}\r\n")
-      count += 1
-    end
-  end
-end
-
-class NullObject < BasicObject
-  def method_missing(*args, &block)
-    self
-  end
 end
 
 # We receive some messages before we specifically request the abilities of the
@@ -97,44 +50,43 @@ def parse_msg(line)
   end
 end
 
-process_thread = Thread.new do
-  puts 'Processing thread starting...'
+connection = PatronusFati::Connection.new('127.0.0.1', 2501)
+connection.connect
 
-  exception_logger('process') do
-    while (line = read_queue.pop)
-      obj = parse_msg(line)
+exception_logger('process') do
+  while (line = connection.read_queue.pop)
+    obj = parse_msg(line)
 
-      case obj.class.to_s
-      when 'MessageModels::Ack'
-        # Yeah they're coming in but baby I know I'm doing right by you, you
-        # don't have to keep telling me.
-      when 'MessageModels::Capability'
-        # The capability detection for the capability command is broken. It
-        # returns the name of the command followed by the capabilities but the
-        # result of a request ignores that it also sends back the name of the
-        # command. We don't want to mess up our parsing so we work around it by
-        # ignoring these messages.
-        next if obj.name == 'CAPABILITY'
+    case obj.class.to_s
+    when 'MessageModels::Ack'
+      # Yeah they're coming in but baby I know I'm doing right by you, you
+      # don't have to keep telling me.
+    when 'MessageModels::Capability'
+      # The capability detection for the capability command is broken. It
+      # returns the name of the command followed by the capabilities but the
+      # result of a request ignores that it also sends back the name of the
+      # command. We don't want to mess up our parsing so we work around it by
+      # ignoring these messages.
+      next if obj.name == 'CAPABILITY'
+      next unless MessageModels.const_defined?(obj.name.downcase.capitalize)
 
-        next unless MessageModels.const_defined?(obj.name.downcase.capitalize)
+      target_cap = MessageModels.const_get(obj.name.downcase.capitalize)
+      target_cap.supported_keys = obj.capabilities.split(',').map(&:to_sym)
 
-        target_cap = MessageModels.const_get(obj.name.downcase.capitalize)
-        target_cap.supported_keys = obj.capabilities.split(',').map(&:to_sym)
-
-        keys_to_enable = target_cap.enabled_keys.map(&:to_s).join(',')
-        write_queue << "ENABLE #{obj.name} #{keys_to_enable}"
-      when 'MessageModels::Protocols'
-        obj.protocols.split(',').each do |p|
-          write_queue << "CAPABILITY #{p}"
-        end
-      else
-        puts obj.class
-        puts obj.attributes
+      keys_to_enable = target_cap.enabled_keys.map(&:to_s).join(',')
+      connection.write("ENABLE #{obj.name} #{keys_to_enable}")
+    when 'MessageModels::Protocols'
+      obj.protocols.split(',').each do |p|
+        connection.write("CAPABILITY #{p}")
       end
+    else
+      puts obj.class
+      puts obj.attributes
     end
   end
 end
 
-process_thread.join
+connection.disconnect
+
 read_thread.kill
 write_thread.kill
