@@ -11,7 +11,7 @@ SimpleCov.add_filter do |source_file|
   source_file.lines.count < 3
 end
 
-SimpleCov.add_group "Models", "models"
+SimpleCov.add_group "Server Message Models", "message_models"
 
 SimpleCov.start
 

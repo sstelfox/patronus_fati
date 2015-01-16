@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$:.push(File.expand_path(File.join(File.dirname(__FILE__), 'lib')))
+$:.push(File.expand_path('lib', __FILE__))
 
 require 'patronus_fati'
 
@@ -13,13 +13,6 @@ def exception_logger(tag)
 rescue => e
   puts "(#{tag}) Rescued from error: #{e.message}"
   puts e.backtrace
-end
-
-module MessageModels
-  # @note The ordering of the attributes is actually important, as these are
-  #   the default orderings provided by the server I was developing against.
-  #   The casing of the name is also important as the best we can automatically
-  #   do from the header information is a downcase and capitalize.
 end
 
 begin
