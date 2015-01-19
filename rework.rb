@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$:.push(File.expand_path('lib', __FILE__))
+$:.push(File.expand_path(File.join('..', 'lib'), __FILE__))
 
 require 'patronus_fati'
 
@@ -50,7 +50,7 @@ def parse_msg(line)
   end
 end
 
-connection = PatronusFati::Connection.new('127.0.0.1', 2501)
+connection = PatronusFati::Connection.new('10.13.37.128', 2501)
 connection.connect
 
 exception_logger('process') do
@@ -87,6 +87,3 @@ exception_logger('process') do
 end
 
 connection.disconnect
-
-read_thread.kill
-write_thread.kill
