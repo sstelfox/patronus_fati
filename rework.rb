@@ -42,7 +42,7 @@ exception_logger('process') do
       end
     else
       puts obj.class
-      #puts obj.attributes
+      puts obj.attributes
     end
   end
 end
