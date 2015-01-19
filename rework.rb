@@ -33,11 +33,11 @@ def parse_msg(line)
   h['data'] = h['data'].scan(DATA_DELIMITER)
     .map { |a, b| (a || b).tr("\x01", '') }
 
-  unless MessageModels.const_defined?(h['header'].downcase.capitalize.to_sym)
+  unless PatronusFati::MessageModels.const_defined?(h['header'].downcase.capitalize.to_sym)
     return NullObject.new
   end
 
-  cap_class = MessageModels.const_get(h['header'].downcase.capitalize.to_sym)
+  cap_class = PatronusFati::MessageModels.const_get(h['header'].downcase.capitalize.to_sym)
   unless cap_class
     fail(ArgumentError, 'Message received had unknown message type: ' +
          h['header'])
@@ -58,24 +58,24 @@ exception_logger('process') do
     obj = parse_msg(line)
 
     case obj.class.to_s
-    when 'MessageModels::Ack'
+    when 'PatronusFati::MessageModels::Ack'
       # Yeah they're coming in but baby I know I'm doing right by you, you
       # don't have to keep telling me.
-    when 'MessageModels::Capability'
+    when 'PatronusFati::MessageModels::Capability'
       # The capability detection for the capability command is broken. It
       # returns the name of the command followed by the capabilities but the
       # result of a request ignores that it also sends back the name of the
       # command. We don't want to mess up our parsing so we work around it by
       # ignoring these messages.
       next if obj.name == 'CAPABILITY'
-      next unless MessageModels.const_defined?(obj.name.downcase.capitalize)
+      next unless PatronusFati::MessageModels.const_defined?(obj.name.downcase.capitalize)
 
-      target_cap = MessageModels.const_get(obj.name.downcase.capitalize)
+      target_cap = PatronusFati::MessageModels.const_get(obj.name.downcase.capitalize)
       target_cap.supported_keys = obj.capabilities.split(',').map(&:to_sym)
 
       keys_to_enable = target_cap.enabled_keys.map(&:to_s).join(',')
       connection.write("ENABLE #{obj.name} #{keys_to_enable}")
-    when 'MessageModels::Protocols'
+    when 'PatronusFati::MessageModels::Protocols'
       obj.protocols.split(',').each do |p|
         connection.write("CAPABILITY #{p}")
       end
