@@ -70,8 +70,10 @@ module PatronusFati
     def start_write_thread
       self.write_thread = Thread.new do
         begin
+          count = 0
           while (msg = write_queue.pop)
-            socket.puts(msg)
+            socket.write("!%i %s\r\n" % [count, msg])
+            count += 1
           end
         rescue => e
           puts ('Unknown issue writing to socket: %s' % e.message)

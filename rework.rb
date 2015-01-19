@@ -4,8 +4,6 @@ $:.push(File.expand_path(File.join('..', 'lib'), __FILE__))
 
 require 'patronus_fati'
 
-include PatronusFati
-
 class NullObject < BasicObject
   def method_missing(*args, &block)
     self
@@ -25,12 +23,12 @@ end
 # coded against, this may not be entirely accurate, but will become accurate
 # before we receive any meaningful data.
 def parse_msg(line)
-  unless (resp = SERVER_MESSAGE.match(line))
+  unless (resp = PatronusFati::SERVER_MESSAGE.match(line))
     fail(ArgumentError, "Received weird message: #{line}")
   end
 
   h = Hash[resp.names.zip(resp.captures)]
-  h['data'] = h['data'].scan(DATA_DELIMITER)
+  h['data'] = h['data'].scan(PatronusFati::DATA_DELIMITER)
     .map { |a, b| (a || b).tr("\x01", '') }
 
   unless PatronusFati::MessageModels.const_defined?(h['header'].downcase.capitalize.to_sym)
