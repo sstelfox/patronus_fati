@@ -4,12 +4,6 @@ $:.push(File.expand_path(File.join('..', 'lib'), __FILE__))
 
 require 'patronus_fati'
 
-class NullObject < BasicObject
-  def method_missing(*args, &block)
-    self
-  end
-end
-
 def exception_logger(tag)
   yield
 rescue => e
@@ -17,43 +11,12 @@ rescue => e
   puts e.backtrace
 end
 
-# We receive some messages before we specifically request the abilities of the
-# server, when this happens we'll attempt to map the data using the default
-# attribute ordering that was provided by the Kismet server this client was
-# coded against, this may not be entirely accurate, but will become accurate
-# before we receive any meaningful data.
-def parse_msg(line)
-  unless (resp = PatronusFati::SERVER_MESSAGE.match(line))
-    fail(ArgumentError, "Received weird message: #{line}")
-  end
-
-  h = Hash[resp.names.zip(resp.captures)]
-  h['data'] = h['data'].scan(PatronusFati::DATA_DELIMITER)
-    .map { |a, b| (a || b).tr("\x01", '') }
-
-  unless PatronusFati::MessageModels.const_defined?(h['header'].downcase.capitalize.to_sym)
-    return NullObject.new
-  end
-
-  cap_class = PatronusFati::MessageModels.const_get(h['header'].downcase.capitalize.to_sym)
-  unless cap_class
-    fail(ArgumentError, 'Message received had unknown message type: ' +
-         h['header'])
-  end
-
-  if cap_class.enabled_keys.empty?
-    cap_class.new(Hash[cap_class.attribute_keys.zip(h['data'])])
-  else
-    cap_class.new(Hash[cap_class.enabled_keys.zip(h['data'])])
-  end
-end
-
 connection = PatronusFati::Connection.new('10.13.37.128', 2501)
 connection.connect
 
 exception_logger('process') do
   while (line = connection.read_queue.pop)
-    obj = parse_msg(line)
+    obj = PatronusFati::MessageParser.parse(line)
 
     case obj.class.to_s
     when 'PatronusFati::MessageModels::Ack'
@@ -79,7 +42,7 @@ exception_logger('process') do
       end
     else
       puts obj.class
-      puts obj.attributes
+      #puts obj.attributes
     end
   end
 end

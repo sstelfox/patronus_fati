@@ -1,6 +1,4 @@
 module PatronusFati
-  DATA_DELIMITER = /(\x01[^\x01]+\x01)|(\S+)/
-
   BSSID_TYPE_MAP = {
     0   => 'infrastructure',
     1   => 'adhoc',
@@ -23,6 +21,8 @@ module PatronusFati
     5 => 'adhoc',
     6 => 'remove'
   }
+
+  DATA_DELIMITER = /(\x01[^\x01]+\x01)|(\S+)/
 
   # This map was retrieved from a combination of the packet_ieee80211.h header
   # file and dumpfile_netxml.cc source in the kismet git repo.

@@ -43,14 +43,15 @@ module PatronusFati
         end
 
         # Return the intersection of our known attribute keys and the keys that
-        # the server has claimed to support.
+        # the server has claimed to support. The order is important to be
+        # consistent between all returned runs of this.
         #
         # @return [Array<Symbol>]
         def self.enabled_keys
           attribute_keys & supported_keys
         end
 
-        # Return the keys the server has claimed to support.
+        # Return the keys the server has claimed to support (and maintain the order).
         #
         # @return [Array<Symbol>]
         def self.supported_keys
