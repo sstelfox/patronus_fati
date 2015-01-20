@@ -17,6 +17,7 @@ require 'patronus_fati/aggregated_model_base'
 require 'patronus_fati/aggregated_models/bssid'
 require 'patronus_fati/aggregated_models/client'
 require 'patronus_fati/aggregated_models/source'
+require 'patronus_fati/aggregated_models/ssid'
 
 module PatronusFati
 end
