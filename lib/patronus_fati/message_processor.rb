@@ -14,6 +14,7 @@ end
 
 require 'patronus_fati/message_processor/bssid'
 require 'patronus_fati/message_processor/capability'
+require 'patronus_fati/message_processor/client'
 require 'patronus_fati/message_processor/error'
 require 'patronus_fati/message_processor/protocols'
 require 'patronus_fati/message_processor/source'
