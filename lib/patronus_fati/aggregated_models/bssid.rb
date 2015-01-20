@@ -27,7 +27,7 @@ module PatronusFati
       alias :key :bssid
 
       def save
-        fail(KeyError, 'Invalid Source Model') unless valid?
+        fail(KeyError, 'Invalid Bssid Model') unless valid?
         self.class.add_instance(self)
       end
 
