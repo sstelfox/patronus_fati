@@ -1,3 +1,4 @@
+require 'digest'
 require 'openssl'
 require 'socket'
 require 'timeout'
@@ -14,6 +15,7 @@ require 'patronus_fati/message_parser'
 require 'patronus_fati/message_processor'
 
 require 'patronus_fati/aggregated_model_base'
+require 'patronus_fati/aggregated_models/alert'
 require 'patronus_fati/aggregated_models/bssid'
 require 'patronus_fati/aggregated_models/client'
 require 'patronus_fati/aggregated_models/source'
