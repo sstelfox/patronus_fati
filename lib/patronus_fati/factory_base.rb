@@ -19,8 +19,20 @@ module PatronusFati
     # @param [Symbol] type Type of generator to create
     # @param [Hash<Symbol=>String>] options
     def factory(type, opts = {})
-      fail(ArgumentError, "Unknown factory #{type}") if registered_factories[type].nil?
+      return if ignored_types.include?(type)
+      if registered_factories[type].nil?
+        warn("Unknown factory #{type} (Available: #{registered_factories.keys})")
+        return
+      end
       registered_factories[type].process(opts)
+    end
+
+    # Placeholder mechanism to allow sub-generators to not generate any
+    # warnings for specific types.
+    #
+    # @return [Array<Symbol>]
+    def ignored_types
+      []
     end
 
     # Trigger for when this module gets included to register it with the

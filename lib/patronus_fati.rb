@@ -11,6 +11,7 @@ require 'patronus_fati/connection'
 require 'patronus_fati/factory_base'
 require 'patronus_fati/message_models'
 require 'patronus_fati/message_parser'
+require 'patronus_fati/message_processor'
 
 module PatronusFati
 end
