@@ -67,24 +67,29 @@ module PatronusFati
 
         attr_reader :attributes
 
+        def [](key)
+          @attributes[key.to_sym]
+        end
+
+        def []=(key, val)
+          if self.class.attribute_keys.include?(key.to_sym)
+            @attributes[key.to_sym] = self.class.data_filter(key.to_sym, val)
+          end
+        end
+
         # Configure and setup the instance with all the valid parameters for
         # the dynamic class.
         #
         # @attrs [Symbol=>Object] attrs
         def initialize(attrs)
           @attributes = {}
-
-          attrs.each do |k, v|
-            if self.class.attribute_keys.include?(k.to_sym)
-              @attributes[k.to_sym] = self.class.data_filter(k.to_sym, v)
-            end
-          end
+          attrs.each { |k, v| self[k] = v }
         end
 
         # Define all the appropriate setters and getters for this dynamic class.
         args.each do |a|
-          define_method(a.to_sym) { @attributes[a.to_sym] }
-          define_method("#{a}=".to_sym) { |val| self.class.data_filter(a.to_sym, val) }
+          define_method(a.to_sym) { self[a] }
+          define_method("#{a}=".to_sym) { |val| self[a] = val }
         end
       end
     end

@@ -22,6 +22,7 @@ module PatronusFati
       return if ignored_types.include?(type)
       if registered_factories[type].nil?
         warn("Unknown factory #{type} (Available: #{registered_factories.keys})")
+        #puts opts.inspect
         return
       end
       registered_factories[type].process(opts)
