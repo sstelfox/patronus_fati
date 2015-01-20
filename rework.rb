@@ -6,6 +6,8 @@ require 'patronus_fati'
 
 def exception_logger(tag)
   yield
+rescue Interrupt
+  puts 'Closing'
 rescue => e
   puts "(#{tag}) Rescued from error: #{e.message}"
   puts e.backtrace
