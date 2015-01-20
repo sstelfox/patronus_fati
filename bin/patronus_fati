@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$:.push(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
+$:.push(File.expand_path(File.join('..', '..', 'lib'), __FILE__))
 
 require 'optparse'
 require 'patronus_fati'
@@ -20,4 +20,27 @@ OptionParser.new(nil, 32, '  ') do |opts|
   end
 end.parse(ARGV)
 
-# Do the bin thing here...
+def exception_logger(tag)
+  yield
+rescue Interrupt
+  warn('Quitting...')
+rescue => e
+  puts "(#{tag}) Rescued from error: #{e.message}"
+  puts e.backtrace
+end
+
+connection = PatronusFati::Connection.new(options['server'], options['port'])
+connection.connect
+
+exception_logger('process') do
+  while (line = connection.read_queue.pop)
+    next unless (obj = PatronusFati::MessageParser.parse(line))
+    responses = PatronusFati::MessageProcessor.handle(obj)
+
+    Array(responses).each do |msg|
+      connection.write(msg)
+    end
+  end
+end
+
+connection.disconnect
