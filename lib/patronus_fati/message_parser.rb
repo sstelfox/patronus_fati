@@ -6,18 +6,15 @@ module PatronusFati
     # client was coded against, this may not be entirely accurate, but will
     # become accurate before we receive any meaningful data.
     def self.parse(msg)
-      raw_data = handle_msg(msg)
+      return unless (raw_data = handle_msg(msg))
 
-      unless model_exists?(raw_data['header'])
-        return PatronusFati::NullObject.new
-      end
-
-      unless (cap = get_model(raw_data['header']))
-        fail(ArgumentError, 'Message received had unknown message type: ' + h['header'])
+      unless (cap = get_model(raw_data[0]))
+        warn('Message received had unknown message type: ' + raw_data[0])
+        return
       end
 
       src_keys = cap.enabled_keys.empty? ? cap.attribute_keys : cap.enabled_keys
-      cap.new(Hash[src_keys.zip(raw_data['data'])])
+      cap.new(Hash[src_keys.zip(raw_data[1])])
     end
 
     protected
@@ -27,20 +24,21 @@ module PatronusFati
     end
 
     def self.get_model(mdl)
-      PatronusFati::MessageModels.const_get(mdl.downcase.capitalize.to_sym)
+      return unless PatronusFati::MessageModels.const_defined?(model_name(mdl))
+      PatronusFati::MessageModels.const_get(model_name(mdl))
     end
 
     def self.handle_msg(line)
       resp = PatronusFati::SERVER_MESSAGE.match(line)
+      return unless resp
 
       h = Hash[resp.names.zip(resp.captures)]
-      h['data'] = extract_data(h['data'])
 
-      h
+      [h['header'], extract_data(h['data'])]
     end
 
-    def self.model_exists?(hdr)
-      PatronusFati::MessageModels.const_defined?(hdr.downcase.capitalize.to_sym)
+    def self.model_name(hdr)
+      hdr.downcase.capitalize.to_sym
     end
   end
 end
