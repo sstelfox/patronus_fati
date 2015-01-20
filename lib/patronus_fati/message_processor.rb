@@ -7,11 +7,12 @@ module PatronusFati
     end
 
     def self.ignored_types
-      [:ack, :battery, :channel, :gps, :info, :plugin, :time]
+      [:ack, :battery, :channel, :gps, :info, :kismet, :plugin, :time]
     end
   end
 end
 
+require 'patronus_fati/message_processor/bssid'
 require 'patronus_fati/message_processor/capability'
 require 'patronus_fati/message_processor/error'
 require 'patronus_fati/message_processor/protocols'

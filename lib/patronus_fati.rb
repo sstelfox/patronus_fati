@@ -13,6 +13,7 @@ require 'patronus_fati/message_models'
 require 'patronus_fati/message_parser'
 require 'patronus_fati/message_processor'
 
+require 'patronus_fati/aggregated_models/bssid'
 require 'patronus_fati/aggregated_models/source'
 
 module PatronusFati
