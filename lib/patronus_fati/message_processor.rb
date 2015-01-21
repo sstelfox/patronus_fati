@@ -13,9 +13,11 @@ module PatronusFati
 
   module InstanceHelper
     def instance_report(inst)
-      puts ('New: %s' % inst.attributes) if inst.new?
-      puts ('Updated (%s): %s' % [inst.changed.join(','), inst.attributes.inspect]) if inst.changed?
-      puts ('Expiring: %s' % inst.attributes) if inst.expired?
+      type = inst.class.to_s.split('::').last
+
+      puts ('New %s:%s: %s' % [type, inst.id_key, inst.attributes]) if inst.new?
+      puts ('Updated %s:%s (%s): %s' % [type, inst.id_key, inst.changed.join(','), inst.attributes.inspect]) if inst.changed?
+      puts ('Expiring %s:%s: %s' % [type, inst.id_key, inst.attributes]) if inst.expired?
       inst.flush
     end
   end

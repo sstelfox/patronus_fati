@@ -7,7 +7,7 @@ module PatronusFati
 
     def self.find(attrs)
       return unless id_key
-      instances[id_key.call(attrs)]
+      instances[Digest::SHA1.hexdigest(id_key.call(attrs))]
     end
 
     def self.instances
@@ -60,7 +60,7 @@ module PatronusFati
     end
 
     def id_key
-      self.class.id_key.call(self) if self.class.id_key rescue nil
+      Digest::SHA1.hexdigest(self.class.id_key.call(self)) if self.class.id_key rescue nil
     end
 
     def initialize(attrs = {})
