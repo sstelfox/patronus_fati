@@ -4,7 +4,7 @@ module PatronusFati
       reportable_attr :cloaked, :cryptset, :mac, :ssid, :type
 
       key do |i|
-        '%s:%s' % [i.mac, i.ssid]
+        '%s:%s' % [i[:mac], i[:ssid]]
       end
     end
   end
