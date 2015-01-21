@@ -51,8 +51,7 @@ module PatronusFati
 
     def initialize(attrs = {})
       @changed_attributes = []
-      @reportable_attributes = {}
-      @valid_attributes = []
+      @reportable_attributes = {first_seen: Time.now, last_seen: Time.now}
 
       update(attrs)
 
@@ -68,7 +67,8 @@ module PatronusFati
     end
 
     def update(attrs)
-      atrrs.each { |key, val| self[key] = val }
+      self[:last_seen] = Time.now
+      attrs.each { |key, val| self[key] = val }
     end
 
     protected
@@ -87,15 +87,15 @@ module PatronusFati
     def self.reportable_attr(*attr_list)
       Array(attr_list).each do |attr|
         next unless attr.is_a?(Symbol)
-        @valid_attributes.push(attr)
+        valid_attributes.push(attr)
 
         define_method(attr) { self[attr] }
-        defint_method("#{attr}=".to_sym) { |val| self[attr] = val }
+        define_method("#{attr}=".to_sym) { |val| self[attr] = val }
       end
     end
 
     def self.valid_attributes
-      @valid_attributes
+      @valid_attributes ||= []
     end
   end
 end

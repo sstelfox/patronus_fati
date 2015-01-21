@@ -1,22 +1,10 @@
 module PatronusFati
   module AggregatedModels
     class Ssid < AggregatedModelBase
-      def self.find(attrs)
-        instances[attrs[('%s:%s' % [attrs[:mac], attrs[:ssid]])]]
-      end
+      reportable_attr :cloaked, :cryptset, :mac, :ssid, :type
 
-      attr_accessor :mac, :type, :ssid, :cryptset, :cloaked
-
-      def key
-        '%s:%s' % [mac, ssid]
-      end
-
-      def update(attrs)
-        self.cloaked = attrs[:cloaked] || cloaked
-        self.cryptset = attrs[:cryptset] || cryptset
-        self.mac = attrs[:mac] || mac
-        self.ssid = attrs[:ssid] || ssid
-        self.type = attrs[:type] || type
+      key do |i|
+        '%s:%s' % [i.mac, i.ssid]
       end
     end
   end

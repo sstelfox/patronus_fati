@@ -1,20 +1,10 @@
 module PatronusFati
   module AggregatedModels
     class ClientSource < AggregatedModelBase
-      def self.find(attrs)
-        key = ('%s:%s' % [attrs[:mac], attrs[:uuid]])
-        instances[attrs[key]]
-      end
+      reportable_attr :mac, :uuid
 
-      attr_accessor :mac, :uuid
-
-      def key
-        '%s:%s' % [mac, uuid]
-      end
-
-      def update(attrs)
-        self.mac = attrs[:mac] || mac
-        self.uuid = attrs[:uuid] || uuid
+      key do |i|
+        '%s:%s' % [i[:mac], i[:uuid]]
       end
     end
   end
