@@ -6,12 +6,10 @@ module PatronusFati
       attr_accessor :interface, :type, :uuid
       alias :key :uuid
 
-      def initialize(attrs)
-        self.uuid = attrs[:uuid]
-        self.interface = attrs[:interface]
-        self.type = attrs[:type]
-
-        save
+      def update(attrs)
+        self.uuid = attrs[:uuid] || uuid
+        self.interface = attrs[:interface] || interface
+        self.type = attrs[:type] || type
       end
     end
   end

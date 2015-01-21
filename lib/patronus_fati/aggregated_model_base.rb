@@ -5,12 +5,22 @@ module PatronusFati
       instances[inst.key] = inst
     end
 
-    def self.find_or_create(attrs)
-      instances[attrs[key]] || new(attrs)
+    def self.find(attrs)
+      instances[attrs[key]]
+    end
+
+    def self.update_or_create(attrs)
+      return new(attrs) unless (inst = find(attrs))
+      inst.update(attrs)
     end
 
     def self.instances
       @instances ||= {}
+    end
+
+    def initialize(attrs = {})
+      update(attrs)
+      save
     end
 
     def save

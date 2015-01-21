@@ -6,13 +6,11 @@ module PatronusFati
       attr_accessor :bssid, :channel, :mac, :type
       alias :key :mac
 
-      def initialize(attrs)
-        self.bssid = attrs[:bssid]
-        self.channel = attrs[:channel]
-        self.mac = attrs[:mac]
-        self.type = attrs[:type]
-
-        save
+      def update(attrs)
+        self.bssid = attrs[:bssid] || bssid
+        self.channel = attrs[:channel] || channel
+        self.mac = attrs[:mac] || mac
+        self.type = attrs[:type] || type
       end
     end
   end

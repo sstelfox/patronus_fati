@@ -4,7 +4,7 @@ module PatronusFati
       include MessageProcessor
 
       def self.process(obj)
-        PatronusFati::AggregatedModels::Source.find_or_create(obj)
+        PatronusFati::AggregatedModels::Source.update_or_create(obj)
         nil
       end
     end
