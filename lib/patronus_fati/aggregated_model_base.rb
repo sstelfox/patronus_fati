@@ -30,9 +30,9 @@ module PatronusFati
     def []=(k, v)
       return unless self.class.valid_attributes.include?(k)
       if self[k] != v
-        changed.push(k) if changed.include?(k)
+        changed.push(k) unless changed.include?(k)
         @reportable_attributes[k] = v
-        @state = :dirty
+        @state = :dirty unless @state == :new
       end
       self[k]
     end
