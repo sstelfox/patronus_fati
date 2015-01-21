@@ -2,11 +2,11 @@ module PatronusFati
   class AggregatedModelBase
     def self.add_instance(inst)
       fail(ArgumentError, ('Not a %s' % self.to_s)) unless inst.is_a?(self)
-      instances[inst.key] = inst
+      instances[inst.id_key] = inst if inst.valid?
     end
 
     def self.find(attrs)
-      return unless key
+      return unless id_key
       instances[key.call(attrs)]
     end
 
@@ -15,7 +15,7 @@ module PatronusFati
     end
 
     def self.remove_instance(inst)
-      instances.delete(inst.key)
+      instances.delete(inst.id_key)
     end
 
     def self.update_or_create(attrs)
@@ -49,26 +49,29 @@ module PatronusFati
       (Time.now.to_i - self[:last_seen].to_i) > self.class.expiration
     end
 
+    def flush
+      @changed_attributes = []
+    end
+
+    def id_key
+      self.class.id_key.call(self) if self.class.id_key
+    end
+
     def initialize(attrs = {})
       @changed_attributes = []
       @reportable_attributes = {first_seen: Time.now, last_seen: Time.now}
 
       update(attrs)
-
-      self.class.add_instance(self)
-    end
-
-    def key
-      self.class.key.call(self) if self.class.key
-    end
-
-    def flush
-      @changed_attributes = []
     end
 
     def update(attrs)
       self[:last_seen] = Time.now
       attrs.each { |key, val| self[key] = val }
+      self.class.add_instance(self)
+    end
+
+    def valid?
+      !id_key.nil?
     end
 
     protected
@@ -78,10 +81,10 @@ module PatronusFati
       @expiration_time
     end
 
-    def self.key(attr = nil)
-      @key = Proc.new { |inst| inst[attr] } if attr && !block_given?
-      @key = Proc.new if block_given?
-      @key
+    def self.id_key(attr = nil)
+      @id_key = Proc.new { |inst| inst[attr] } if attr && !block_given?
+      @id_key = Proc.new if block_given?
+      @id_key
     end
 
     def self.reportable_attr(*attr_list)
