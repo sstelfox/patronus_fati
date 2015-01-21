@@ -1,7 +1,7 @@
 module PatronusFati
   module AggregatedModels
     class BssidSource < AggregatedModelBase
-      key do |i|
+      id_key do |i|
         '%s:%s' % [i[:bssid], i[:uuid]]
       end
 

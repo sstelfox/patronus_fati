@@ -3,7 +3,7 @@ module PatronusFati
     class ClientSource < AggregatedModelBase
       reportable_attr :mac, :uuid
 
-      key do |i|
+      id_key do |i|
         '%s:%s' % [i[:mac], i[:uuid]]
       end
     end

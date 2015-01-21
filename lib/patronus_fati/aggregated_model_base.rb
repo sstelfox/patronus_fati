@@ -7,7 +7,7 @@ module PatronusFati
 
     def self.find(attrs)
       return unless id_key
-      instances[key.call(attrs)]
+      instances[id_key.call(attrs)]
     end
 
     def self.instances
@@ -32,8 +32,13 @@ module PatronusFati
       if self[k] != v
         changed.push(k) if changed.include?(k)
         @reportable_attributes[k] = v
+        @state = :dirty
       end
       self[k]
+    end
+
+    def attributes
+      @reportable_attributes
     end
 
     def changed
@@ -45,23 +50,29 @@ module PatronusFati
     end
 
     def expired?
-      return false unless self.class.expiration || self[:last_seen].nil?
-      (Time.now.to_i - self[:last_seen].to_i) > self.class.expiration
+      return false unless self.class.expiration_time || self[:last_seen].nil?
+      (Time.now.to_i - self[:last_seen].to_i) > self.class.expiration_time
     end
 
     def flush
       @changed_attributes = []
+      @state = :clean
     end
 
     def id_key
-      self.class.id_key.call(self) if self.class.id_key
+      self.class.id_key.call(self) if self.class.id_key rescue nil
     end
 
     def initialize(attrs = {})
       @changed_attributes = []
       @reportable_attributes = {first_seen: Time.now, last_seen: Time.now}
+      @state = :new
 
       update(attrs)
+    end
+
+    def new?
+      @state == :new
     end
 
     def update(attrs)

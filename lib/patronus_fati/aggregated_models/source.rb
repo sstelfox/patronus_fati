@@ -1,7 +1,7 @@
 module PatronusFati
   module AggregatedModels
     class Source < AggregatedModelBase
-      key :uuid
+      id_key :uuid
 
       reportable_attr :interface, :type, :uuid
     end

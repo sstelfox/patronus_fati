@@ -2,6 +2,7 @@ module PatronusFati
   module MessageProcessor
     module Capability
       include MessageProcessor
+      extend PatronusFati::InstanceHelper
 
       def self.process(obj)
         # The capability detection for the capability command is broken. It

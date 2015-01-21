@@ -3,7 +3,7 @@ module PatronusFati
     class Ssid < AggregatedModelBase
       reportable_attr :cloaked, :cryptset, :mac, :ssid, :type
 
-      key do |i|
+      id_key do |i|
         '%s:%s' % [i[:mac], i[:ssid]]
       end
     end

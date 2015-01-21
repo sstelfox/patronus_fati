@@ -1,7 +1,7 @@
 module PatronusFati
   module AggregatedModels
     class Alert < AggregatedModelBase
-      key do |i|
+      id_key do |i|
         Digest::SHA256.hexdigest('%s%s%s%s%0.6f' % [i[:bssid], i[:dest],
           i[:other], i[:source], i[:time]])
       end

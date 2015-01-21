@@ -2,6 +2,7 @@ module PatronusFati
   module MessageProcessor
     module Protocols
       include MessageProcessor
+      extend PatronusFati::InstanceHelper
 
       def self.process(obj)
         obj.protocols.split(',').map { |p| "CAPABILITY #{p}" }
