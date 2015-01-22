@@ -3,9 +3,8 @@ module PatronusFati::DataModels
     include DataMapper::Resource
 
     property :id,  Serial
+    property :mac, String
 
     timestamps :at
-
-    belongs_to :mac
   end
 end

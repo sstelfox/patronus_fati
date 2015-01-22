@@ -2,11 +2,11 @@ module PatronusFati::DataModels
   class AccessPoint
     include DataMapper::Resource
 
-    property :id,  Serial
+    property :id,    Serial
+    property :bssid, String
 
     timestamps :at
 
-    belongs_to :bssid, 'Mac'
     has n, :ssids
   end
 end
