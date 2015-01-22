@@ -7,8 +7,14 @@ task :environment do
   require 'patronus_fati'
 end
 
+task :database => [:environment] do
+  DataMapper.setup(:default, 'sqlite::memory:')
+  DataMapper.finalize
+  DataMapper.auto_upgrade!
+end
+
 desc "Start a pry session with the code loaded"
-task :console => [:environment] do
+task :console => [:database, :environment] do
   require 'pry'
   pry
 end

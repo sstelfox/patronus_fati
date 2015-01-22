@@ -22,6 +22,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'dm-core'
   gem.add_dependency 'dm-migrations'
   gem.add_dependency 'dm-sqlite-adapter'
+  gem.add_dependency 'dm-timestamps'
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rdoc'
