@@ -10,22 +10,6 @@ module PatronusFati
       [:ack, :battery, :channel, :gps, :info, :kismet, :plugin, :status, :time]
     end
   end
-
-  module InstanceHelper
-    def instance_report(inst)
-      type = inst.class.to_s.split('::').last
-
-      puts ('New %s:%s: %s' % [type, inst.id_key, inst.attributes]) if inst.new?
-      puts ('Updated %s:%s (%s): %s' % [type, inst.id_key, inst.changed.join(','), inst.attributes.inspect]) if inst.changed?
-
-      if inst.expired?
-        inst.class.remove_instance(inst)
-        puts ('Expiring %s:%s: %s' % [type, inst.id_key, inst.attributes])
-      end
-
-      inst.flush
-    end
-  end
 end
 
 require 'patronus_fati/message_processor/alert'

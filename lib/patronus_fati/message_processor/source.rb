@@ -1,15 +1,8 @@
-module PatronusFati
-  module MessageProcessor
-    module Source
-      include MessageProcessor
-      extend InstanceHelper
+module PatronusFati::MessageProcessor::Source
+  include PatronusFati::MessageProcessor
 
-      def self.process(obj)
-        PatronusFati::AggregatedModels::Source.update_or_create(obj.attributes)
-        PatronusFati::AggregatedModels::Source.instances.each { |_, i| instance_report(i) }
-
-        nil
-      end
-    end
+  def self.process(obj)
+    PatronusFati::AggregatedModels::Source.update_or_create(obj.attributes)
+    nil
   end
 end
