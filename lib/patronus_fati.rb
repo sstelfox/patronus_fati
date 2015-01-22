@@ -4,6 +4,10 @@ require 'socket'
 require 'timeout'
 require 'thread'
 
+require 'dm-core'
+require 'dm-migrations'
+require 'dm-sqlite-adapter'
+
 require 'patronus_fati/consts'
 require 'patronus_fati/version'
 

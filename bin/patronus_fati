@@ -6,11 +6,16 @@ require 'optparse'
 require 'patronus_fati'
 
 options = {
-  'server' => '127.0.0.1',
-  'port'   => 2501
+  'database' => 'sqlite::memory:',
+  'port'   => 2501,
+  'server' => '127.0.0.1'
 }
 
 OptionParser.new(nil, 32, '  ') do |opts|
+  opts.on('-d', '--db-path DB_PATH', 'Path where SQLite database will be stored') do |path|
+    options['database'] = ('sqlite://%s' % File.expand_path(path))
+  end
+
   opts.on('-s', '--server SERVER', 'IP or hostname of running kismet server.') do |srv|
     options['server'] = srv
   end
@@ -33,6 +38,11 @@ connection = PatronusFati::Connection.new(options['server'], options['port'])
 connection.connect
 
 exception_logger('process') do
+  DataMapper::Logger.new($stdout, :debug)
+  DataMapper.setup(:default, options['database'])
+  DataMapper.finalize
+  DataMapper.auto_upgrade!
+
   while (line = connection.read_queue.pop)
     next unless (obj = PatronusFati::MessageParser.parse(line))
     responses = PatronusFati::MessageProcessor.handle(obj)
