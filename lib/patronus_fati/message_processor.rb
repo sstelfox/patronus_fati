@@ -7,7 +7,7 @@ module PatronusFati
     end
 
     def self.ignored_types
-      [:ack, :battery, :channel, :gps, :info, :kismet, :plugin, :time]
+      [:ack, :battery, :channel, :gps, :info, :kismet, :plugin, :status, :time]
     end
   end
 
@@ -17,7 +17,12 @@ module PatronusFati
 
       puts ('New %s:%s: %s' % [type, inst.id_key, inst.attributes]) if inst.new?
       puts ('Updated %s:%s (%s): %s' % [type, inst.id_key, inst.changed.join(','), inst.attributes.inspect]) if inst.changed?
-      puts ('Expiring %s:%s: %s' % [type, inst.id_key, inst.attributes]) if inst.expired?
+
+      if inst.expired?
+        inst.class.remove_instance(inst)
+        puts ('Expiring %s:%s: %s' % [type, inst.id_key, inst.attributes])
+      end
+
       inst.flush
     end
   end
