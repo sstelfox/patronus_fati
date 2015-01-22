@@ -22,7 +22,7 @@ require 'patronus_fati/message_processor'
 
 require 'patronus_fati/data_models/access_point'
 require 'patronus_fati/data_models/client'
-require 'patronus_fati/data_models/mac'
+require 'patronus_fati/data_models/probe'
 require 'patronus_fati/data_models/ssid'
 
 require 'patronus_fati/aggregated_model_base'
