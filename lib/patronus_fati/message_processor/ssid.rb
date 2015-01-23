@@ -17,14 +17,14 @@ module PatronusFati::MessageProcessor::Ssid
       #access_point = PatronusFati::DataModels::AccessPoint.first_or_create({bssid: obj[:bssid]}, ap_data(obj.attributes))
 
       #Fuck it I'm discarding it...
-      access_point = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:bssid])
-      return unless access_point
+      #access_point = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:bssid])
+      #return unless access_point
 
-      ssid = access_point.ssids.first_or_create({essid: ssid_info[:essid]}, ssid_info)
-      ssid.update(ssid_info)
+      #ssid = access_point.ssids.first_or_create({essid: ssid_info[:essid]}, ssid_info)
+      #ssid.update(ssid_info)
     else
       # Todo: I need to come back and deal with these...
-      #puts ('Unknown SSID type (%s): %s' % [useful_data[:type], obj.inspect])
+      #puts ('Unknown SSID type (%s): %s' % [obj[:type], obj.inspect])
     end
 
     nil

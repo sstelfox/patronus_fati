@@ -27,7 +27,8 @@ require 'patronus_fati/data_models/client'
 require 'patronus_fati/data_models/probe'
 require 'patronus_fati/data_models/ssid'
 
-require 'patronus_fati/data_observers/bssid_observer'
+require 'patronus_fati/data_observers/access_point_observer'
+require 'patronus_fati/data_observers/ssid_observer'
 
 module PatronusFati
 end
