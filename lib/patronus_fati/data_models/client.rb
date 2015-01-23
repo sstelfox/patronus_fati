@@ -9,6 +9,6 @@ module PatronusFati::DataModels
     timestamps :created_at
 
     belongs_to :access_point, :required => false
-    has n, :probes
+    has n, :probes, :contraint => :destroy
   end
 end

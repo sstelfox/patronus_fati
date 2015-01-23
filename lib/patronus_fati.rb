@@ -4,6 +4,7 @@ require 'socket'
 require 'timeout'
 require 'thread'
 
+require 'dm-constraints'
 require 'dm-core'
 require 'dm-migrations'
 require 'dm-observer'

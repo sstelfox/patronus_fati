@@ -10,7 +10,7 @@ module PatronusFati::DataModels
     property :last_seen_at, Time, :default => Proc.new { Time.now }
     timestamps :created_at
 
-    has n, :ssids
-    has n, :connected_clients, 'Client', :child_key => [ :access_point_id ]
+    has n, :ssids, :contraint => :destroy
+    has n, :connected_clients, 'Client', :child_key => [ :access_point_id ], :constraint => :set_nil
   end
 end
