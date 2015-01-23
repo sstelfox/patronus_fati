@@ -4,6 +4,7 @@ module PatronusFati::DataModels
 
     property :id,  Serial
 
-    timestamps :at
+    property :last_seen_at, Time, :default => Proc.new { Time.now }
+    timestamps :created_at
   end
 end

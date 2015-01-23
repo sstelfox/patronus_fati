@@ -12,8 +12,9 @@ module PatronusFati::DataModels
 
     property :crypt_set,   Flag[*PatronusFati::SSID_CRYPT_MAP.values]
 
-    belongs_to :access_point
+    property :last_seen_at, Time, :default => Proc.new { Time.now }
+    timestamps :created_at
 
-    timestamps :at
+    belongs_to :access_point
   end
 end

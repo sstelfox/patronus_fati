@@ -9,7 +9,7 @@ module PatronusFati::DataObservers
       if self.new?
         #puts ('New access point detected: %s' % self.attributes.inspect)
       else
-        #puts ('Access Point updated (%s): %s' % [self.dirty_attributes.map { |a| a.first.name }, a.attributes.inspect])
+        puts ('Access Point updated (%s): %s' % [self.dirty_attributes.map { |a| a.first.name }, self.attributes.inspect])
       end
     end
   end

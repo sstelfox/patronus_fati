@@ -3,6 +3,7 @@ module PatronusFati::MessageProcessor::Client
 
   def self.process(obj)
     client = PatronusFati::DataModels::Client.first_or_create({mac: obj[:mac]})
+    client.update(last_seen_at: Time.now)
 
     # Handle the associations
     client.update(access_point: nil) if obj[:bssid].nil?

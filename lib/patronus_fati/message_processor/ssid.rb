@@ -4,6 +4,7 @@ module PatronusFati::MessageProcessor::Ssid
   def self.process(obj)
     ssid_info = ssid_data(obj.attributes).select { |k, v| !v.nil? && [:cloaked,
       :type, :essid, :beacon_info, :beacon_rate, :crypt_set].include?(k) }
+    ssid_info.merge!(last_seen_at: Time.now)
 
     if obj[:type] == 'beacon'
       # TODO: There is a BAD relatively common edge case here. Sometimes kismet
@@ -17,11 +18,11 @@ module PatronusFati::MessageProcessor::Ssid
       #access_point = PatronusFati::DataModels::AccessPoint.first_or_create({bssid: obj[:bssid]}, ap_data(obj.attributes))
 
       #Fuck it I'm discarding it...
-      #access_point = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:bssid])
-      #return unless access_point
+      access_point = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:bssid])
+      return unless access_point
 
-      #ssid = access_point.ssids.first_or_create({essid: ssid_info[:essid]}, ssid_info)
-      #ssid.update(ssid_info)
+      ssid = access_point.ssids.first_or_create({essid: ssid_info[:essid]}, ssid_info)
+      ssid.update(ssid_info)
     else
       # Todo: I need to come back and deal with these...
       #puts ('Unknown SSID type (%s): %s' % [obj[:type], obj.inspect])

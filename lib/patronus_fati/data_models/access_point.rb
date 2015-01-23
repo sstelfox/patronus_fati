@@ -7,7 +7,8 @@ module PatronusFati::DataModels
     property :type,    String,  :required => true
     property :channel, Integer, :required => true
 
-    timestamps :at
+    property :last_seen_at, Time, :default => Proc.new { Time.now }
+    timestamps :created_at
 
     has n, :ssids
     has n, :connected_clients, 'Client', :child_key => [ :access_point_id ]
