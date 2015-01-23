@@ -6,5 +6,6 @@ module PatronusFati
       :agglat, :agglon, :aggalt, :aggpoints
     )
     Btscandev.set_data_filter(:bdaddr) { |val| val.downcase }
+    Bssid.set_data_filter(:firsttime, :lasttime) { |val| val.to_i }
   end
 end
