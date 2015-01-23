@@ -14,8 +14,9 @@ module PatronusFati::MessageProcessor::Bssid
       access_point = PatronusFati::DataModels::AccessPoint.first_or_create({bssid: obj.bssid}, useful_data)
       access_point.update(useful_data)
     else
-      require 'pry'
-      binding.pry
+      # TODO
+      #require 'pry'
+      #binding.pry
     end
 
     nil
