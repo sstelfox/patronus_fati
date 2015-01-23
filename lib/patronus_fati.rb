@@ -6,6 +6,7 @@ require 'thread'
 
 require 'dm-core'
 require 'dm-migrations'
+require 'dm-observer'
 require 'dm-sqlite-adapter'
 require 'dm-timestamps'
 require 'dm-types'
@@ -26,14 +27,7 @@ require 'patronus_fati/data_models/client'
 require 'patronus_fati/data_models/probe'
 require 'patronus_fati/data_models/ssid'
 
-require 'patronus_fati/aggregated_model_base'
-require 'patronus_fati/aggregated_models/alert'
-require 'patronus_fati/aggregated_models/bssid'
-require 'patronus_fati/aggregated_models/bssid_source'
-require 'patronus_fati/aggregated_models/client'
-require 'patronus_fati/aggregated_models/client_source'
-require 'patronus_fati/aggregated_models/source'
-require 'patronus_fati/aggregated_models/ssid'
+require 'patronus_fati/data_observers/bssid_observer'
 
 module PatronusFati
 end
