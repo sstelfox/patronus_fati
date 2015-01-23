@@ -8,11 +8,18 @@ module PatronusFati::MessageProcessor::Ssid
 
     if useful_data.delete(:type) == 'beacon'
       access_point = PatronusFati::DataModels::AccessPoint.first(bssid: useful_data.delete(:bssid))
+
+      unless access_point
+        puts 'Unable to find access point...'
+        puts obj.inspect
+        return
+      end
+
       ssid = access_point.ssids.first_or_create({essid: useful_data[:essid]}, useful_data)
       ssid.update(useful_data)
     else
       # Todo: I need to come back and deal with these...
-      #puts ('Unknown SSID type (%s): %s' % [useful_data[:type], useful_data.inspect])
+      #puts ('Unknown SSID type (%s): %s' % [useful_data[:type], obj.inspect])
     end
 
     nil
