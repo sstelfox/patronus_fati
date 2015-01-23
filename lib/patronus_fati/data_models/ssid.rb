@@ -4,9 +4,9 @@ module PatronusFati::DataModels
 
     property :id,          Serial
 
-    property :cloaked,     Boolean, default: false
-    property :ssid,        String
     property :beacon_info, String
+    property :cloaked,     Boolean, default: false
+    property :essid,       String,  length: 255
     property :max_rate,    Integer
     property :beacon_rate, Integer
 

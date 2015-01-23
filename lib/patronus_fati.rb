@@ -9,6 +9,7 @@ require 'dm-migrations'
 require 'dm-sqlite-adapter'
 require 'dm-timestamps'
 require 'dm-types'
+require 'dm-validations'
 
 require 'patronus_fati/consts'
 require 'patronus_fati/version'
