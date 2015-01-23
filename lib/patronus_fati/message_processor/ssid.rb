@@ -19,13 +19,21 @@ module PatronusFati::MessageProcessor::Ssid
 
       #Fuck it I'm discarding it...
       access_point = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:bssid])
-      return unless access_point
+      unless access_point
+        #puts 'Unable to find associated access point for SSID'
+        #TODO... for giggle... we might want to try for clients...
+        return
+      end
 
       ssid = access_point.ssids.first_or_create({essid: ssid_info[:essid]}, ssid_info)
       ssid.update(ssid_info)
+    elsif obj[:type] == 'probe_request'
+      client = PatronusFati::DataModels::Client.first(mac: obj[:mac])
+      return unless client
+      client.probes.first_or_create(name: obj[:ssid])
     else
       # Todo: I need to come back and deal with these...
-      #puts ('Unknown SSID type (%s): %s' % [obj[:type], obj.inspect])
+      puts ('Unknown SSID type (%s): %s' % [obj[:type], obj.inspect])
     end
 
     nil
