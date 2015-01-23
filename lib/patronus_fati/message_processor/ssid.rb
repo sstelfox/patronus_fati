@@ -2,6 +2,10 @@ module PatronusFati::MessageProcessor::Ssid
   include PatronusFati::MessageProcessor
 
   def self.process(obj)
+    # Two hours is outside of any of our expiration windows, we're probably
+    # connecting to a server that has been up for a while.
+    return if obj.lasttime < (Time.now.to_i - 7200)
+
     ssid_info = ssid_data(obj.attributes).select { |k, v| !v.nil? && [:cloaked,
       :type, :essid, :beacon_info, :beacon_rate, :crypt_set].include?(k) }
     ssid_info.merge!(last_seen_at: Time.now)
