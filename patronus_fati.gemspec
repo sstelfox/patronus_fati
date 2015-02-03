@@ -25,7 +25,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'dm-observer'
   gem.add_dependency 'dm-sqlite-adapter'
   gem.add_dependency 'dm-timestamps'
-  gem.add_dependency 'dm-types'
   gem.add_dependency 'dm-validations'
 
   gem.add_development_dependency 'rake'

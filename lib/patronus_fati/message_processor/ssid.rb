@@ -6,11 +6,10 @@ module PatronusFati::MessageProcessor::Ssid
     # connecting to a server that has been up for a while.
     return if obj.lasttime < (Time.now.to_i - 7200)
 
-    ssid_info = ssid_data(obj.attributes).select { |k, v| !v.nil? && [:cloaked,
-      :type, :essid, :beacon_info, :beacon_rate, :crypt_set].include?(k) }
+    ssid_info = ssid_data(obj.attributes).select { |k, v| !v.nil? }
     ssid_info.merge!(last_seen_at: Time.now)
 
-    if obj[:type] == 'beacon'
+    if %w(beacon probe_response).include?(obj[:type])
       access_point = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:mac])
       return unless access_point # Only happens with a corrupt message
 
