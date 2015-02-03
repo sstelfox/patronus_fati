@@ -11,29 +11,14 @@ module PatronusFati::MessageProcessor::Ssid
     ssid_info.merge!(last_seen_at: Time.now)
 
     if obj[:type] == 'beacon'
-      # TODO: There is a BAD relatively common edge case here. Sometimes kismet
-      # straight up doesn't report the existance of a BSSID but will still send
-      # it's SSID information... This means we don't have channel or mode the
-      # AP is operating in and I have to hard code 'fake' it. This is BAD DATA
-      # and I need to figure out what to do... Perhaps the best solution is to
-      # discard the data... Or maybe I need to cache the BSSID locally on the
-      # SSID in the event that a BSSID is ever reported and just tie it after
-      # the fact...
-      #access_point = PatronusFati::DataModels::AccessPoint.first_or_create({bssid: obj[:bssid]}, ap_data(obj.attributes))
-
-      #Fuck it I'm discarding it...
-      access_point = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:bssid])
-      unless access_point
-        #puts 'Unable to find associated access point for SSID'
-        #TODO... for giggle... we might want to try for clients...
-        return
-      end
+      access_point = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:mac])
+      return unless access_point # Only happens with a corrupt message
 
       ssid = access_point.ssids.first_or_create({essid: ssid_info[:essid]}, ssid_info)
       ssid.update(ssid_info)
     elsif obj[:type] == 'probe_request'
       client = PatronusFati::DataModels::Client.first(mac: obj[:mac])
-      return unless client
+      return if client.nil? || obj[:ssid].nil? || obj[:ssid].empty?
       client.probes.first_or_create(name: obj[:ssid])
     else
       # Todo: I need to come back and deal with these...
@@ -45,23 +30,13 @@ module PatronusFati::MessageProcessor::Ssid
 
   protected
 
-  # See TODO up above for why I'm hardcoding the type and channel
-  def self.ap_data(attrs)
-    {
-      bssid: attrs[:mac],
-      type: 'infrastructure',
-      channel: 1
-    }
-  end
-
   def self.ssid_data(attrs)
     {
       beacon_info: attrs[:beaconinfo],
       beacon_rate: attrs[:beaconrate],
       cloaked:  attrs[:cloaked],
       crypt_set: attrs[:cryptset],
-      essid: attrs[:ssid],
-      max_rate: attrs[:maxrate]
+      essid: attrs[:ssid]
     }
   end
 end

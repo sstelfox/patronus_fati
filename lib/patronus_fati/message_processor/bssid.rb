@@ -13,10 +13,6 @@ module PatronusFati::MessageProcessor::Bssid
     if %w(infrastructure adhoc).include?(obj[:type].to_s)
       access_point = PatronusFati::DataModels::AccessPoint.first_or_create({bssid: obj.bssid}, useful_data)
       access_point.update(useful_data)
-    else
-      # TODO
-      #require 'pry'
-      #binding.pry
     end
 
     nil
