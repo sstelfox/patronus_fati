@@ -1,8 +1,4 @@
 module PatronusFati::DataModels
-  # Number of seconds before we consider an access point no longer advertising an
-  # SSID.
-  SSID_EXPIRATION = 300
-
   class AccessPoint
     include DataMapper::Resource
 
@@ -17,7 +13,7 @@ module PatronusFati::DataModels
     has n, :broadcasts,         :constraint => :destroy
     has n, :current_broadcasts, :model      => 'Broadcast',
                                 :constraint => :destroy,
-                                :child_key  => :broadcast_id,
+                                :child_key  => :access_point_id,
                                 :last_seen_at.gte => Proc.new { Time.at(Time.now.to_i - SSID_EXPIRATION) }
 
     has n, :ssids,         :through => :broadcasts
@@ -25,7 +21,8 @@ module PatronusFati::DataModels
                            :through => :current_broadcasts,
                            :via     => :ssid
 
-    has n, :connections,        :constraint => :destroy
+    has n, :connections,        :constraint => :destroy,
+                                :child_key  => :access_point_id
     has n, :active_connections, :model      => 'Connection',
                                 :constraint => :destroy,
                                 :child_key  => :access_point_id,
@@ -39,6 +36,23 @@ module PatronusFati::DataModels
     belongs_to :mac, :required => false
     before :save do
       self.mac = Mac.first_or_create(mac: bssid)
+    end
+
+    def full_state
+      {
+        id: id,
+        last_seen_at: last_seen_at,
+
+        bssid: bssid,
+        type: type,
+        channel: channel,
+
+        clients: clients.map(&:bssid),
+        connected_clients: connected_clients(&:bssid),
+
+        ssids: ssids.map(&:attributes),
+        current_ssids: current_ssids.map(&:attributes)
+      }
     end
   end
 end

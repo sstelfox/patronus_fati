@@ -3,7 +3,7 @@ module PatronusFati::DataModels
     include DataMapper::Resource
 
     property :id,           Serial
-    property :mac,          String, :length => 17
+    property :bssid,        String, :length => 17, :unique => true
     property :last_seen_at, Time, { :default => Proc.new { Time.now } }
 
     has n, :connections,        :constraint => :destroy

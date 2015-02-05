@@ -6,15 +6,17 @@ module PatronusFati::DataObservers
 
     before :save do
       break unless self.valid?
+
       if self.new?
-        puts ('New access point detected: %s' % self.attributes.inspect)
+        puts ('New AP: %s' % self.full_state.inspect)
       else
         dirty = self.dirty_attributes.map { |a| a.first.name }.map(&:to_s)
         dirty.delete('last_seen_at')
 
-        unless dirty.empty?
-          puts ('Access Point updated (%s): %s' % [dirty.join(','), self.attributes.inspect])
-        end
+        next if dirty.empty?
+
+        changes = dirty.map { |attr| '%s => [Was: \'%s\', Now: \'%s\']' % [attr, original_attributes[PatronusFati::DataModels::AccessPoint.properties[attr]], dirty_attributes[PatronusFati::DataModels::AccessPoint.properties[attr]]] }
+        puts ('Updated AP: %s' % changes.join(', '))
       end
     end
   end

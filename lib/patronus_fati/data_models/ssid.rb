@@ -1,4 +1,6 @@
 module PatronusFati::DataModels
+  # Number of seconds before we consider an access point no longer advertising an
+  # SSID.
   SSID_EXPIRATION = 300
 
   class Ssid
@@ -6,7 +8,6 @@ module PatronusFati::DataModels
 
     property :id, Serial
 
-    property :beacon_info, String
     property :beacon_rate, Integer
     property :cloaked,     Boolean, default: false
     property :essid,       String,  length: 64
@@ -16,7 +17,7 @@ module PatronusFati::DataModels
     has n, :broadcasts,         :constraint => :destroy
     has n, :current_broadcasts, :model      => 'Broadcast',
                                 :constraint => :destroy,
-                                :child_key  => :broadcast_id,
+                                :child_key  => :ssid_id,
                                 :last_seen_at.gte => lambda { Time.at(Time.now.to_i - SSID_EXPIRATION) }
 
     has n, :access_points,         :through => :broadcasts

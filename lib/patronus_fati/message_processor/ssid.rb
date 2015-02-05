@@ -32,7 +32,6 @@ module PatronusFati::MessageProcessor::Ssid
 
   def self.ssid_data(attrs)
     {
-      beacon_info: attrs[:beaconinfo],
       beacon_rate: attrs[:beaconrate],
       cloaked:  attrs[:cloaked],
       crypt_set: attrs[:cryptset],
