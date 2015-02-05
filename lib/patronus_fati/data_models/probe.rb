@@ -2,11 +2,11 @@ module PatronusFati::DataModels
   class Probe
     include DataMapper::Resource
 
-    property :id,   Serial
-    property :name, String
+    property :client_id, Integer, :key => true
+    property :essid,     String,  :key => true, :length => 64
 
-    property :last_seen_at, Time, { :default => Proc.new { Time.now } }
-    timestamps :created_at
+    property :first_seen_at, Time, :default => Proc.new { Time.now }
+    property :last_seen_at,  Time, :default => Proc.new { Time.now }
 
     belongs_to :client
   end
