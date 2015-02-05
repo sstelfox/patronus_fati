@@ -1,4 +1,6 @@
 module PatronusFati::DataModels
+  SSID_EXPIRATION = 300
+
   class Ssid
     include DataMapper::Resource
 
@@ -15,7 +17,7 @@ module PatronusFati::DataModels
     has n, :current_broadcasts, :model      => 'Broadcast',
                                 :constraint => :destroy,
                                 :child_key  => :broadcast_id,
-                                :last_seen_at.gte => Proc.new { Time.at(Time.now.to_i - 300) }
+                                :last_seen_at.gte => lambda { Time.at(Time.now.to_i - SSID_EXPIRATION) }
 
     has n, :access_points,         :through => :broadcasts
     has n, :current_access_points, :model   => 'AccessPoint',
@@ -23,7 +25,7 @@ module PatronusFati::DataModels
                                    :via     => :access_point
 
     def seen!
-      current_access_points.map(&:seen!)
+      current_broadcasts.map(&:seen!)
     end
 
     # This will quietly ignore any invalid encryption types, this may still

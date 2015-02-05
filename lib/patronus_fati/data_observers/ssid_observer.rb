@@ -6,7 +6,6 @@ module PatronusFati::DataObservers
 
     before :save do
       next unless self.valid?
-
       if self.new?
         puts ('New SSID detected: %s' % self.attributes.inspect)
       else

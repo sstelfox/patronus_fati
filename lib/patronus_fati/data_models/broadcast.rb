@@ -7,7 +7,7 @@ module PatronusFati::DataModels
     property :id, Serial
 
     property :first_seen_at,  Time, :default => Proc.new { Time.now }
-    property :last_seen_at,   Time
+    property :last_seen_at,   Time, :default => Proc.new { Time.now }
 
     belongs_to :access_point
     belongs_to :ssid

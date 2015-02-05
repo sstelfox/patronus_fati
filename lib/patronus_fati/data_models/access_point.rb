@@ -36,7 +36,7 @@ module PatronusFati::DataModels
                                 :through => :active_connections,
                                 :via     => :client
 
-    belongs_to :mac
+    belongs_to :mac, :required => false
     before :save do
       self.mac = Mac.first_or_create(mac: bssid)
     end

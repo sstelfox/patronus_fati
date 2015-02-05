@@ -19,7 +19,7 @@ module PatronusFati::DataModels
 
     has n, :probes
 
-    belongs_to :mac
+    belongs_to :mac, :required => false
     before :save do
       self.mac = Mac.first_or_create(mac: bssid)
     end
