@@ -4,6 +4,11 @@ module PatronusFati
 
     def self.handle(message_obj)
       factory(class_to_name(message_obj), message_obj)
+    rescue => e
+      puts 'Error processing the following message object:'
+      puts message_obj.inspect
+      puts '%s: %s' % [e.class, e.message]
+      puts e.backtrace.join("\n")
     end
 
     def self.ignored_types
