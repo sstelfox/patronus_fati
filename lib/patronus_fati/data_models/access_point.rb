@@ -40,12 +40,12 @@ module PatronusFati::DataModels
 
     def full_state
       {
-        id: id,
         last_seen_at: last_seen_at,
 
         bssid: bssid,
         type: type,
         channel: channel,
+        vendor: mac.vendor
 
         clients: clients.map(&:bssid),
         connected_clients: connected_clients(&:bssid),

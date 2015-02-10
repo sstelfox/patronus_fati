@@ -12,6 +12,8 @@ require 'dm-sqlite-adapter'
 require 'dm-timestamps'
 require 'dm-validations'
 
+require 'louis'
+
 require 'patronus_fati/consts'
 require 'patronus_fati/version'
 
