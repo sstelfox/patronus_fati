@@ -50,8 +50,8 @@ module PatronusFati::DataModels
         clients: clients.map(&:bssid),
         connected_clients: connected_clients(&:bssid),
 
-        ssids: ssids.map(&:attributes),
-        current_ssids: current_ssids.map(&:attributes)
+        ssids: ssids.map(&:full_state),
+        current_ssids: current_ssids.map(&:full_state)
       }
     end
   end

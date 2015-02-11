@@ -39,5 +39,14 @@ module PatronusFati::DataModels
       flag = PatronusFati::SSID_CRYPT_MAP.map { |k, v| valid_values.include?(v) ? k : 0 }.inject(&:+)
       super(flag)
     end
+
+    def full_state
+      {
+        beacon_rate: beacon_rate,
+        cloaked: cloaked,
+        essid: essid,
+        crypt_set: crypt_set
+      }
+    end
   end
 end

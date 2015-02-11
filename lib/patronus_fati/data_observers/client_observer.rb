@@ -7,14 +7,16 @@ module PatronusFati::DataObservers
     before :save do
       break unless self.valid?
       if self.new?
-        puts ('New Client detected: %s' % self.attributes.inspect)
+        puts ('New Client: %s' % self.full_state.inspect)
       else
         dirty = self.dirty_attributes.map { |a| a.first.name }.map(&:to_s)
         dirty.delete('last_seen_at')
+        next if dirty.empty?
 
-        unless dirty.empty?
-          puts ('Client updated (%s): %s' % [dirty.join(','), self.attributes.inspect])
-        end
+        changes = dirty.map { |attr| '%s => [Was: \'%s\', Now: \'%s\']' % [attr, original_attributes[PatronusFati::DataModels::Client.properties[attr]], dirty_attributes[PatronusFati::DataModels::Client.properties[attr]]] }
+
+        puts ('Updated Client: %s' % changes.join(', '))
+        puts ('Updated Client: %s' % self.full_state.inspect)
       end
     end
   end

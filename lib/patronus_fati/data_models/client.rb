@@ -27,5 +27,18 @@ module PatronusFati::DataModels
     def disconnect!
       active_connections.map(&:disconnect!)
     end
+
+    def full_state
+      {
+        last_seen_at: last_seen_at,
+
+        bssid: bssid,
+        vendor: mac.vendor,
+        probes: probes.map(&:essid),
+
+        current_access_point: current_access_points.map(&:bssid).uniq,
+        access_points: access_points.map(&:bssid).uniq
+      }
+    end
   end
 end
