@@ -3,6 +3,7 @@ base_path = File.expand_path(File.join(File.basename(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(base_path) unless $LOAD_PATH.include?(base_path)
 
 require 'rspec'
+require 'dm-rspec'
 require 'simplecov'
 
 SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
@@ -20,7 +21,14 @@ SimpleCov.start
 
 require 'patronus_fati'
 
+# Setup the database in memory
+DataMapper.setup(:default, 'sqlite::memory:')
+DataMapper.finalize
+DataMapper.auto_upgrade!
+
 RSpec.configure do |config|
+  config.include(DataMapper::Matchers)
+
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end
