@@ -8,7 +8,7 @@ task :environment do
 end
 
 task :database => [:environment] do
-  DataMapper.setup(:default, 'sqlite:///tmp/test.db')
+  DataMapper.setup(:default, ENV['DATABASE_URL'] || 'sqlite::memory:')
   DataMapper.finalize
   DataMapper.auto_upgrade!
 end
