@@ -45,7 +45,7 @@ module PatronusFati::DataModels
         bssid: bssid,
         type: type,
         channel: channel,
-        vendor: mac.vendor
+        vendor: mac.vendor,
 
         clients: clients.map(&:bssid),
         connected_clients: connected_clients(&:bssid),

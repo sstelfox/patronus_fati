@@ -11,7 +11,10 @@ SimpleCov.add_filter do |source_file|
   source_file.lines.count < 3
 end
 
+SimpleCov.add_group "Internal Data Models", "data_models"
+SimpleCov.add_group "Internal Data Observers", "data_observers"
 SimpleCov.add_group "Server Message Models", "message_models"
+SimpleCov.add_group "Message Processors", "message_processors"
 
 SimpleCov.start
 
