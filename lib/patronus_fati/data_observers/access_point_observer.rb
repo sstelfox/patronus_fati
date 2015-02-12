@@ -36,7 +36,7 @@ module PatronusFati::DataObservers
 
       puts ('AP (%s): %s' % [@change_type, self.full_state.inspect])
       if @change_list
-        puts ('--> (%s): %s' % [@change_list.keys.join(','), @change_list.map { |k, v| '%: (%s => %s)' % [k, v[0], v[1]] }])
+        puts ('--> (%s): %s' % [@change_list.keys.join(','), @change_list.map { |k, v| '%: (%s => %s)' % [k, v[0], v[1]] }.join(' ')])
       end
 
       @change_type = nil

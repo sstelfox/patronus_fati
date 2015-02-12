@@ -18,7 +18,7 @@ module PatronusFati::MessageProcessor::Ssid
 
       # Not a normal association unfortunately, we want to create a new one if
       # the old association has expired.
-      unless access_point.active_broadcasts.include?(ssid)
+      unless access_point.current_ssids.include?(ssid)
         PatronusFati::DataModels::Broadcast.create(access_point: access_point, ssid: ssid)
       end
     elsif obj[:type] == 'probe_request'
