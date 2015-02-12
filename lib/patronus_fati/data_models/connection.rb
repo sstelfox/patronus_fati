@@ -12,6 +12,10 @@ module PatronusFati::DataModels
     belongs_to :client
     belongs_to :access_point
 
+    def active?
+      disconnected_at.nil?
+    end
+
     def self.active
       all(:disconnected_at => nil)
     end
