@@ -13,13 +13,19 @@ module PatronusFati::MessageProcessor::Ssid
       return unless access_point # Only happens with a corrupt message
 
       ssid = access_point.current_ssids.first_or_create({essid: ssid_info[:essid]}, ssid_info)
+
+      # Necessary for the association, I'm pretty sure the broadcast object
+      # won't be created if the association already exists...
+      access_point.ssids << ssid
+      access_point.save
+
       ssid.update(ssid_info)
       ssid.seen!
     elsif obj[:type] == 'probe_request'
-      client = PatronusFati::DataModels::Client.first(bssid: obj[:bssid])
+      client = PatronusFati::DataModels::Client.first(bssid: obj[:mac])
 
       if client.nil? || obj[:ssid].nil? || obj[:ssid].empty?
-        warn('Received probe but could not find associated client: %s: %s' % [obj[:bssid], obj[:ssid]])
+        warn('Received probe but could not find associated client: %s' % obj.inspect)
         return
       end
 
