@@ -1,7 +1,4 @@
 module PatronusFati::DataModels
-  # Number of seconds before we consider an access point as offline
-  AP_EXPIRATION = 300
-
   class AccessPoint
     include DataMapper::Resource
 
@@ -25,11 +22,11 @@ module PatronusFati::DataModels
     end
 
     def self.active
-      all(:last_seen_at.gte => Time.at(Time.now.to_i - AP_EXPIRATION))
+      all(:last_seen_at.gte => Time.at(Time.now.to_i - PatronusFati::AP_EXPIRATION))
     end
 
     def self.inactive
-      all(:last_seen_at.lt => Time.at(Time.now.to_i - AP_EXPIRATION))
+      all(:last_seen_at.lt => Time.at(Time.now.to_i - PatronusFati::AP_EXPIRATION))
     end
 
     def active_broadcasts

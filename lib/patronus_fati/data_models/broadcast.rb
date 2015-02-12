@@ -1,8 +1,4 @@
 module PatronusFati::DataModels
-  # Number of seconds before we consider an access point no longer advertising an
-  # SSID.
-  SSID_EXPIRATION = 300
-
   class Broadcast
     include DataMapper::Resource
 
@@ -17,11 +13,15 @@ module PatronusFati::DataModels
     belongs_to :ssid
 
     def self.active
-      all(:last_seen_at.gte => Time.at(Time.now.to_i - SSID_EXPIRATION))
+      all(:last_seen_at.gte => Time.at(Time.now.to_i - PatronusFati::SSID_EXPIRATION))
     end
 
     def self.inactive
-      all(:last_seen_at.lt => Time.at(Time.now.to_i - SSID_EXPIRATION))
+      all(:last_seen_at.lt => Time.at(Time.now.to_i - PatronusFati::SSID_EXPIRATION))
+    end
+
+    def active?
+      last_seen_at >= Time.at(Time.now.to_i - PatronusFati::SSID_EXPIRATION)
     end
 
     def seen!

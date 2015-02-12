@@ -1,7 +1,4 @@
 module PatronusFati::DataModels
-  # Number of seconds before we consider a client as no longer within range.
-  CLIENT_EXPIRATION = 600
-
   class Client
     include DataMapper::Resource
 
@@ -22,11 +19,11 @@ module PatronusFati::DataModels
     end
 
     def self.active
-      all(:last_seen_at.gte => Time.at(Time.now.to_i - CLIENT_EXPIRATION))
+      all(:last_seen_at.gte => Time.at(Time.now.to_i - PatronusFati::CLIENT_EXPIRATION))
     end
 
     def self.inactive
-      all(:last_seen_at.lt => Time.at(Time.now.to_i - CLIENT_EXPIRATION))
+      all(:last_seen_at.lt => Time.at(Time.now.to_i - PatronusFati::CLIENT_EXPIRATION))
     end
 
     def active_connections

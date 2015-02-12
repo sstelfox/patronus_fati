@@ -2,16 +2,16 @@ module PatronusFati::DataModels
   class Ssid
     include DataMapper::Resource
 
-    property :id, Serial
+    property :id,           Serial
 
-    property :beacon_rate, Integer
-    property :cloaked,     Boolean, default: false
-    property :essid,       String,  length: 64
+    property :beacon_rate,  Integer
+    property :cloaked,      Boolean, default: false
+    property :essid,        String,  length: 64
 
-    property :crypt_set,   Integer
+    property :crypt_set,    Integer
 
-    has n, :broadcasts,         :constraint => :destroy
-    has n, :access_points,         :through => :broadcasts
+    has n, :broadcasts,     :constraint => :destroy
+    has n, :access_points,  :through    => :broadcasts
 
     def current_access_points
       active_broadcasts.access_points
