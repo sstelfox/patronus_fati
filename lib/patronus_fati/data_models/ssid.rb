@@ -13,16 +13,16 @@ module PatronusFati::DataModels
     has n, :broadcasts,     :constraint => :destroy
     has n, :access_points,  :through    => :broadcasts
 
-    def current_access_points
+    def active_access_points
       active_broadcasts.access_points
     end
 
-    def current_broadcasts
+    def active_broadcasts
       broadcasts.active
     end
 
     def seen!
-      current_broadcasts.map(&:seen!)
+      active_broadcasts.map(&:seen!)
     end
 
     # This will quietly ignore any invalid encryption types, this may still

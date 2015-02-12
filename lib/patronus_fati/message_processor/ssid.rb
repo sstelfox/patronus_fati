@@ -12,15 +12,15 @@ module PatronusFati::MessageProcessor::Ssid
       access_point = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:mac])
       return unless access_point # Only happens with a corrupt message
 
-      ssid = access_point.current_ssids.first_or_create({essid: ssid_info[:essid]}, ssid_info)
-
-      # Necessary for the association, I'm pretty sure the broadcast object
-      # won't be created if the association already exists...
-      access_point.ssids << ssid
-      access_point.save
-
+      ssid = access_point.ssids.first_or_create({essid: ssid_info[:essid]}, ssid_info)
       ssid.update(ssid_info)
       ssid.seen!
+
+      # Not a normal association unfortunately, we want to create a new one if
+      # the old association has expired.
+      unless access_point.active_broadcasts.include?(ssid)
+        PatronusFati::DataModels::Broadcast.create(access_point: access_point, ssid: ssid)
+      end
     elsif obj[:type] == 'probe_request'
       client = PatronusFati::DataModels::Client.first(bssid: obj[:mac])
       return if client.nil? || obj[:ssid].nil? || obj[:ssid].empty?
