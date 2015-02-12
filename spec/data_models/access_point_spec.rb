@@ -12,14 +12,10 @@ RSpec.describe 'DataModels::AccessPoint' do
   it { expect(subject).to have_property(:last_seen_at) }
 
   it { expect(subject).to have_many(:broadcasts) }
-  it { expect(subject).to have_many(:current_broadcasts) }
   it { expect(subject).to have_many(:connections) }
-  it { expect(subject).to have_many(:active_connections) }
 
   it { expect(subject).to have_many(:ssids).through(:broadcasts) }
-  it { expect(subject).to have_many(:current_ssids).through(:current_broadcasts) }
   it { expect(subject).to have_many(:clients).through(:connections) }
-  it { expect(subject).to have_many(:connected_clients).through(:active_connections) }
 
   it { expect(subject).to belong_to(:mac) }
 

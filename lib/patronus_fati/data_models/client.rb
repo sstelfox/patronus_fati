@@ -1,27 +1,40 @@
 module PatronusFati::DataModels
+  # Number of seconds before we consider a client as no longer within range.
+  CLIENT_EXPIRATION = 600
+
   class Client
     include DataMapper::Resource
+
+    default_scope(:default).update(:order => :last_seen_at.desc)
 
     property :id,           Serial
     property :bssid,        String, :length => 17, :unique => true
     property :last_seen_at, Time, { :default => Proc.new { Time.now } }
 
-    has n, :connections,        :constraint => :destroy
-    has n, :active_connections, :model      => 'Connection',
-                                :constraint => :destroy,
-                                :child_key  => :client_id,
-                                :disconnected_at => nil
-
-    has n, :access_points,         :through => :connections
-    has n, :current_access_points, :model   => 'AccessPoint',
-                                   :through => :active_connections,
-                                   :via     => :access_point
+    has n, :connections,    :constraint => :destroy
+    has n, :access_points,  :through    => :connections
 
     has n, :probes
 
     belongs_to :mac, :required => false
     before :save do
       self.mac = Mac.first_or_create(mac: bssid)
+    end
+
+    def self.active
+      all(:last_seen_at.gte => Time.at(Time.now.to_i - CLIENT_EXPIRATION))
+    end
+
+    def self.inactive
+      all(:last_seen_at.lt => Time.at(Time.now.to_i - CLIENT_EXPIRATION))
+    end
+
+    def active_connections
+      connections.active
+    end
+
+    def connected_access_points
+      active_connections.access_points
     end
 
     def disconnect!
@@ -36,7 +49,7 @@ module PatronusFati::DataModels
         vendor: mac.vendor,
         probes: probes.map(&:essid),
 
-        current_access_point: current_access_points.map(&:bssid).uniq,
+        connected_access_point: connected_access_points.map(&:bssid).uniq,
         access_points: access_points.map(&:bssid).uniq
       }
     end

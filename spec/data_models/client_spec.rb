@@ -13,10 +13,7 @@ RSpec.describe 'DataModels::Client' do
   it { expect(subject).to have_many(:probes) }
 
   it { expect(subject).to have_many(:connections) }
-  it { expect(subject).to have_many(:active_connections) }
-
   it { expect(subject).to have_many(:access_points).through(:connections) }
-  it { expect(subject).to have_many(:current_access_points).through(:active_connections) }
 
   it { expect(subject).to belong_to(:mac) }
 

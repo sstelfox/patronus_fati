@@ -37,18 +37,5 @@ require 'patronus_fati/data_observers/access_point_observer'
 require 'patronus_fati/data_observers/client_observer'
 require 'patronus_fati/data_observers/ssid_observer'
 
-module DataMapper
-  class Query
-    alias :original_append_condition :append_condition
-
-    # This needs to be overridden to add support for dynamic timestamp queries
-    # by using a Proc (no arguments are provided to the Proc).
-    def append_condition(subject, bind_value, model = self.model, operator = :eql)
-      bind_value = bind_value.call if bind_value.is_a?(Proc)
-      original_append_condition(subject, bind_value, model, operator)
-    end
-  end
-end
-
 module PatronusFati
 end
