@@ -15,7 +15,10 @@ module PatronusFati::DataModels
     has n, :src_alerts,   :model => 'Alert', :child_key => :src_mac_id
 
     before :save do
-      self.vendor ||= Louis.lookup(mac)['long_vendor']
+      next if self.vendor
+
+      result = Louis.lookup(mac)
+      self.vendor = result['long_vendor'] || result['short_vendor']
     end
   end
 end
