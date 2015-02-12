@@ -41,7 +41,10 @@ RSpec.configure do |config|
   config.filter_run :focus
   config.run_all_when_everything_filtered = true
   config.disable_monkey_patching!
-  config.warnings = true
+
+  # Normally I'd run with this on, but datamapper uses instance variables
+  # without intializing them quite a bit.
+  config.warnings = false
 
   if config.files_to_run.one?
     config.default_formatter = 'doc'
