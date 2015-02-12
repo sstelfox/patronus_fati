@@ -19,6 +19,33 @@ RSpec.describe 'DataModels::Connection' do
   it { expect(subject).to belong_to(:access_point) }
   it { expect(subject).to belong_to(:client) }
 
+  context '#active?' do
+    it 'should be true when a disconnection hasn\'t been registered' do
+      inst = instance
+      inst.disconnected_at = nil
+
+      expect(inst).to be_active
+    end
+
+    it 'should be false when a disconnection has been registered' do
+      inst = instance
+      inst.disconnected_at = Time.now
+
+      expect(inst).to_not be_active
+    end
+  end
+
+  context '#disconnect!' do
+    it 'should change an active instance to be inactive' do
+      inst = instance
+      inst.save
+
+      expect(inst).to be_active
+      inst.disconnect!
+      expect(inst).to_not be_active
+    end
+  end
+
   context '#active scope' do
     it 'should include active connections' do
       inst = instance
@@ -54,33 +81,6 @@ RSpec.describe 'DataModels::Connection' do
 
       expect(inst).to_not be_active
       expect(subject.inactive).to include(inst)
-    end
-  end
-
-  context '#active?' do
-    it 'should be true when a disconnection hasn\'t been registered' do
-      inst = instance
-      inst.disconnected_at = nil
-
-      expect(inst).to be_active
-    end
-
-    it 'should be false when a disconnection has been registered' do
-      inst = instance
-      inst.disconnected_at = Time.now
-
-      expect(inst).to_not be_active
-    end
-  end
-
-  context '#disconnect!' do
-    it 'should change an active instance to be inactive' do
-      inst = instance
-      inst.save
-
-      expect(inst).to be_active
-      inst.disconnect!
-      expect(inst).to_not be_active
     end
   end
 end
