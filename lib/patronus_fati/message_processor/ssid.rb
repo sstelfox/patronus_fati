@@ -23,12 +23,7 @@ module PatronusFati::MessageProcessor::Ssid
       ssid.seen!
     elsif obj[:type] == 'probe_request'
       client = PatronusFati::DataModels::Client.first(bssid: obj[:mac])
-
-      if client.nil? || obj[:ssid].nil? || obj[:ssid].empty?
-        warn('Received probe but could not find associated client: %s' % obj.inspect)
-        return
-      end
-
+      return if client.nil? || obj[:ssid].nil? || obj[:ssid].empty?
       client.probes.first_or_create(essid: obj[:ssid])
     else
       # TODO: I think these are all dealt with, I might want to change this to
