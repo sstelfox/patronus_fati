@@ -1,3 +1,4 @@
+require 'date'
 require 'digest'
 require 'openssl'
 require 'socket'

@@ -8,7 +8,7 @@ module PatronusFati::DataModels
     property :type,    String,  :required => true
     property :channel, Integer, :required => true
 
-    property :last_seen_at, Time, :default => Proc.new { Time.now }
+    property :last_seen_at, DateTime, :default => Proc.new { DateTime.now }
 
     has n, :clients,      :through    => :connections
     has n, :connections,  :constraint => :destroy,

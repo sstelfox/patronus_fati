@@ -7,7 +7,7 @@ module PatronusFati::MessageProcessor::Client
     return if obj.lasttime < (Time.now.to_i - 7200)
 
     client = PatronusFati::DataModels::Client.first_or_create(bssid: obj[:mac])
-    client.update(last_seen_at: Time.now)
+    client.update(last_seen_at: DateTime.now)
 
     # Handle the associations
     if obj[:bssid].nil? || obj[:bssid].empty? || obj[:bssid] == obj[:mac]

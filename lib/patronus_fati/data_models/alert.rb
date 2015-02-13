@@ -3,8 +3,8 @@ module PatronusFati::DataModels
     include DataMapper::Resource
 
     property :id,         Serial
-    property :created_at, Time, { :default => Proc.new { Time.now } }
-    property :message,    String, :length => 255
+    property :created_at, DateTime, :default => Proc.new { DateTime.now }
+    property :message,    String,   :length => 255
 
     belongs_to :src_mac,   :model => 'Mac', :required => false
     belongs_to :dst_mac,   :model => 'Mac', :required => false

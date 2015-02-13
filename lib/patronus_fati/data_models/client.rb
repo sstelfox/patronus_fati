@@ -5,8 +5,8 @@ module PatronusFati::DataModels
     default_scope(:default).update(:order => :last_seen_at.desc)
 
     property :id,           Serial
-    property :bssid,        String, :length => 17, :unique => true
-    property :last_seen_at, Time, { :default => Proc.new { Time.now } }
+    property :bssid,        String,   :length => 17, :unique => true
+    property :last_seen_at, DateTime, :default => Proc.new { DateTime.now }
 
     has n, :connections,    :constraint => :destroy
     has n, :access_points,  :through    => :connections

@@ -6,8 +6,8 @@ module PatronusFati::DataModels
 
     property :id, Serial
 
-    property :connected_at,    Time, :default => Proc.new { Time.now }
-    property :disconnected_at, Time
+    property :connected_at,    DateTime, :default => Proc.new { DateTime.now }
+    property :disconnected_at, DateTime
 
     belongs_to :client
     belongs_to :access_point
@@ -25,7 +25,7 @@ module PatronusFati::DataModels
     end
 
     def disconnect!
-      update(:disconnected_at => Time.now)
+      update(:disconnected_at => DateTime.now)
     end
   end
 end

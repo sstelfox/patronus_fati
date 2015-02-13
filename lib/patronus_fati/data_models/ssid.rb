@@ -5,9 +5,9 @@ module PatronusFati::DataModels
     property :id,           Serial
 
     property :beacon_rate,  Integer
-    property :cloaked,      Boolean, :default => false
-    property :essid,        String,  :length  => 64
-    property :last_seen_at, Time,    :default => Proc.new { Time.now }
+    property :cloaked,      Boolean,  :default => false
+    property :essid,        String,   :length  => 64
+    property :last_seen_at, DateTime, :default => Proc.new { DateTime.now }
 
     property :crypt_set,    Integer
 
@@ -19,10 +19,6 @@ module PatronusFati::DataModels
 
     def self.inactive
       all(:last_seen_at.lt => Time.at(Time.now.to_i - PatronusFati::SSID_EXPIRATION))
-    end
-
-    def seen!(time = Time.now)
-      update(:last_seen_at => time)
     end
 
     # This will quietly ignore any invalid encryption types, this may still
