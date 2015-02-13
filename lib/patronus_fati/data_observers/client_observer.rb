@@ -35,7 +35,12 @@ module PatronusFati::DataObservers
 
       puts ('Client (%s): %s' % [@change_type, self.full_state.inspect])
       if @change_list
-        puts ('-----> (%s): %s' % [@change_list.keys.join(','), @change_list.map { |k, v| '%: (%s => %s)' % [k, v[0], v[1]] }].join(' '))
+        changed_keys = @change_list.keys.join(',')
+        changed_values = @change_list.map do |k, v|
+          '%s: (%s => %s)' % [k, v[0], v[1]]
+        end
+
+        puts ('--> (%s): %s' % [changed_keys, changed_values.join(' ')])
       end
 
       @change_type = nil

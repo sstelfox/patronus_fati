@@ -6,18 +6,46 @@ module PatronusFati::DataObservers
 
     before :save do
       next unless self.valid?
-      if self.new?
-        puts ('New SSID: %s' % self.full_state.inspect)
-      else
+
+      @change_type = self.new? ? :new : :changed
+
+      if @change_type == :changed
         dirty = self.dirty_attributes.map { |a| a.first.name }.map(&:to_s)
         dirty.delete('last_seen_at')
-        next if dirty.empty?
 
-        changes = dirty.map { |attr| '%s => [Was: \'%s\', Now: \'%s\']' % [attr, original_attributes[PatronusFati::DataModels::Ssid.properties[attr]], dirty_attributes[PatronusFati::DataModels::Ssid.properties[attr]]] }
+        # If there weren't any meaningful changes, don't print out anything
+        # after we save.
+        if dirty.empty?
+          @change_type = nil
+          next
+        end
 
-        puts ('Updated SSID: %s' % changes.join(', '))
-        puts ('Updated SSID: %s' % self.current_access_points.first.full_state.inspect)
+        changes = dirty.map do |attr|
+          clean = original_attributes[PatronusFati::DataModels::Ssid.properties[attr]]
+          dirty = dirty_attributes[PatronusFati::DataModels::Ssid.properties[attr]]
+
+          [attr, [clean, dirty]]
+        end
+
+        @change_list = Hash[changes]
       end
+    end
+
+    after :save do
+      next unless @change_type
+
+      puts ('SSID (%s): %s' % [@change_type, self.full_state.inspect])
+      if @change_list
+        changed_keys = @change_list.keys.join(',')
+        changed_values = @change_list.map do |k, v|
+          '%s: (%s => %s)' % [k, v[0], v[1]]
+        end
+
+        puts ('--> (%s): %s' % [changed_keys, changed_values.join(' ')])
+      end
+
+      @change_type = nil
+      @change_list = nil
     end
   end
 end
