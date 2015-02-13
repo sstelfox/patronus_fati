@@ -2,7 +2,28 @@ module PatronusFati
   module MessageProcessor
     extend FactoryBase
 
+    def self.cleanup_models
+      @last_cleanup ||= Time.now.to_i
+      @last_active_objects ||= {access_points: [], clients: []}
+
+      if @last_cleanup < (Time.now.to_i - 60)
+        @last_cleanup = Time.now.to_i
+
+        offline_aps = PatronusFati::DataModels::AccessPoint.inactive.all(:id.not => @last_active_objects[:access_points])
+        offline_clients = PatronusFati::DataModels::Client.inactive.all(:id.not => @last_active_objects[:clients])
+
+        @last_active_objects = {
+          access_points: PatronusFati::DataModels::AccessPoint.active.map(&:id),
+          clients: PatronusFati::DataModels::Client.active.map(&:id)
+        }
+
+        offline_aps.each { |ap| puts ('AP Offline: %s' % ap.full_state.inspect) }
+        offline_clients.each { |cli| puts ('Client Offline: %s' % cli.full_state.inspect) }
+      end
+    end
+
     def self.handle(message_obj)
+      cleanup_models
       factory(class_to_name(message_obj), message_obj)
     rescue => e
       puts 'Error processing the following message object:'
