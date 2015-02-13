@@ -10,9 +10,9 @@ module PatronusFati::MessageProcessor::Client
     client.update(last_seen_at: Time.now)
 
     # Handle the associations
-    if obj[:bssid].nil? || obj[:bssid].empty?
+    if obj[:bssid].nil? || obj[:bssid].empty? || obj[:bssid] == obj[:mac]
       client.disconnect!
-    elsif obj[:bssid] != obj[:mac]
+    else
       return unless (ap = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:bssid]))
       client.access_points << ap
       client.save
