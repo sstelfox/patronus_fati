@@ -9,8 +9,8 @@ module PatronusFati
       if @last_cleanup < (Time.now.to_i - 60)
         @last_cleanup = Time.now.to_i
 
-        offline_aps = PatronusFati::DataModels::AccessPoint.inactive.all(:id.not => @last_active_objects[:access_points])
-        offline_clients = PatronusFati::DataModels::Client.inactive.all(:id.not => @last_active_objects[:clients])
+        offline_aps = PatronusFati::DataModels::AccessPoint.inactive.all(:id => @last_active_objects[:access_points])
+        offline_clients = PatronusFati::DataModels::Client.inactive.all(:id => @last_active_objects[:clients])
 
         @last_active_objects = {
           access_points: PatronusFati::DataModels::AccessPoint.active.map(&:id),
