@@ -15,6 +15,9 @@ module PatronusFati::MessageProcessor::Capability
 
     keys_to_enable = target_cap.enabled_keys.map(&:to_s).join(',')
 
+    # Limit the amount of data kismet gives us to only the interesting stuff
+    return unless %w(ERROR PROTOCOLS ALERT BSSID SSID CLIENT CRITFAIL).include?(obj.name)
+
     # Return the response to the server
     "ENABLE #{obj.name} #{keys_to_enable}"
   end
