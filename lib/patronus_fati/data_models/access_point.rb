@@ -4,17 +4,16 @@ module PatronusFati::DataModels
 
     property :id, Serial
 
-    property :bssid,   String,  :length => 17, :required => true, :unique => true
+    property :bssid,   String,  :length   => 17, :required => true, :unique => true
     property :type,    String,  :required => true
     property :channel, Integer, :required => true
 
     property :last_seen_at, Time, :default => Proc.new { Time.now }
 
-    has n, :broadcasts,   :constraint => :destroy
     has n, :clients,      :through    => :connections
     has n, :connections,  :constraint => :destroy,
                           :child_key  => :access_point_id
-    has n, :ssids,        :through    => :broadcasts
+    has n, :ssids,        :constraint => :destroy
 
     belongs_to :mac, :required => false
     before :save do
@@ -29,10 +28,6 @@ module PatronusFati::DataModels
       all(:last_seen_at.lt => Time.at(Time.now.to_i - PatronusFati::AP_EXPIRATION))
     end
 
-    def active_broadcasts
-      broadcasts.active
-    end
-
     def active_connections
       connections.active
     end
@@ -42,7 +37,7 @@ module PatronusFati::DataModels
     end
 
     def current_ssids
-      active_broadcasts.ssids
+      ssids.active
     end
 
     def full_state

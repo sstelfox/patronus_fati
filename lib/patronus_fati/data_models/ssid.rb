@@ -5,24 +5,24 @@ module PatronusFati::DataModels
     property :id,           Serial
 
     property :beacon_rate,  Integer
-    property :cloaked,      Boolean, default: false
-    property :essid,        String,  length: 64
+    property :cloaked,      Boolean, :default => false
+    property :essid,        String,  :length  => 64
+    property :last_seen_at, Time,    :default => Proc.new { Time.now }
 
     property :crypt_set,    Integer
 
-    has n, :broadcasts,     :constraint => :destroy
-    has n, :access_points,  :through    => :broadcasts
+    belongs_to :access_point
 
-    def active_access_points
-      active_broadcasts.access_points
+    def self.active
+      all(:last_seen_at.gte => Time.at(Time.now.to_i - PatronusFati::SSID_EXPIRATION))
     end
 
-    def active_broadcasts
-      broadcasts.active
+    def self.inactive
+      all(:last_seen_at.lt => Time.at(Time.now.to_i - PatronusFati::SSID_EXPIRATION))
     end
 
-    def seen!
-      active_broadcasts.map(&:seen!)
+    def seen!(time = Time.now)
+      update(:last_seen_at => time)
     end
 
     # This will quietly ignore any invalid encryption types, this may still
@@ -41,7 +41,8 @@ module PatronusFati::DataModels
         beacon_rate: beacon_rate,
         cloaked: cloaked,
         essid: essid,
-        crypt_set: crypt_set
+        crypt_set: crypt_set,
+        last_seen_at: last_seen_at
       }
     end
   end

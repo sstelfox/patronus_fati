@@ -14,13 +14,7 @@ module PatronusFati::MessageProcessor::Ssid
 
       ssid = access_point.ssids.first_or_create({essid: ssid_info[:essid]}, ssid_info)
       ssid.update(ssid_info)
-      ssid.seen!
-
-      # Not a normal association unfortunately, we want to create a new one if
-      # the old association has expired.
-      unless access_point.current_ssids.include?(ssid)
-        PatronusFati::DataModels::Broadcast.create(access_point: access_point, ssid: ssid)
-      end
+      ssid.seen!(Time.at(obj.lasttime))
     elsif obj[:type] == 'probe_request'
       client = PatronusFati::DataModels::Client.first(bssid: obj[:mac])
       return if client.nil? || obj[:ssid].nil? || obj[:ssid].empty?
