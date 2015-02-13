@@ -40,7 +40,7 @@ module PatronusFati::DataObservers
         puts ('Client %s connected to AP %s%s' % [
           self.client.bssid, self.access_point.bssid, essid])
       else
-        next if self.active? || !@changed_list.keys.include?(:disconnected_at)
+        next if self.active? || !@change_list.keys.include?(:disconnected_at)
 
         ap = self.access_point.current_ssids.first
         essid = ap.nil? ? '' : " with SSID '#{ap.essid}'"
