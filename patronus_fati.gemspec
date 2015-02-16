@@ -26,7 +26,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'dm-sqlite-adapter'
   gem.add_dependency 'dm-timestamps'
   gem.add_dependency 'dm-validations'
-  gem.add_dependency 'louis'
+  gem.add_dependency 'louis', '~> 2.0'
 
   gem.add_development_dependency 'database_cleaner'
   gem.add_development_dependency 'dm-rspec'
