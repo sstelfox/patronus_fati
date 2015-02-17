@@ -2,13 +2,13 @@ module PatronusFati::DataModels
   class AccessPoint
     include DataMapper::Resource
 
-    property :id, Serial
+    property  :id,              Serial
+    property  :bssid,           String,   :length   => 17, :required => true, :unique => true
+    property  :type,            String,   :required => true
+    property  :channel,         Integer,  :required => true
+    property, :reported_status, String
 
-    property :bssid,   String,  :length   => 17, :required => true, :unique => true
-    property :type,    String,  :required => true
-    property :channel, Integer, :required => true
-
-    property :last_seen_at, DateTime, :default => Proc.new { DateTime.now }
+    property  :last_seen_at, DateTime, :default => Proc.new { DateTime.now }
 
     has n, :clients,      :through    => :connections
     has n, :connections,  :constraint => :destroy,
@@ -40,6 +40,18 @@ module PatronusFati::DataModels
       ssids.active
     end
 
+    def unreported
+      all(:reported_status => nil)
+    end
+
+    def reported_active
+      all(:reported_status => 'active')
+    end
+
+    def reported_expired
+      all(:reported_status => 'expired')
+    end
+
     def full_state
       {
         last_seen_at: last_seen_at,
@@ -48,6 +60,7 @@ module PatronusFati::DataModels
         type: type,
         channel: channel,
         vendor: mac.vendor,
+        status: status,
 
         clients: clients.map(&:bssid),
         connected_clients: connected_clients.map(&:bssid),
