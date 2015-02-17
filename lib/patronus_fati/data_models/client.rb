@@ -7,7 +7,7 @@ module PatronusFati::DataModels
     property  :id,              Serial
     property  :bssid,           String,   :length => 17, :unique => true
     property  :last_seen_at,    DateTime, :default => Proc.new { DateTime.now }
-    property, :reported_status, String
+    property  :reported_status, String
 
     has n, :connections,    :constraint => :destroy
     has n, :access_points,  :through    => :connections
@@ -57,7 +57,6 @@ module PatronusFati::DataModels
 
         bssid: bssid,
         vendor: mac.vendor,
-        status: status,
 
         probes: probes.map(&:essid),
 

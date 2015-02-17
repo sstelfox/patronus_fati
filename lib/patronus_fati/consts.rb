@@ -53,6 +53,8 @@ module PatronusFati
     (1 << 26) => 'WPS'
   }
 
+  SSID_CRYPT_MAP_INVERTED = Hash[SSID_CRYPT_MAP.map { |k, v| [v, k] }]
+
   SSID_TYPE_MAP = {
     0 => 'beacon',
     1 => 'probe_response',

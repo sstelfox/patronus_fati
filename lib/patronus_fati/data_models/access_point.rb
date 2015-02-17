@@ -6,7 +6,7 @@ module PatronusFati::DataModels
     property  :bssid,           String,   :length   => 17, :required => true, :unique => true
     property  :type,            String,   :required => true
     property  :channel,         Integer,  :required => true
-    property, :reported_status, String
+    property  :reported_status, String
 
     property  :last_seen_at, DateTime, :default => Proc.new { DateTime.now }
 
@@ -60,7 +60,6 @@ module PatronusFati::DataModels
         type: type,
         channel: channel,
         vendor: mac.vendor,
-        status: status,
 
         clients: clients.map(&:bssid),
         connected_clients: connected_clients.map(&:bssid),
