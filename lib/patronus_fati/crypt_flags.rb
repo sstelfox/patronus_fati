@@ -3,19 +3,13 @@ require 'dm-core'
 module DataMapper
   class Property
     class CryptFlags < DataMapper::Property::Integer
-      def self.flags
-        PatronusFati::SSID_CRYPT_MAP.values.map(&:to_sym)
-      end
-
-      attr_reader :flag_map
-
       def custom?
         true
       end
 
       def dump(value)
         unless value.nil?
-          flags = Array(value)
+          flags = Array(value).map(&:to_s)
           flags.uniq!
 
           valid_values = flags & PatronusFati::SSID_CRYPT_MAP.values

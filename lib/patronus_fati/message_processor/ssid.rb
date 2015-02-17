@@ -29,7 +29,7 @@ module PatronusFati::MessageProcessor::Ssid
     {
       beacon_rate: attrs[:beaconrate],
       cloaked:  attrs[:cloaked],
-      crypt_set: attrs[:cryptset],
+      crypt_set: attrs[:cryptset].map(&:to_s),
       essid: attrs[:ssid],
       last_seen_at: Time.at(attrs[:lasttime])
     }
