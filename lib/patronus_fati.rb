@@ -18,6 +18,8 @@ require 'louis'
 require 'patronus_fati/consts'
 require 'patronus_fati/version'
 
+require 'patronus_fati/crypt_flags'
+
 require 'patronus_fati/cap_struct'
 require 'patronus_fati/connection'
 require 'patronus_fati/factory_base'
