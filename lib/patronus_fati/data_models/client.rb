@@ -7,7 +7,7 @@ module PatronusFati::DataModels
     property  :id,              Serial
     property  :bssid,           String,   :length => 17, :unique => true
     property  :last_seen_at,    Integer,  :default => Proc.new { Time.now.to_i }
-    property  :reported_status, String
+    property  :reported_status, String,   :default => 'active'
 
     has n, :connections,    :constraint => :destroy
     has n, :access_points,  :through    => :connections
@@ -35,10 +35,6 @@ module PatronusFati::DataModels
       all(:reported_status => 'expired')
     end
 
-    def self.unreported
-      all(:reported_status => nil)
-    end
-
     def connected_access_points
       connections.active_unexpired.access_points
     end
@@ -55,6 +51,10 @@ module PatronusFati::DataModels
         connected_access_points: connected_access_points.map(&:bssid).uniq,
         probes: probes.map(&:essid),
       }
+    end
+
+    def seen!(time = Time.now.to_i)
+      update(last_seen_at: time, reported_status: 'active')
     end
   end
 end
