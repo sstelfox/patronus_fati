@@ -15,9 +15,8 @@ module PatronusFati::MessageProcessor::Ssid
       return if client.nil? || obj[:ssid].nil? || obj[:ssid].empty?
       client.probes.first_or_create(essid: obj[:ssid])
     else
-      # TODO: I think these are all dealt with, I might want to change this to
-      # a warning.
-      puts ('Unknown SSID type (%s): %s' % [obj[:type], obj.inspect])
+      # The only thing left is the 'file' type which no one seems to understand
+      #puts ('Unknown SSID type (%s): %s' % [obj[:type], obj.inspect])
     end
 
     nil

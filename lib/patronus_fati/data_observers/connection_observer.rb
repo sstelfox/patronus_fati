@@ -11,6 +11,7 @@ module PatronusFati::DataObservers
 
       if @change_type == :changed
         dirty = self.dirty_attributes.map { |a| a.first.name }.map(&:to_s)
+        dirty.delete('last_seen_at')
 
         # If there weren't any meaningful changes, don't print out anything
         # after we save.
@@ -18,15 +19,6 @@ module PatronusFati::DataObservers
           @change_type = nil
           next
         end
-
-        changes = dirty.map do |attr|
-          clean = original_attributes[PatronusFati::DataModels::Connection.properties[attr]]
-          dirty = dirty_attributes[PatronusFati::DataModels::Connection.properties[attr]]
-
-          [attr, [clean, dirty]]
-        end
-
-        @change_list = Hash[changes]
       end
     end
 
@@ -38,11 +30,9 @@ module PatronusFati::DataObservers
         report_type: @change_type,
         data: self.full_state
       }
-      report_data[:changes] = @change_list if @change_list
-      #puts JSON.generate(report_data)
+      puts JSON.generate(report_data)
 
       @change_type = nil
-      @change_list = nil
     end
   end
 end
