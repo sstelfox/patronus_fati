@@ -27,16 +27,12 @@ module PatronusFati::DataModels
       all(:last_seen_at.lt => (Time.now.to_i - PatronusFati::CLIENT_EXPIRATION))
     end
 
-    def active_connections
-      connections.active
-    end
-
     def connected_access_points
-      active_connections.access_points
+      connections.active_unexpired.access_points
     end
 
     def disconnect!
-      active_connections.map(&:disconnect!)
+      connections.active.map(&:disconnect!)
     end
 
     def unreported

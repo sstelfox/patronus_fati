@@ -18,7 +18,11 @@ module PatronusFati::DataModels
     end
 
     def self.expired
-      all(:last_connected_at.lt => (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION))
+      all(:last_seen_at.lt => (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION))
+    end
+
+    def self.unexpired
+      all(:last_seen_at.gte => (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION))
     end
 
     def self.inactive
@@ -27,6 +31,10 @@ module PatronusFati::DataModels
 
     def self.active_expired
       active & expired
+    end
+
+    def self.active_unexpired
+      active & unexpired
     end
 
     def active?
