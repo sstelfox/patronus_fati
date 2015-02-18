@@ -28,12 +28,8 @@ module PatronusFati::DataModels
       all(:last_seen_at.lt => (Time.now.to_i - PatronusFati::AP_EXPIRATION))
     end
 
-    def active_connections
-      connections.active
-    end
-
     def connected_clients
-      active_connections.clients
+      connections.active_unexpired.clients
     end
 
     def current_ssids
@@ -54,17 +50,12 @@ module PatronusFati::DataModels
 
     def full_state
       {
-        last_seen_at: last_seen_at,
-
         bssid: bssid,
         type: type,
         channel: channel,
         vendor: mac.vendor,
 
-        clients: clients.map(&:bssid),
         connected_clients: connected_clients.map(&:bssid),
-
-        ssids: ssids.map(&:full_state),
         current_ssids: current_ssids.map(&:full_state)
       }
     end

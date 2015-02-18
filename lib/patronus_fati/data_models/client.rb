@@ -49,15 +49,11 @@ module PatronusFati::DataModels
 
     def full_state
       {
-        last_seen_at: last_seen_at,
-
         bssid: bssid,
         vendor: mac.vendor,
 
+        connected_access_points: connected_access_points.map(&:bssid).uniq,
         probes: probes.map(&:essid),
-
-        connected_access_point: connected_access_points.map(&:bssid).uniq,
-        access_points: access_points.map(&:bssid).uniq
       }
     end
   end

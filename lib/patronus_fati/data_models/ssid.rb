@@ -25,9 +25,8 @@ module PatronusFati::DataModels
       {
         beacon_rate: beacon_rate,
         cloaked: cloaked,
-        essid: essid,
         crypt_set: crypt_set,
-        last_seen_at: last_seen_at
+        essid: essid,
       }
     end
   end

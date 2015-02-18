@@ -33,15 +33,14 @@ module PatronusFati::DataObservers
     after :save do
       next unless @change_type
 
-      puts ('Client (%s): %s' % [@change_type, self.full_state.inspect])
-      if @change_list
-        changed_keys = @change_list.keys.join(',')
-        changed_values = @change_list.map do |k, v|
-          '%s: (%s => %s)' % [k, v[0], v[1]]
-        end
+      report_data = {
+        record_type: 'client',
+        report_type: @change_type,
+        data: self.full_state
+      }
+      report_data[:changes] = @change_list if @change_list
 
-        puts ('--> (%s): %s' % [changed_keys, changed_values.join(' ')])
-      end
+      puts JSON.generate(report_data)
 
       @change_type = nil
       @change_list = nil

@@ -1,5 +1,6 @@
 require 'date'
 require 'digest'
+require 'json'
 require 'openssl'
 require 'socket'
 require 'timeout'
