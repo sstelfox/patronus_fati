@@ -13,6 +13,15 @@ module PatronusFati::DataModels
     belongs_to :client
     belongs_to :access_point
 
+    def full_state
+      {
+        access_point: access_point.bssid,
+        client: client.bssid,
+        connected_at: connected_at,
+        disconnected_at: disconnected_at
+      }
+    end
+
     def self.active
       all(:disconnected_at => nil)
     end

@@ -33,21 +33,16 @@ module PatronusFati::DataObservers
     after :save do
       next unless @change_type
 
-      #if @change_type == :new
-      #  ap = self.access_point.current_ssids.first
-      #  essid = ap.nil? ? '' : " with SSID '#{ap.essid}'"
+      report_data = {
+        record_type: 'connection',
+        report_type: @change_type,
+        data: self.full_state
+      }
+      report_data[:changes] = @change_list if @change_list
+      #puts JSON.generate(report_data)
 
-      #  puts ('Client %s connected to AP %s%s' % [
-      #    self.client.bssid, self.access_point.bssid, essid])
-      #else
-      #  next if self.active? || !@change_list.keys.include?(:disconnected_at)
-
-      #  ap = self.access_point.current_ssids.first
-      #  essid = ap.nil? ? '' : " with SSID '#{ap.essid}'"
-
-      #  puts ('Client %s disconnected from AP %s%s' % [
-      #    self.client.bssid, self.access_point.bssid, essid])
-      #end
+      @change_type = nil
+      @change_list = nil
     end
   end
 end
