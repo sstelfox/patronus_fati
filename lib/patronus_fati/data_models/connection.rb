@@ -6,26 +6,43 @@ module PatronusFati::DataModels
 
     property :id, Serial
 
-    property :connected_at,    DateTime, :default => Proc.new { DateTime.now }
-    property :disconnected_at, DateTime
+    property :connected_at,    Integer, :default => Proc.new { Time.now.to_i }
+    property :last_seen_at,    Integer, :default => Proc.new { Time.now.to_i }
+    property :disconnected_at, Integer
 
     belongs_to :client
     belongs_to :access_point
 
-    def active?
-      disconnected_at.nil?
-    end
-
     def self.active
       all(:disconnected_at => nil)
+    end
+
+    def self.expired
+      all(:last_connected_at.lt => (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION))
     end
 
     def self.inactive
       all(:disconnected_at.not => nil)
     end
 
+    def self.active_expired
+      active & expired
+    end
+
+    def active?
+      disconnected_at.nil?
+    end
+
     def disconnect!
-      update(:disconnected_at => DateTime.now)
+      update(:disconnected_at => Time.now.to_i)
+    end
+
+    def expire!
+      update(:disconnected_at => last_seen_at)
+    end
+
+    def seen!
+      update(:last_seen_at => Time.now.to_i)
     end
   end
 end

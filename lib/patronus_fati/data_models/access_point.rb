@@ -8,7 +8,7 @@ module PatronusFati::DataModels
     property  :channel,         Integer,  :required => true
     property  :reported_status, String
 
-    property  :last_seen_at, DateTime, :default => Proc.new { DateTime.now }
+    property  :last_seen_at,    Integer,  :default => Proc.new { Time.now.to_i }
 
     has n, :clients,      :through    => :connections
     has n, :connections,  :constraint => :destroy,
@@ -21,11 +21,11 @@ module PatronusFati::DataModels
     end
 
     def self.active
-      all(:last_seen_at.gte => Time.at(Time.now.to_i - PatronusFati::AP_EXPIRATION))
+      all(:last_seen_at.gte => (Time.now.to_i - PatronusFati::AP_EXPIRATION))
     end
 
     def self.inactive
-      all(:last_seen_at.lt => Time.at(Time.now.to_i - PatronusFati::AP_EXPIRATION))
+      all(:last_seen_at.lt => (Time.now.to_i - PatronusFati::AP_EXPIRATION))
     end
 
     def active_connections

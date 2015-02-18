@@ -6,7 +6,7 @@ module PatronusFati::DataModels
 
     property  :id,              Serial
     property  :bssid,           String,   :length => 17, :unique => true
-    property  :last_seen_at,    DateTime, :default => Proc.new { DateTime.now }
+    property  :last_seen_at,    Integer,  :default => Proc.new { Time.now.to_i }
     property  :reported_status, String
 
     has n, :connections,    :constraint => :destroy
@@ -20,11 +20,11 @@ module PatronusFati::DataModels
     end
 
     def self.active
-      all(:last_seen_at.gte => Time.at(Time.now.to_i - PatronusFati::CLIENT_EXPIRATION))
+      all(:last_seen_at.gte => (Time.now.to_i - PatronusFati::CLIENT_EXPIRATION))
     end
 
     def self.inactive
-      all(:last_seen_at.lt => Time.at(Time.now.to_i - PatronusFati::CLIENT_EXPIRATION))
+      all(:last_seen_at.lt => (Time.now.to_i - PatronusFati::CLIENT_EXPIRATION))
     end
 
     def active_connections

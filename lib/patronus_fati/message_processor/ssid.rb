@@ -31,7 +31,7 @@ module PatronusFati::MessageProcessor::Ssid
       cloaked:  attrs[:cloaked],
       crypt_set: attrs[:cryptset].map(&:to_s),
       essid: attrs[:ssid],
-      last_seen_at: Time.at(attrs[:lasttime])
+      last_seen_at: attrs[:lasttime]
     }
   end
 end

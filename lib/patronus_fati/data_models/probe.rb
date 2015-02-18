@@ -5,8 +5,8 @@ module PatronusFati::DataModels
     property :client_id, Integer, :key => true
     property :essid,     String,  :key => true, :length => 64
 
-    property :first_seen_at, DateTime, :default => Proc.new { DateTime.now }
-    property :last_seen_at,  DateTime, :default => Proc.new { DateTime.now }
+    property :first_seen_at, Integer, :default => Proc.new { Time.now.to_i }
+    property :last_seen_at,  Integer, :default => Proc.new { Time.now.to_i }
 
     belongs_to :client
   end
