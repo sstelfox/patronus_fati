@@ -4,21 +4,19 @@ module PatronusFati
 
     def self.cleanup_models
       @last_cleanup ||= Time.now.to_i
-      @last_active_objects ||= {access_points: [], clients: []}
 
-      if @last_cleanup < (Time.now.to_i - 60)
+      if @last_cleanup < (Time.now.to_i - 10)
         @last_cleanup = Time.now.to_i
 
-        offline_aps = PatronusFati::DataModels::AccessPoint.inactive.all(:id => @last_active_objects[:access_points])
-        offline_clients = PatronusFati::DataModels::Client.inactive.all(:id => @last_active_objects[:clients])
+        PatronusFati::DataModels::AccessPoint.inactive.reported_active do |ap|
+          ap.update(:reported_status => 'expired')
+          puts JSON.generate({'record_type' => 'access_point', 'report_type' => 'offline', 'data' => {'bssid' => ap.bssid}})
+        end
 
-        @last_active_objects = {
-          access_points: PatronusFati::DataModels::AccessPoint.active.map(&:id),
-          clients: PatronusFati::DataModels::Client.active.map(&:id)
-        }
-
-        offline_aps.each { |ap| puts ('AP Offline: %s' % ap.full_state.inspect) }
-        offline_clients.each { |cli| puts ('Client Offline: %s' % cli.full_state.inspect) }
+        PatronusFati::DataModels::Client.inactive.reported_active do |cli|
+          cli.update(:reported_status => 'expired')
+          puts JSON.generate({'record_type' => 'client', 'report_type' => 'offline', 'data' => {'bssid' => cli.bssid}})
+        end
       end
     end
 

@@ -6,7 +6,7 @@ module PatronusFati::DataModels
     property  :bssid,           String,   :length   => 17, :required => true, :unique => true
     property  :type,            String,   :required => true
     property  :channel,         Integer,  :required => true
-    property  :reported_status, String
+    property  :reported_status, String,   :default  => 'active'
 
     property  :last_seen_at,    Integer,  :default => Proc.new { Time.now.to_i }
 
@@ -28,24 +28,20 @@ module PatronusFati::DataModels
       all(:last_seen_at.lt => (Time.now.to_i - PatronusFati::AP_EXPIRATION))
     end
 
+    def self.reported_active
+      all(:reported_status => 'active')
+    end
+
+    def self.reported_expired
+      all(:reported_status => 'expired')
+    end
+
     def connected_clients
       connections.active_unexpired.clients
     end
 
     def current_ssids
       ssids.active
-    end
-
-    def unreported
-      all(:reported_status => nil)
-    end
-
-    def reported_active
-      all(:reported_status => 'active')
-    end
-
-    def reported_expired
-      all(:reported_status => 'expired')
     end
 
     def full_state
@@ -58,6 +54,10 @@ module PatronusFati::DataModels
         connected_clients: connected_clients.map(&:bssid),
         current_ssids: current_ssids.map(&:full_state)
       }
+    end
+
+    def seen!(time = Time.now.to_i)
+      update(last_seen_at: time, reported_status: 'active')
     end
   end
 end

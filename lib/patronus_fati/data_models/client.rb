@@ -27,24 +27,24 @@ module PatronusFati::DataModels
       all(:last_seen_at.lt => (Time.now.to_i - PatronusFati::CLIENT_EXPIRATION))
     end
 
+    def self.reported_active
+      all(:reported_status => 'active')
+    end
+
+    def self.reported_expired
+      all(:reported_status => 'expired')
+    end
+
+    def self.unreported
+      all(:reported_status => nil)
+    end
+
     def connected_access_points
       connections.active_unexpired.access_points
     end
 
     def disconnect!
       connections.active.map(&:disconnect!)
-    end
-
-    def unreported
-      all(:reported_status => nil)
-    end
-
-    def reported_active
-      all(:reported_status => 'active')
-    end
-
-    def reported_expired
-      all(:reported_status => 'expired')
     end
 
     def full_state

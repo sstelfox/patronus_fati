@@ -9,7 +9,7 @@ module PatronusFati::DataObservers
 
       @change_type = self.new? ? :new : :changed
       if @change_type == :changed
-        dirty = self.dirty_attributes.map { |a| "ssid/#{essid}/#{a.first.name}" }.map(&:to_s)
+        dirty = self.dirty_attributes.map { |a| a.first.name }.map(&:to_s)
 
         # If there weren't any meaningful changes, don't print out anything
         # after we save.
@@ -22,7 +22,7 @@ module PatronusFati::DataObservers
           clean = original_attributes[PatronusFati::DataModels::Client.properties[attr]]
           dirty = dirty_attributes[PatronusFati::DataModels::Client.properties[attr]]
 
-          [attr, [clean, dirty]]
+          ["probe/#{essid}/#{attr}", [clean, dirty]]
         end
 
         @change_list = Hash[changes]

@@ -11,7 +11,7 @@ module PatronusFati::DataObservers
 
       if @change_type == :changed
         dirty = self.dirty_attributes.map { |a| a.first.name }.map(&:to_s)
-        dirty.delete('last_seen_at')
+        dirty.delete('last_seen_at', 'reported_status')
 
         # If there weren't any meaningful changes, don't print out anything
         # after we save.
