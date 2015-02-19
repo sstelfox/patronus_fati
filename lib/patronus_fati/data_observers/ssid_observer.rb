@@ -41,6 +41,7 @@ module PatronusFati::DataObservers
         changes: @change_list,
         data: self.access_point.full_state
       }
+      puts JSON.generate(report_data)
 
       @change_type = nil
       @change_list = nil

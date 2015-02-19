@@ -2,6 +2,9 @@ module PatronusFati::MessageProcessor::Ssid
   include PatronusFati::MessageProcessor
 
   def self.process(obj)
+    # We don't care about objects that would have expired already...
+    return if obj[:lasttime] < (Time.now.to_i - PatronusFati::SSID_EXPIRATION)
+
     ssid_info = ssid_data(obj.attributes).select { |k, v| !v.nil? }
 
     if %w(beacon probe_response).include?(obj[:type])

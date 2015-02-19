@@ -2,6 +2,9 @@ module PatronusFati::MessageProcessor::Client
   include PatronusFati::MessageProcessor
 
   def self.process(obj)
+    # We don't care about objects that would have expired already...
+    return if obj[:lasttime] < (Time.now.to_i - PatronusFati::CLIENT_EXPIRATION)
+
     client = PatronusFati::DataModels::Client.first_or_create(bssid: obj[:mac])
     client.seen!(obj[:lasttime])
 
