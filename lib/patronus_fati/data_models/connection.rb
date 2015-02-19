@@ -4,29 +4,17 @@ module PatronusFati::DataModels
 
     default_scope(:default).update(:order => :connected_at.desc)
 
-    property :id, Serial
+    property :id,               Serial
 
-    property :connected_at,    Integer, :default => Proc.new { Time.now.to_i }
-    property :last_seen_at,    Integer, :default => Proc.new { Time.now.to_i }
-    property :disconnected_at, Integer
+    property :connected_at,     Integer, :default => Proc.new { Time.now.to_i }
+    property :disconnected_at,  Integer
+    property :last_seen_at,     Integer, :default => Proc.new { Time.now.to_i }
 
-    belongs_to :client
     belongs_to :access_point
+    belongs_to :client
 
     def self.active
       all(:disconnected_at => nil)
-    end
-
-    def self.expired
-      all(:last_seen_at.lt => (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION))
-    end
-
-    def self.unexpired
-      all(:last_seen_at.gte => (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION))
-    end
-
-    def self.inactive
-      all(:disconnected_at.not => nil)
     end
 
     def self.active_expired
@@ -35,6 +23,18 @@ module PatronusFati::DataModels
 
     def self.active_unexpired
       active & unexpired
+    end
+
+    def self.expired
+      all(:last_seen_at.lt => (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION))
+    end
+
+    def self.inactive
+      all(:disconnected_at.not => nil)
+    end
+
+    def self.unexpired
+      all(:last_seen_at.gte => (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION))
     end
 
     def active?

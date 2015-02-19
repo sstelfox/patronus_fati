@@ -9,5 +9,16 @@ module PatronusFati::DataModels
     belongs_to :src_mac,   :model => 'Mac', :required => false
     belongs_to :dst_mac,   :model => 'Mac', :required => false
     belongs_to :other_mac, :model => 'Mac', :required => false
+
+    def full_state
+      {
+        created_at: created_at,
+        message: message,
+
+        source: src_mac.mac,
+        destination: dst_mac.mac,
+        other: other_mac.mac
+      }
+    end
   end
 end
