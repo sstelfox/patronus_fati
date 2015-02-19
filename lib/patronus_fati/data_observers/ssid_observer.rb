@@ -8,6 +8,12 @@ module PatronusFati::DataObservers
       next unless self.valid?
 
       @change_type = self.new? ? :new : :changed
+      @change_list = {
+        ssids: [
+          [],
+          [full_state]
+        ]
+      }
 
       if @change_type == :changed
         dirty = self.dirty_attributes.map { |a| a.first.name }.map(&:to_s)
@@ -16,33 +22,25 @@ module PatronusFati::DataObservers
         # If there weren't any meaningful changes, don't print out anything
         # after we save.
         if dirty.empty?
+          @change_list = nil
           @change_type = nil
           next
         end
 
-        changes = dirty.map do |attr|
-          clean = original_attributes[PatronusFati::DataModels::Ssid.properties[attr]]
-          dirty = dirty_attributes[PatronusFati::DataModels::Ssid.properties[attr]]
-
-          [attr, [clean, dirty]]
-        end
-
-        @change_list = Hash[changes]
+        tmp_obj = Hash[original_attributes.map { |k,v| [k.name, v] }]
+        @change_list[:ssids][0] = PatronusFati::DataModels::Ssid.new(tmp_obj).full_state
       end
     end
 
     after :save do
       next unless @change_type
 
-      puts ('SSID (%s): %s' % [@change_type, self.full_state.inspect])
-      if @change_list
-        changed_keys = @change_list.keys.join(',')
-        changed_values = @change_list.map do |k, v|
-          '%s: (%s => %s)' % [k, v[0], v[1]]
-        end
-
-        puts ('--> (%s): %s' % [changed_keys, changed_values.join(' ')])
-      end
+      report_data = {
+        record_type: 'access_point',
+        report_type: @change_type,
+        changes: @change_list,
+        data: self.access_point.full_state
+      }
 
       @change_type = nil
       @change_list = nil
