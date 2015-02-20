@@ -7,7 +7,6 @@ module PatronusFati::DataObservers
     before :save do
       next unless self.valid?
 
-      @change_type = self.new? ? :new : :changed
       @change_list = {
         ssids: [
           [],
@@ -15,7 +14,7 @@ module PatronusFati::DataObservers
         ]
       }
 
-      if @change_type == :changed
+      unless self.new?
         dirty = self.dirty_attributes.map { |a| a.first.name }.map(&:to_s)
         dirty.delete('last_seen_at')
 
@@ -23,7 +22,6 @@ module PatronusFati::DataObservers
         # after we save.
         if dirty.empty?
           @change_list = nil
-          @change_type = nil
           next
         end
 
@@ -33,17 +31,16 @@ module PatronusFati::DataObservers
     end
 
     after :save do
-      next unless @change_type
+      next unless @change_list
 
       report_data = {
         record_type: 'access_point',
-        report_type: @change_type,
+        report_type: :changed,
         changes: @change_list,
         data: self.access_point.full_state
       }
       puts JSON.generate(report_data)
 
-      @change_type = nil
       @change_list = nil
     end
   end

@@ -51,8 +51,8 @@ module PatronusFati::DataModels
         channel: channel,
         vendor: mac.vendor,
 
-        connected_clients: connected_clients.map(&:bssid),
-        current_ssids: current_ssids.map(&:full_state)
+        clients: connected_clients.map(&:bssid),
+        ssids: current_ssids.map(&:full_state)
       }
     end
 
