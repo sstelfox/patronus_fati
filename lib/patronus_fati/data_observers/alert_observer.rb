@@ -5,7 +5,7 @@ module PatronusFati::DataObservers
     observe PatronusFati::DataModels::Alert
 
     after :save do
-      puts ('New Alert: %s' % full_state.inspect)
+      puts JSON.generate(full_state)
     end
   end
 end

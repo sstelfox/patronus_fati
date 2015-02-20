@@ -1,3 +1,5 @@
+STDOUT.sync = true
+
 require 'date'
 require 'digest'
 require 'json'
