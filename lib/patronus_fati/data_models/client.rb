@@ -36,11 +36,11 @@ module PatronusFati::DataModels
     end
 
     def connected_access_points
-      connections.active_unexpired.access_points
+      connections.unexpired.access_points
     end
 
     def disconnect!
-      connections.active.map(&:disconnect!)
+      connections.map(&:destroy)
     end
 
     def full_state

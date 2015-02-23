@@ -37,11 +37,15 @@ module PatronusFati::DataModels
     end
 
     def connected_clients
-      connections.active_unexpired.clients
+      connections.unexpired.clients
     end
 
     def current_ssids
       ssids.active
+    end
+
+    def disconnect_clients!
+      connections.destroy
     end
 
     def full_state
