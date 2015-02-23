@@ -7,6 +7,7 @@ module PatronusFati::DataModels
     property :beacon_rate,  Integer
     property :cloaked,      Boolean,  :default => false
     property :essid,        String,   :length  => 64
+    property :type,         String,   :required => true
     property :last_seen_at, Integer,  :default => Proc.new { Time.now.to_i }
 
     property :crypt_set,    CryptFlags
@@ -26,6 +27,7 @@ module PatronusFati::DataModels
         beacon_rate: beacon_rate,
         cloaked: cloaked,
         crypt_set: crypt_set,
+        type: type,
         essid: essid,
       }
     end

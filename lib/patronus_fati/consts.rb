@@ -73,7 +73,7 @@ module PatronusFati
   AP_EXPIRATION = 600
 
   # Number of seconds before we consider a client as no longer within range.
-  CLIENT_EXPIRATION = 600
+  CLIENT_EXPIRATION = 900
 
   # How long before a connection between a client and an access point is
   # consider no longer actively connected.
