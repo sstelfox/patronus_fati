@@ -21,16 +21,14 @@ module PatronusFati::DataModels
     end
 
     def duration
-      Time.now.to_i - connected_at
+      last_seen_at - connected_at
     end
 
     def full_state
       {
         access_point: access_point.bssid,
         client: client.bssid,
-
-        connected_at: connected_at,
-        duration: duration
+        connected_at: connected_at
       }
     end
 

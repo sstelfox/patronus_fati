@@ -77,7 +77,7 @@ module PatronusFati
 
   # How long before a connection between a client and an access point is
   # consider no longer actively connected.
-  CONNECTION_EXPIRATION = 300
+  CONNECTION_EXPIRATION = 900
 
   # Number of seconds before we consider an access point no longer advertising an
   # SSID.

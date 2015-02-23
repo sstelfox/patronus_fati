@@ -5,7 +5,13 @@ module PatronusFati::DataObservers
     observe PatronusFati::DataModels::Alert
 
     after :save do
-      puts JSON.generate(full_state)
+      report_data = {
+        record_type: 'alert',
+        report_type: 'new',
+        data: self.full_state,
+        timestamp: Time.now.to_i
+      }
+      puts JSON.generate(report_data)
     end
   end
 end

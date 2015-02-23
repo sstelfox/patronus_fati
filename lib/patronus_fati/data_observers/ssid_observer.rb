@@ -37,7 +37,8 @@ module PatronusFati::DataObservers
         record_type: 'access_point',
         report_type: :changed,
         changes: @change_list,
-        data: self.access_point.full_state
+        data: self.access_point.full_state,
+        timestamp: Time.now.to_i
       }
       puts JSON.generate(report_data)
 

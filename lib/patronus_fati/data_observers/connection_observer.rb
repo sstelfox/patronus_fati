@@ -20,7 +20,8 @@ module PatronusFati::DataObservers
       report_data = {
         record_type: 'connection',
         report_type: 'connect',
-        data: self.full_state
+        data: self.full_state.merge(duration: duration),
+        timestamp: Time.now.to_i
       }
       puts JSON.generate(report_data)
     end

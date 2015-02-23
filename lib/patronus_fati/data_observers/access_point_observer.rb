@@ -38,7 +38,8 @@ module PatronusFati::DataObservers
       report_data = {
         record_type: 'access_point',
         report_type: @change_type,
-        data: self.full_state
+        data: self.full_state,
+        timestamp: Time.now.to_i
       }
       report_data[:changes] = @change_list if @change_list
 
