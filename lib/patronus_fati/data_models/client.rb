@@ -39,8 +39,11 @@ module PatronusFati::DataModels
       connections.unexpired.access_points
     end
 
-    def disconnect!
-      connections.map(&:destroy)
+    def disconnect!(reason = nil)
+      connections.each do |conn|
+        conn.reason = reason
+        conn.destroy
+      end
     end
 
     def full_state

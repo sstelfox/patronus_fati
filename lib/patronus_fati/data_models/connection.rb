@@ -12,6 +12,8 @@ module PatronusFati::DataModels
     belongs_to :access_point
     belongs_to :client
 
+    attr_accessor :reason
+
     def self.expired
       all(:last_seen_at.lt => (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION))
     end
@@ -21,7 +23,7 @@ module PatronusFati::DataModels
     end
 
     def duration
-      last_seen_at - connected_at
+      Time.now.to_i - connected_at
     end
 
     def full_state

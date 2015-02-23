@@ -11,16 +11,19 @@ module PatronusFati
         PatronusFati::DataModels::AccessPoint.inactive.reported_active.each do |ap|
           ap.update(:reported_status => 'expired')
           puts JSON.generate({'record_type' => 'access_point', 'report_type' => 'offline', 'data' => {'bssid' => ap.bssid}})
-          ap.disconnect_clients!
+          ap.disconnect_clients!('AP expired')
         end
 
         PatronusFati::DataModels::Client.inactive.reported_active.each do |cli|
           cli.update(:reported_status => 'expired')
           puts JSON.generate({'record_type' => 'client', 'report_type' => 'offline', 'data' => {'bssid' => cli.bssid}})
-          cli.disconnect!
+          cli.disconnect!('Client expired')
         end
 
-        PatronusFati::DataModels::Connection.expired.map(&:destroy)
+        PatronusFati::DataModels::Connection.expired.each do |conn|
+          conn.reason = 'Connection expired'
+          conn.destroy
+        end
       end
     end
 

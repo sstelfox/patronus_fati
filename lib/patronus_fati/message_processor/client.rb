@@ -14,7 +14,8 @@ module PatronusFati::MessageProcessor::Client
 
     # Handle the associations
     if obj[:bssid].nil? || obj[:bssid].empty? || obj[:bssid] == obj[:mac]
-      client.disconnect!
+      # This seems to be a problem...
+      #client.disconnect!("Connected to self or blank field #{obj[:bssid]}")
     else
       return unless (ap = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:bssid]))
 

@@ -44,8 +44,11 @@ module PatronusFati::DataModels
       ssids.active
     end
 
-    def disconnect_clients!
-      connections.destroy
+    def disconnect_clients!(reason = nil)
+      connections.each do |conn|
+        conn.reason = reason
+        conn.destroy
+      end
     end
 
     def full_state
