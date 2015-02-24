@@ -13,8 +13,6 @@ module PatronusFati::DataModels
     belongs_to :access_point
     belongs_to :client
 
-    attr_accessor :reason
-
     def self.connected
       all(:disconnected_at => nil)
     end
@@ -29,6 +27,14 @@ module PatronusFati::DataModels
 
     def self.unexpired
       all(:last_seen_at.gte => (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION))
+    end
+
+    def connected?
+      disconnected_at.nil?
+    end
+
+    def disconnect!
+      update(disconnected_at: Time.now.to_i) if connected?
     end
 
     def duration
