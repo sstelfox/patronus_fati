@@ -39,6 +39,7 @@ connection.connect
 
 exception_logger('process') do
   DataMapper.setup(:default, options['database'])
+  DataMapper.repository(:default).adapter.resource_naming_convention = PatronusFati::NullTablePrefix
   DataMapper.finalize
   DataMapper.auto_upgrade!
 
