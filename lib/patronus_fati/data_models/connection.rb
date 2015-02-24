@@ -8,11 +8,20 @@ module PatronusFati::DataModels
 
     property :connected_at,     Integer, :default => Proc.new { Time.now.to_i }
     property :last_seen_at,     Integer, :default => Proc.new { Time.now.to_i }
+    property :disconnected_at,  Integer, :default => Proc.new { Time.now.to_i }
 
     belongs_to :access_point
     belongs_to :client
 
     attr_accessor :reason
+
+    def self.connected
+      all(:disconnected_at => nil)
+    end
+
+    def self.disconnected
+      all(:disconnected_at.not => nil)
+    end
 
     def self.expired
       all(:last_seen_at.lt => (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION))
