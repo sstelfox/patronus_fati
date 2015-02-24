@@ -2,18 +2,38 @@ module PatronusFati::DataModels
   class AccessPoint
     include DataMapper::Resource
 
-    property  :id,              Serial
-    property  :bssid,           String,   :length   => 17, :required => true, :unique => true
-    property  :type,            String,   :required => true
-    property  :channel,         Integer,  :required => true
-    property  :reported_status, String,   :default  => 'active'
+    property  :id,                Serial
 
-    property  :last_seen_at,    Integer,  :default => Proc.new { Time.now.to_i }
+    property  :bssid,             String, :length   => 17,
+                                          :required => true,
+                                          :unique   => true
 
-    has n, :clients,      :through    => :connections
-    has n, :connections,  :constraint => :destroy,
-                          :child_key  => :access_point_id
-    has n, :ssids,        :constraint => :destroy
+    property  :channel,           Integer
+    property  :max_seen_rate,     Integer
+    property  :type,              String, :required => true
+
+    property  :duplicate_iv_pkts, Integer,  :default => 0
+    property  :crypt_packets,     Integer,  :default => 0
+    property  :data_packets,      Integer,  :default => 0
+    property  :data_size,         Integer,  :default => 0
+
+    property  :fragments,         Integer,  :default => 0
+    property  :retries,           Integer,  :default => 0
+
+    property  :range_ip,          String
+    property  :netmask,           String
+    property  :gateway_ip,        String
+
+    property  :last_seen_at,      Integer,  :default  => Proc.new { Time.now.to_i }
+    property  :reported_status,   String,   :default  => 'active'
+
+    property  :signal_dbm,        Integer
+
+    has n, :clients,        :through    => :connections
+    has n, :connections,    :constraint => :destroy,
+                            :child_key  => :access_point_id
+    has n, :ssids,          :constraint => :destroy
+    has n, :ap_frequencies, :constraint => :destroy
 
     belongs_to :mac, :required => false
     before :save do
@@ -65,6 +85,13 @@ module PatronusFati::DataModels
 
     def seen!(time = Time.now.to_i)
       update(last_seen_at: time, reported_status: 'active')
+    end
+
+    def update_frequencies(freq_hsh)
+      freq_hsh.each do |freq, packet_count|
+        f = ap_frequencies.first_or_create({mhz: freq}, {packet_count: packet_count})
+        f.update({packet_count: packet_count})
+      end
     end
   end
 end

@@ -2,6 +2,7 @@
 *.rbc
 *.db
 *.db-journal
+*.log
 .bundle
 .config
 .yardoc

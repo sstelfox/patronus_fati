@@ -6,13 +6,29 @@ module PatronusFati::DataModels
 
     property  :id,              Serial
     property  :bssid,           String,   :length => 17, :unique => true
+    property  :channel,         Integer
+
+    property  :crypt_packets,   Integer,  :default => 0
+    property  :data_packets,    Integer,  :default => 0
+    property  :data_size,       Integer,  :default => 0
+    property  :fragments,       Integer,  :default => 0
+    property  :retries,         Integer,  :default => 0
+
+    property  :max_seen_rate,   Integer
+    property  :signal_dbm,      Integer
+
+    property  :ip,              String
+    property  :gateway_ip,      String
+    property  :dhcp_host,       String,   :length => 64
+
     property  :last_seen_at,    Integer,  :default => Proc.new { Time.now.to_i }
     property  :reported_status, String,   :default => 'active'
 
     has n, :connections,    :constraint => :destroy
     has n, :access_points,  :through    => :connections
 
-    has n, :probes
+    has n, :client_frequencies, :constraint => :destroy
+    has n, :probes,             :constraint => :destroy
 
     belongs_to :mac, :required => false
     before :save do
@@ -56,8 +72,11 @@ module PatronusFati::DataModels
       }
     end
 
-    def seen!(time = Time.now.to_i)
-      update(last_seen_at: time, reported_status: 'active')
+    def update_frequencies(freq_hsh)
+      freq_hsh.each do |freq, packet_count|
+        f = client_frequencies.first_or_create({mhz: freq}, {packet_count: packet_count})
+        f.update({packet_count: packet_count})
+      end
     end
   end
 end

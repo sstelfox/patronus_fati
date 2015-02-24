@@ -13,7 +13,7 @@ module PatronusFati
       :newpackets, :freqmhz, :datacryptset
     )
     Bssid.set_data_filter(:bssid) { |val| val.downcase }
-    Bssid.set_data_filter(:llcpackets, :datapackets, :cryptpackets, :channel,
+    Bssid.set_data_filter(:llcpackets, :datapackets, :cryptpackets,
                           :firsttime, :lasttime, :atype, :gpsfixed, :minlat,
                           :minlon, :minalt, :minspd, :maxlat, :maxlon, :maxalt,
                           :maxspd, :signal_dbm, :noise_dbm, :minsignal_dbm,
@@ -32,6 +32,13 @@ module PatronusFati
     #
     # @param [String] bssid_type The string is actually an integer value in
     #   numeric form (this is how it's received from the network).
+    Bssid.set_data_filter(:channel) { |val| ch = val.to_i; (ch == 0) ? nil : ch }
     Bssid.set_data_filter(:type) { |val| BSSID_TYPE_MAP[val.to_i] || val.to_i }
+    Bssid.set_data_filter(:rangeip, :netmaskip, :gatewayip) { |val| (val == "0.0.0.0") ? nil : val }
+
+    Bssid.set_data_filter(:freqmhz) do |val|
+      raw = val.split('*').reject { |i| i.strip.empty? }.map { |v| v.split(':').map(&:to_i) }
+      Hash[raw]
+    end
   end
 end

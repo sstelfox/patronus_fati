@@ -5,18 +5,18 @@ module PatronusFati::MessageProcessor::Client
     # We don't care about objects that would have expired already...
     return if obj[:lasttime] < (Time.now.to_i - PatronusFati::CLIENT_EXPIRATION)
 
-    client = PatronusFati::DataModels::Client.first_or_create(bssid: obj[:mac])
-    client.seen!(obj[:lasttime])
+    client_info = client_data(obj.attributes)
+
+    client = PatronusFati::DataModels::Client.first_or_create({bssid: obj[:mac]}, client_info)
+    client.update(client_info)
+    client.update_frequencies(obj.freqmhz)
 
     # Don't deal in associations that are outside of our connection expiration
     # time...
     return if obj[:lasttime] <= (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION)
 
     # Handle the associations
-    if obj[:bssid].nil? || obj[:bssid].empty? || obj[:bssid] == obj[:mac]
-      # This seems to be a problem...
-      #client.disconnect!("Connected to self or blank field #{obj[:bssid]}")
-    else
+    unless obj[:bssid].nil? || obj[:bssid].empty? || obj[:bssid] == obj[:mac]
       return unless (ap = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:bssid]))
 
       conn = PatronusFati::DataModels::Connection.first_or_create(
@@ -27,5 +27,32 @@ module PatronusFati::MessageProcessor::Client
     end
 
     nil
+  end
+
+  protected
+
+  def self.client_data(attrs)
+    {
+      bssid: attrs[:mac],
+      channel: attrs[:channel],
+
+      crypt_packets: attrs[:cryptpackets],
+      data_packets: attrs[:datapackets],
+      data_size: attrs[:datasize],
+
+      fragments: attrs[:fragments],
+      retries: attrs[:retries],
+
+      signal_dbm: attrs[:signal_dbm],
+
+      max_seen_rate: attrs[:maxseenrate],
+
+      ip: attrs[:ip],
+      gateway_ip: attrs[:gatewayip],
+      dhcp_host: attrs[:dhcphost],
+
+      last_seen_at: attrs[:lastseen],
+      reported_status: 'active'
+    }.reject { |_, v| v.nil? }
   end
 end

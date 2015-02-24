@@ -10,6 +10,6 @@ module PatronusFati
       :bestalt, :agglat, :agglon, :aggalt, :aggpoints
     )
     Common.set_data_filter(:macaddr) { |val| val.downcase }
-    Bssid.set_data_filter(:firsttime, :lasttime) { |val| val.to_i }
+    Common.set_data_filter(:firsttime, :lasttime) { |val| val.to_i }
   end
 end

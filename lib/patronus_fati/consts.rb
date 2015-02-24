@@ -70,7 +70,7 @@ module PatronusFati
   /x
 
   # Number of seconds before we consider an access point as offline
-  AP_EXPIRATION = 600
+  AP_EXPIRATION = 300
 
   # Number of seconds before we consider a client as no longer within range.
   CLIENT_EXPIRATION = 900
@@ -81,5 +81,5 @@ module PatronusFati
 
   # Number of seconds before we consider an access point no longer advertising an
   # SSID.
-  SSID_EXPIRATION = 600
+  SSID_EXPIRATION = 300
 end

@@ -5,7 +5,7 @@ module PatronusFati::MessageProcessor::Ssid
     # We don't care about objects that would have expired already...
     return if obj[:lasttime] < (Time.now.to_i - PatronusFati::SSID_EXPIRATION)
 
-    ssid_info = ssid_data(obj.attributes).select { |k, v| !v.nil? }
+    ssid_info = ssid_data(obj.attributes)
 
     if %w(beacon probe_response).include?(obj[:type])
       access_point = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:mac])
@@ -29,11 +29,13 @@ module PatronusFati::MessageProcessor::Ssid
 
   def self.ssid_data(attrs)
     {
+      beacon_info: attrs[:beaconinfo],
       beacon_rate: attrs[:beaconrate],
       cloaked:  attrs[:cloaked],
       crypt_set: attrs[:cryptset].map(&:to_s),
       essid: attrs[:ssid],
-      last_seen_at: attrs[:lasttime]
-    }
+      last_seen_at: attrs[:lasttime],
+      max_rate: attrs[:maxrate]
+    }.reject { |_, v| v.nil? }
   end
 end
