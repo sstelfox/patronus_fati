@@ -39,7 +39,7 @@ module PatronusFati::DataModels
     end
 
     def duration
-      duration || (Time.now.to_i - connected_at)
+      self[:duration] || (Time.now.to_i - connected_at)
     end
 
     def full_state
