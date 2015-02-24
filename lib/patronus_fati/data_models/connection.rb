@@ -9,6 +9,7 @@ module PatronusFati::DataModels
     property :connected_at,     Integer, :default => Proc.new { Time.now.to_i }
     property :last_seen_at,     Integer, :default => Proc.new { Time.now.to_i }
     property :disconnected_at,  Integer, :default => Proc.new { Time.now.to_i }
+    property :duration,         Integer
 
     belongs_to :access_point
     belongs_to :client
@@ -34,11 +35,11 @@ module PatronusFati::DataModels
     end
 
     def disconnect!
-      update(disconnected_at: Time.now.to_i) if connected?
+      update(disconnected_at: Time.now.to_i, duration: duration) if connected?
     end
 
     def duration
-      Time.now.to_i - connected_at
+      duration || (Time.now.to_i - connected_at)
     end
 
     def full_state
