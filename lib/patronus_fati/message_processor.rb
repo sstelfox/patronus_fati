@@ -25,8 +25,8 @@ module PatronusFati
     end
 
     def self.handle(message_obj)
-      cleanup_models
       factory(class_to_name(message_obj), message_obj)
+      cleanup_models
     rescue => e
       puts 'Error processing the following message object:'
       puts message_obj.inspect
