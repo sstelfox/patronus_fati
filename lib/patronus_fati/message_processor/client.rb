@@ -18,6 +18,7 @@ module PatronusFati::MessageProcessor::Client
     # Handle the associations
     unless obj[:bssid].nil? || obj[:bssid].empty? || obj[:bssid] == obj[:mac]
       return unless (ap = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:bssid]))
+      ap.seen!(obj[:lasttime])
 
       conn = PatronusFati::DataModels::Connection.connected.first_or_create(
         {client: client, access_point: ap},

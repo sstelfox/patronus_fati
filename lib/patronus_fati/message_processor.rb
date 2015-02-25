@@ -5,18 +5,18 @@ module PatronusFati
     def self.cleanup_models
       @last_cleanup ||= Time.now.to_i
 
-      if @last_cleanup < (Time.now.to_i - 10)
+      if @last_cleanup < Time.now.to_i
         @last_cleanup = Time.now.to_i
 
         PatronusFati::DataModels::AccessPoint.inactive.reported_active.each do |ap|
           ap.update(:reported_status => 'expired')
-          puts JSON.generate({'record_type' => 'access_point', 'report_type' => 'offline', 'data' => {'bssid' => ap.bssid}})
+          puts JSON.generate({'record_type' => 'access_point', 'report_type' => 'offline', 'data' => {'bssid' => ap.bssid, 'uptime' => (Time.now.to_i - ap.last_seen_at)}})
           ap.disconnect_clients!
         end
 
         PatronusFati::DataModels::Client.inactive.reported_active.each do |cli|
           cli.update(:reported_status => 'expired')
-          puts JSON.generate({'record_type' => 'client', 'report_type' => 'offline', 'data' => {'bssid' => cli.bssid}})
+          puts JSON.generate({'record_type' => 'client', 'report_type' => 'offline', 'data' => {'bssid' => cli.bssid, 'uptime' => (Time.now.to_i - cli.last_seen_at)}})
           cli.disconnect!
         end
 
