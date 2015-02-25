@@ -9,6 +9,7 @@ end
 
 task :database => [:environment] do
   DataMapper.setup(:default, ENV['DATABASE_URL'] || 'sqlite::memory:')
+  DataMapper.repository(:default).adapter.resource_naming_convention = PatronusFati::NullTablePrefix
   DataMapper.finalize
   DataMapper.auto_upgrade!
 end
