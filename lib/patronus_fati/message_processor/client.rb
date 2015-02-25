@@ -51,7 +51,7 @@ module PatronusFati::MessageProcessor::Client
       gateway_ip: attrs[:gatewayip],
       dhcp_host: attrs[:dhcphost],
 
-      last_seen_at: attrs[:lastseen],
+      last_seen_at: attrs[:lasttime],
       reported_status: 'active'
     }.reject { |_, v| v.nil? }
   end
