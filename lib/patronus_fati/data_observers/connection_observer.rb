@@ -25,6 +25,9 @@ module PatronusFati::DataObservers
     after :save do
       next unless @change_type
 
+      client.mac.update_cached_counts!
+      access_point.mac.update_cached_counts!
+
       if @change_type == :new
         if disconnected_at.nil?
           report_data = {

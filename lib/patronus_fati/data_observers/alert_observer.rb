@@ -5,6 +5,8 @@ module PatronusFati::DataObservers
     observe PatronusFati::DataModels::Alert
 
     after :save do
+      [src_mac, dst_mac, other_mac].uniq.map(&:update_cached_counts!)
+
       report_data = {
         record_type: 'alert',
         report_type: 'new',

@@ -34,6 +34,8 @@ module PatronusFati::DataObservers
     after :save do
       next unless @change_type
 
+      mac.update_cached_counts!
+
       report_data = {
         record_type: 'access_point',
         report_type: @change_type,
