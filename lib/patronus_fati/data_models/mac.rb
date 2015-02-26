@@ -7,11 +7,11 @@ module PatronusFati::DataModels
     property :mac,    String, :length => 17, :unique => true
     property :vendor, String, :length => 255
 
-    property :alert_count,              Integer, :default => 0
-    property :ap_connections_count,     Integer, :default => 0
-    property :ssid_count,               Integer, :default => 0
-    property :client_count,             Integer, :default => 0
-    property :client_connections_count, Integer, :default => 0
+    property :alert_count,        Integer, :default => 0
+    property :clients_connected,  Integer, :default => 0
+    property :active_ssids,       Integer, :default => 0
+    property :is_client,          Boolean, :default => false
+    property :connections_to_ap,  Integer, :default => 0
 
     has n, :access_points
     has n, :clients
@@ -27,13 +27,21 @@ module PatronusFati::DataModels
       self.vendor = result['long_vendor'] || result['short_vendor']
     end
 
+    def is_ap?
+      access_points.active.any?
+    end
+
+    def is_client?
+      clients.active.any?
+    end
+
     def update_cached_counts!
       update(
-        alert_count: (dst_alerts.map(&:id) | other_alerts.map(&:id) | src_alerts.map(&:id)).count,
-        ap_connections_count: access_points.connections.connected.count,
-        ssid_count: access_points.active.ssids.count,
-        client_count: clients.active.count,
-        client_connections_count: clients.connections.connected.count
+        alert_count:        (dst_alerts | other_alerts | src_alerts).count,
+        active_ssids:       access_points.ssids.active.count,
+        clients_connected:  access_points.connections.connected.count,
+        connections_to_ap:  clients.connections.connected.count,
+        is_client:          is_client?
       )
     end
   end

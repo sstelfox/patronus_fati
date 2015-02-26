@@ -7,6 +7,10 @@ module PatronusFati::DataObservers
     before :save do
       next unless self.valid?
 
+      # We're about to report this, make sure the attribute gets saved
+      old_ro_val = reported_online
+      self.reported_online = true
+
       @change_list = {
         ssids: [
           [],
@@ -22,6 +26,7 @@ module PatronusFati::DataObservers
         # after we save.
         if dirty.empty?
           @change_list = nil
+          self.reported_online = old_ro_val
           next
         end
 

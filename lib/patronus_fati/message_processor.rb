@@ -8,19 +8,19 @@ module PatronusFati
       if @last_cleanup < Time.now.to_i
         @last_cleanup = Time.now.to_i
 
-        PatronusFati::DataModels::AccessPoint.inactive.reported_active.each do |ap|
-          ap.update(:reported_status => 'expired')
+        PatronusFati::DataModels::AccessPoint.inactive.reported_online.each do |ap|
+          ap.update(:reported_online => false)
           puts JSON.generate({'record_type' => 'access_point', 'report_type' => 'offline', 'data' => {'bssid' => ap.bssid, 'uptime' => (Time.now.to_i - ap.last_seen_at)}})
           ap.disconnect_clients!
         end
 
-        PatronusFati::DataModels::Client.inactive.reported_active.each do |cli|
-          cli.update(:reported_status => 'expired')
+        PatronusFati::DataModels::Client.inactive.reported_online.each do |cli|
+          cli.update(:reported_online => false)
           puts JSON.generate({'record_type' => 'client', 'report_type' => 'offline', 'data' => {'bssid' => cli.bssid, 'uptime' => (Time.now.to_i - cli.last_seen_at)}})
           cli.disconnect!
         end
 
-        PatronusFati::DataModels::Connection.expired.connected.map(&:disconnect!)
+        PatronusFati::DataModels::Connection.inactive.connected.map(&:disconnect!)
       end
     end
 

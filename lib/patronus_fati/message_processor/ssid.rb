@@ -15,7 +15,11 @@ module PatronusFati::MessageProcessor::Ssid
       ssid.update(ssid_info)
     elsif obj[:type] == 'probe_request'
       client = PatronusFati::DataModels::Client.first(bssid: obj[:mac])
-      return if client.nil? || obj[:ssid].nil? || obj[:ssid].empty?
+
+      return if client.nil?
+      client.seen!
+
+      return if obj[:ssid].nil? || obj[:ssid].empty?
       client.probes.first_or_create(essid: obj[:ssid])
     else
       # The only thing left is the 'file' type which no one seems to understand
@@ -31,11 +35,13 @@ module PatronusFati::MessageProcessor::Ssid
     {
       beacon_info: attrs[:beaconinfo],
       beacon_rate: attrs[:beaconrate],
+
       cloaked:  attrs[:cloaked],
       crypt_set: attrs[:cryptset].map(&:to_s),
       essid: attrs[:ssid],
-      last_seen_at: attrs[:lasttime],
-      max_rate: attrs[:maxrate]
+      max_rate: attrs[:maxrate],
+
+      last_seen_at: Time.now.to_i
     }.reject { |_, v| v.nil? }
   end
 end

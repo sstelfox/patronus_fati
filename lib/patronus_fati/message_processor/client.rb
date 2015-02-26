@@ -18,13 +18,10 @@ module PatronusFati::MessageProcessor::Client
     # Handle the associations
     unless obj[:bssid].nil? || obj[:bssid].empty? || obj[:bssid] == obj[:mac]
       return unless (ap = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:bssid]))
-      ap.seen!(obj[:lasttime])
+      ap.seen!
 
-      conn = PatronusFati::DataModels::Connection.connected.first_or_create(
-        {client: client, access_point: ap},
-        {connected_at: obj[:lasttime], last_seen_at: obj[:lasttime]}
-      )
-      conn.seen!(last_seen_at: obj[:lasttime])
+      conn = PatronusFati::DataModels::Connection.connected.first_or_create({client: client, access_point: ap})
+      conn.seen!(last_seen_at: Time.now.to_i)
     end
 
     nil
@@ -52,8 +49,7 @@ module PatronusFati::MessageProcessor::Client
       gateway_ip: attrs[:gatewayip],
       dhcp_host: attrs[:dhcphost],
 
-      last_seen_at: attrs[:lasttime],
-      reported_status: 'active'
+      last_seen_at: Time.now.to_i
     }.reject { |_, v| v.nil? }
   end
 end

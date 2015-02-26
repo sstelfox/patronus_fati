@@ -2,12 +2,11 @@ module PatronusFati::DataModels
   class Connection
     include DataMapper::Resource
 
-    default_scope(:default).update(:order => :connected_at.desc)
+    include PatronusFati::DataModels::ExpirationAttributes
 
     property :id,               Serial
 
     property :connected_at,     Integer, :default => Proc.new { Time.now.to_i }
-    property :last_seen_at,     Integer, :default => Proc.new { Time.now.to_i }
     property :disconnected_at,  Integer, :default => Proc.new { Time.now.to_i }
     property :duration,         Integer
 
@@ -22,12 +21,8 @@ module PatronusFati::DataModels
       all(:disconnected_at.not => nil)
     end
 
-    def self.expired
-      all(:last_seen_at.lt => (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION))
-    end
-
-    def self.unexpired
-      all(:last_seen_at.gte => (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION))
+    def self.current_expiration_threshold
+      Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION
     end
 
     def connected?
@@ -48,10 +43,6 @@ module PatronusFati::DataModels
         client: client.bssid,
         connected_at: connected_at
       }
-    end
-
-    def seen!(time = Time.now.to_i)
-      update(:last_seen_at => time)
     end
   end
 end

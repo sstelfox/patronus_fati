@@ -41,8 +41,7 @@ module PatronusFati::MessageProcessor::Bssid
       netmask: attrs[:netmaskip],
       gateway_ip: attrs[:gatewayip],
 
-      last_seen_at: attrs[:lasttime],
-      reported_status: 'active'
+      last_seen_at: Time.now.to_i
     }.reject { |_, v| v.nil? }
   end
 end

@@ -31,6 +31,8 @@ require 'patronus_fati/message_models'
 require 'patronus_fati/message_parser'
 require 'patronus_fati/message_processor'
 
+require 'patronus_fati/data_models/common'
+
 require 'patronus_fati/data_models/access_point'
 require 'patronus_fati/data_models/ap_frequency'
 require 'patronus_fati/data_models/alert'

@@ -2,6 +2,9 @@ module PatronusFati::DataModels
   class AccessPoint
     include DataMapper::Resource
 
+    include PatronusFati::DataModels::ExpirationAttributes
+    include PatronusFati::DataModels::ReportedAttributes
+
     property  :id,                Serial
 
     property  :bssid,             String, :length   => 17,
@@ -24,8 +27,6 @@ module PatronusFati::DataModels
     property  :netmask,           String
     property  :gateway_ip,        String
 
-    property  :last_seen_at,      Integer,  :default  => Proc.new { Time.now.to_i }
-    property  :reported_status,   String,   :default  => 'active'
 
     property  :signal_dbm,        Integer
 
@@ -40,24 +41,12 @@ module PatronusFati::DataModels
       self.mac = Mac.first_or_create(mac: bssid)
     end
 
-    def self.active
-      all(:last_seen_at.gte => (Time.now.to_i - PatronusFati::AP_EXPIRATION))
-    end
-
-    def self.inactive
-      all(:last_seen_at.lt => (Time.now.to_i - PatronusFati::AP_EXPIRATION))
-    end
-
-    def self.reported_active
-      all(:reported_status => 'active')
-    end
-
-    def self.reported_expired
-      all(:reported_status => 'expired')
+    def self.current_expiration_threshold
+      Time.now.to_i - PatronusFati::AP_EXPIRATION
     end
 
     def connected_clients
-      connections.unexpired.clients
+      connections.active.clients
     end
 
     def current_ssids
@@ -78,10 +67,6 @@ module PatronusFati::DataModels
         clients: connected_clients.map(&:bssid),
         ssids: current_ssids.map(&:full_state)
       }
-    end
-
-    def seen!(time = Time.now.to_i)
-      update(last_seen_at: time, reported_status: 'active')
     end
 
     def update_frequencies(freq_hsh)
