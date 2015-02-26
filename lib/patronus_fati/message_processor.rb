@@ -10,13 +10,13 @@ module PatronusFati
 
         PatronusFati::DataModels::AccessPoint.inactive.reported_online.each do |ap|
           ap.update(:reported_online => false)
-          puts JSON.generate({'record_type' => 'access_point', 'report_type' => 'offline', 'data' => {'bssid' => ap.bssid, 'uptime' => (Time.now.to_i - ap.last_seen_at)}})
+          puts JSON.generate({'record_type' => 'access_point', 'report_type' => 'offline', 'data' => {'bssid' => ap.bssid, 'uptime' => ap.uptime}})
           ap.disconnect_clients!
         end
 
         PatronusFati::DataModels::Client.inactive.reported_online.each do |cli|
           cli.update(:reported_online => false)
-          puts JSON.generate({'record_type' => 'client', 'report_type' => 'offline', 'data' => {'bssid' => cli.bssid, 'uptime' => (Time.now.to_i - cli.last_seen_at)}})
+          puts JSON.generate({'record_type' => 'client', 'report_type' => 'offline', 'data' => {'bssid' => cli.bssid, 'uptime' => cli.uptime}})
           cli.disconnect!
         end
 

@@ -58,15 +58,8 @@ module PatronusFati::DataModels
     end
 
     def full_state
-      {
-        bssid: bssid,
-        type: type,
-        channel: channel,
-        vendor: mac.vendor,
-
-        clients: connected_clients.map(&:bssid),
-        ssids: current_ssids.map(&:full_state)
-      }
+      blacklisted_keys = %w(id last_seen_at reported_status)
+      attributes.reject { |k, v| blacklisted_keys.include?(k) || v.nil? }.merge(vendor: mac.vendor)
     end
 
     def update_frequencies(freq_hsh)

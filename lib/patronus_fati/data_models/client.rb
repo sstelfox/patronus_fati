@@ -46,13 +46,13 @@ module PatronusFati::DataModels
     end
 
     def full_state
-      {
-        bssid: bssid,
-        vendor: mac.vendor,
-
-        connected_access_points: connected_access_points.map(&:bssid).uniq,
+      blacklisted_keys = %w(id last_seen_at reported_status)
+      base_attrs = attributes.reject { |k, v| blacklisted_keys.include?(k) || v.nil? }
+      base_attrs.merge(
+        connected_access_points: connected_access_points.map(&:bssid),
         probes: probes.map(&:essid),
-      }
+        vendor: mac.vendor
+      )
     end
 
     def update_frequencies(freq_hsh)

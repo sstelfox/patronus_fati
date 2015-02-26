@@ -31,6 +31,10 @@ module PatronusFati
         self.last_seen_at = Time.now.to_i
       end
 
+      def uptime
+        Time.now.to_i - last_seen_at
+      end
+
       module EAClassMethods
         def active
           all(:last_seen_at.gte => current_expiration_threshold)

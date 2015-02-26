@@ -41,7 +41,7 @@ module PatronusFati::DataModels
       {
         access_point: access_point.bssid,
         client: client.bssid,
-        connected_at: connected_at
+        connected: connected?
       }
     end
   end
