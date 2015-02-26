@@ -13,6 +13,7 @@ module PatronusFati::MessageProcessor::Ssid
 
       ssid = PatronusFati::DataModels::Ssid.first_or_create({access_point: access_point, essid: ssid_info[:essid]}, ssid_info)
       ssid.update(ssid_info)
+      access_point.seen!
     elsif obj[:type] == 'probe_request'
       client = PatronusFati::DataModels::Client.first(bssid: obj[:mac])
 
