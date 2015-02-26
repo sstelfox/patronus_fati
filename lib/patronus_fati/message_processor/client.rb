@@ -21,7 +21,7 @@ module PatronusFati::MessageProcessor::Client
       ap.seen!
 
       conn = PatronusFati::DataModels::Connection.connected.first_or_create({client: client, access_point: ap})
-      conn.seen!(last_seen_at: Time.now.to_i)
+      conn.seen!
     end
 
     nil

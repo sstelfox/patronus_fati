@@ -5,7 +5,7 @@ module PatronusFati
     def self.cleanup_models
       @last_cleanup ||= Time.now.to_i
 
-      if @last_cleanup < Time.now.to_i
+      if @last_cleanup < (Time.now.to_i - 10)
         @last_cleanup = Time.now.to_i
 
         PatronusFati::DataModels::AccessPoint.inactive.reported_online.each do |ap|
@@ -25,8 +25,9 @@ module PatronusFati
     end
 
     def self.handle(message_obj)
-      factory(class_to_name(message_obj), message_obj)
+      result = factory(class_to_name(message_obj), message_obj)
       cleanup_models
+      result
     rescue => e
       puts 'Error processing the following message object:'
       puts message_obj.inspect
