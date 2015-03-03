@@ -18,8 +18,9 @@ module PatronusFati::DataObservers
         dirty.select! { |k, _| full_state.keys.include?(k) }
 
         # If there weren't any meaningful changes, don't print out anything
-        # after we save.
-        if dirty.empty?
+        # after we save. Be aware that we may need to mark the AP as online
+        # again though if we've seen it and previously reported it as offline.
+        if dirty.empty? && !(olr_ro_val == false && active?)
           @change_type = nil
           self.reported_online = old_ro_val
           next
