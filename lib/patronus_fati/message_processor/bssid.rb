@@ -11,7 +11,9 @@ module PatronusFati::MessageProcessor::Bssid
 
     ap_info = ap_data(obj.attributes)
     access_point = PatronusFati::DataModels::AccessPoint.first_or_create({bssid: obj.bssid}, ap_info)
+
     access_point.update(ap_info)
+    access_point.record_signal(obj.signal_dbm)
     access_point.update_frequencies(obj.freqmhz)
 
     nil
@@ -31,8 +33,6 @@ module PatronusFati::MessageProcessor::Bssid
 
       fragments: attrs[:fragments],
       retries: attrs[:retries],
-
-      signal_dbm: attrs[:signal_dbm],
 
       max_seen_rate: attrs[:maxseenrate],
       duplicate_iv_pkts: attrs[:dupeivpackets],

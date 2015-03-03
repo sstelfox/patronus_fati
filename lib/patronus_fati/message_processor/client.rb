@@ -3,12 +3,14 @@ module PatronusFati::MessageProcessor::Client
 
   def self.process(obj)
     # We don't care about objects that would have expired already...
-    return if obj[:lasttime] < (Time.now.to_i - PatronusFati::CLIENT_EXPIRATION)
+    return if obj[:lasttime] < PatronusFati::DataModels::Client.current_expiration_threshold
 
     client_info = client_data(obj.attributes)
 
     client = PatronusFati::DataModels::Client.first_or_create({bssid: obj[:mac]}, client_info)
     client.update(client_info)
+
+    client.record_signal(obj.signal_dbm)
     client.update_frequencies(obj.freqmhz)
 
     # Don't deal in associations that are outside of our connection expiration
@@ -40,8 +42,6 @@ module PatronusFati::MessageProcessor::Client
 
       fragments: attrs[:fragments],
       retries: attrs[:retries],
-
-      signal_dbm: attrs[:signal_dbm],
 
       max_seen_rate: attrs[:maxseenrate],
 

@@ -27,14 +27,12 @@ module PatronusFati::DataModels
     property  :netmask,           String
     property  :gateway_ip,        String
 
-
-    property  :signal_dbm,        Integer
-
     has n, :clients,        :through    => :connections
     has n, :connections,    :constraint => :destroy,
                             :child_key  => :access_point_id
     has n, :ssids,          :constraint => :destroy
     has n, :ap_frequencies, :constraint => :destroy
+    has n, :ap_signals,     :constraint => :destroy
 
     belongs_to :mac, :required => false
     before :save do
@@ -58,8 +56,12 @@ module PatronusFati::DataModels
     end
 
     def full_state
-      blacklisted_keys = %w(id last_seen_at reported_status)
+      blacklisted_keys = %w(id last_seen_at reported_status).map(&:to_sym)
       attributes.reject { |k, v| blacklisted_keys.include?(k) || v.nil? }.merge(vendor: mac.vendor)
+    end
+
+    def record_signal(dbm)
+      PatronusFati::DataModels::ApSignal.create(access_point: self, dbm: dbm)
     end
 
     def update_frequencies(freq_hsh)

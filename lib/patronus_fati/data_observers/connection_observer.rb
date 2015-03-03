@@ -10,10 +10,18 @@ module PatronusFati::DataObservers
 
       if @change_type == :changed
         dirty = self.dirty_attributes.map { |a| a.first.name }.map(&:to_s)
+        dirty.delete('last_seen_at')
+
+        # If there weren't any meaningful changes, don't print out anything
+        # after we save.
+        if dirty.empty?
+          @change_type = nil
+          next
+        end
 
         changes = dirty.map do |attr|
-          clean = original_attributes[PatronusFati::DataModels::AccessPoint.properties[attr]]
-          dirty = dirty_attributes[PatronusFati::DataModels::AccessPoint.properties[attr]]
+          clean = original_attributes[PatronusFati::DataModels::Connection.properties[attr]]
+          dirty = dirty_attributes[PatronusFati::DataModels::Connection.properties[attr]]
 
           [attr, [clean, dirty]]
         end

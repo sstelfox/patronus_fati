@@ -16,7 +16,6 @@ module PatronusFati::DataModels
     property  :retries,         Integer,  :default => 0
 
     property  :max_seen_rate,   Integer
-    property  :signal_dbm,      Integer
 
     property  :ip,              String
     property  :gateway_ip,      String
@@ -26,6 +25,7 @@ module PatronusFati::DataModels
     has n, :access_points,  :through    => :connections
 
     has n, :client_frequencies, :constraint => :destroy
+    has n, :client_signals,     :constraint => :destroy
     has n, :probes,             :constraint => :destroy
 
     belongs_to :mac, :required => false
@@ -53,6 +53,10 @@ module PatronusFati::DataModels
         probes: probes.map(&:essid),
         vendor: mac.vendor
       )
+    end
+
+    def record_signal(dbm)
+      PatronusFati::DataModels::ClientSignal.create(client: self, dbm: dbm)
     end
 
     def update_frequencies(freq_hsh)

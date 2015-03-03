@@ -28,7 +28,7 @@ module PatronusFati
       end
 
       def seen!
-        self.last_seen_at = Time.now.to_i
+        update(last_seen_at: Time.now.to_i)
       end
 
       def uptime
