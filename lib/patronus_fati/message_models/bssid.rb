@@ -22,7 +22,7 @@ module PatronusFati
                           :minnoise_rssi, :maxsignal_rssi, :maxnoise_rssi,
                           :bestlat, :bestlon, :bestalt, :agglat, :agglon,
                           :aggalt, :aggpoints, :datasize, :turbocellnid,
-                          :turbocellmode, :turbocellsat, :carrierset,
+                          :turbocellmode, :turbocellsat, :carrierset, :channel,
                           :maxseenrate, :encodingset, :decrypted, :dupeivpackets,
                           :bsstimestamp, :fragments, :retries, :newpackets) { |val| val.to_i }
 
@@ -32,7 +32,6 @@ module PatronusFati
     #
     # @param [String] bssid_type The string is actually an integer value in
     #   numeric form (this is how it's received from the network).
-    Bssid.set_data_filter(:channel) { |val| ch = val.to_i; (ch == 0) ? nil : ch }
     Bssid.set_data_filter(:type) { |val| BSSID_TYPE_MAP[val.to_i] || val.to_i }
     Bssid.set_data_filter(:rangeip, :netmaskip, :gatewayip) { |val| (val == "0.0.0.0") ? nil : val }
 
