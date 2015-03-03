@@ -56,7 +56,7 @@ module PatronusFati::DataModels
     end
 
     def full_state
-      blacklisted_keys = %w(id last_seen_at reported_status).map(&:to_sym)
+      blacklisted_keys = %w(id last_seen_at reported_online).map(&:to_sym)
       attributes.reject { |k, v| blacklisted_keys.include?(k) || v.nil? }.merge(vendor: mac.vendor)
     end
 
