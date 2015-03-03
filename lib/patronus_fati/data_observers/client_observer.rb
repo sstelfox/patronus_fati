@@ -7,20 +7,17 @@ module PatronusFati::DataObservers
     before :save do
       break unless self.valid?
 
-      # We're about to report this, make sure the attribute gets saved
-      old_ro_val = reported_online
-      self.reported_online = true
+      self.reported_online = active?
 
       @change_type = self.new? ? :new : :changed
       if @change_type == :changed
         dirty = self.dirty_attributes.map { |a| a.first.name }.map(&:to_s)
-        dirty.select! { |k, _| full_state.keys.include?(k) }
+        dirty.select! { |k, _| full_state.keys.include?(k) || k == 'reported_online' }
 
         # If there weren't any meaningful changes, don't print out anything
         # after we save.
         if dirty.empty?
           @change_type = nil
-          self.reported_online = old_ro_val
           next
         end
 
@@ -32,6 +29,7 @@ module PatronusFati::DataObservers
         end
 
         @change_list = Hash[changes]
+        @change_list.delete('reported_online')
       end
     end
 
