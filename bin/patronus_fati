@@ -38,6 +38,7 @@ connection = PatronusFati::Connection.new(options['server'], options['port'])
 connection.connect
 
 exception_logger('process') do
+  #DataMapper::Logger.new('pf-db.log', :debug)
   DataMapper.setup(:default, options['database'])
   DataMapper.repository(:default).adapter.resource_naming_convention = PatronusFati::NullTablePrefix
   DataMapper.finalize
