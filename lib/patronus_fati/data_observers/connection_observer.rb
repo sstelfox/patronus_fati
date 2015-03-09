@@ -38,26 +38,22 @@ module PatronusFati::DataObservers
 
       if @change_type == :new
         if disconnected_at.nil?
-          report_data = {
-            record_type: 'connection',
-            report_type: 'connect',
-            data: self.full_state,
-            timestamp: Time.now.to_i
-          }
-          puts JSON.generate(report_data)
+          PatronusFati.event_handler.event(
+            :connection,
+            :connect,
+            self.full_state
+          )
         else
           # Weird situation, new record that is already disconnected...
           warn('Connection (%i) created that is already disconnected' % id)
         end
       else
         if @change_list.keys.include?('disconnected_at') && @change_list['disconnected_at'][0] == nil && !disconnected_at.nil?
-          report_data = {
-            record_type: 'connection',
-            report_type: 'disconnect',
-            data: self.full_state.merge(duration: duration),
-            timestamp: Time.now.to_i
-          }
-          puts JSON.generate(report_data)
+          PatronusFati.event_handler.event(
+            :connection,
+            :disconnect,
+            self.full_state.merge(duration: duration)
+          )
         else
           warn('Connection (%i) updated in a weird way: %s' % [id, @change_list.inspect])
         end

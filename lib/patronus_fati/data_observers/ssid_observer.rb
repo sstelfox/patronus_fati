@@ -40,14 +40,12 @@ module PatronusFati::DataObservers
 
       access_point.mac.update_cached_counts!
 
-      report_data = {
-        record_type: 'access_point',
-        report_type: :changed,
-        changes: @change_list,
-        data: self.access_point.full_state,
-        timestamp: Time.now.to_i
-      }
-      puts JSON.generate(report_data)
+      PatronusFati.event_handler.event(
+        :access_point,
+        :changed,
+        self.access_point.full_state,
+        @change_list
+      )
 
       @change_list = nil
     end

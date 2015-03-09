@@ -38,15 +38,12 @@ module PatronusFati::DataObservers
 
       mac.update_cached_counts!
 
-      report_data = {
-        record_type: 'client',
-        report_type: @change_type,
-        data: self.full_state,
-        timestamp: Time.now.to_i
-      }
-      report_data[:changes] = @change_list if @change_list
-
-      puts JSON.generate(report_data)
+      PatronusFati.event_handler.event(
+        :client,
+        @change_type,
+        self.full_state,
+        @change_list || {}
+      )
 
       @change_type = nil
       @change_list = nil

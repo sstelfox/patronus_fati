@@ -3,6 +3,7 @@
 $:.push(File.expand_path(File.join('..', '..', 'lib'), __FILE__))
 
 require 'optparse'
+require 'dm-sqlite-adapter'
 require 'patronus_fati'
 
 options = {
@@ -34,23 +35,19 @@ rescue => e
   puts e.backtrace
 end
 
-connection = PatronusFati::Connection.new(options['server'], options['port'])
-connection.connect
-
 exception_logger('process') do
-  #DataMapper::Logger.new('pf-db.log', :debug)
-  DataMapper.setup(:default, options['database'])
-  DataMapper.repository(:default).adapter.resource_naming_convention = PatronusFati::NullTablePrefix
-  DataMapper.finalize
-  DataMapper.auto_upgrade!
+  connection = PatronusFati.setup(options['server'], options['port'], options['database'])
+  connection.connect
+
+  PatronusFati.event_handler.on(:any) do |type, msg, opts|
+    puts JSON.generate({type: type, data: msg, additional_data: opts, timestamp: Time.now})
+  end
 
   while (line = connection.read_queue.pop)
     next unless (obj = PatronusFati::MessageParser.parse(line))
     responses = PatronusFati::MessageProcessor.handle(obj)
 
-    Array(responses).each do |msg|
-      connection.write(msg)
-    end
+    Array(responses).each { |msg| connection.write(msg) }
   end
 end
 

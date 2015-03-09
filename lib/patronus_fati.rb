@@ -12,7 +12,6 @@ require 'dm-constraints'
 require 'dm-core'
 require 'dm-migrations'
 require 'dm-observer'
-require 'dm-sqlite-adapter'
 require 'dm-timestamps'
 require 'dm-validations'
 
@@ -26,6 +25,7 @@ require 'patronus_fati/data_mapper/null_table_prefix'
 
 require 'patronus_fati/cap_struct'
 require 'patronus_fati/connection'
+require 'patronus_fati/event_handler'
 require 'patronus_fati/factory_base'
 require 'patronus_fati/message_models'
 require 'patronus_fati/message_parser'
@@ -52,4 +52,17 @@ require 'patronus_fati/data_observers/connection_observer'
 require 'patronus_fati/data_observers/ssid_observer'
 
 module PatronusFati
+  def self.event_handler
+    @event_handler ||= PatronusFati::EventHandler.new
+  end
+
+  def self.setup(kismet_server, kismet_port, database_uri)
+    #DataMapper::Logger.new('pf-db.log', :debug)
+    DataMapper.setup(:default, database_uri)
+    DataMapper.repository(:default).adapter.resource_naming_convention = PatronusFati::NullTablePrefix
+    DataMapper.finalize
+    DataMapper.auto_upgrade!
+
+    PatronusFati::Connections.new(kismet_server, kismet_port)
+  end
 end
