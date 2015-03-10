@@ -51,6 +51,7 @@ module PatronusFati::DataModels
       base_attrs.merge(
         connected_access_points: connected_access_points.map(&:bssid),
         probes: probes.map(&:essid),
+        signal_dbm: (client_signals.any? ? client_signals.last.dbm : nil),
         vendor: mac.vendor
       )
     end

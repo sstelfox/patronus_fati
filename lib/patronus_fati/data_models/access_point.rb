@@ -57,7 +57,12 @@ module PatronusFati::DataModels
 
     def full_state
       blacklisted_keys = %w(id last_seen_at reported_online).map(&:to_sym)
-      attributes.reject { |k, v| blacklisted_keys.include?(k) || v.nil? }.merge(vendor: mac.vendor)
+      attributes
+        .reject { |k, v| blacklisted_keys.include?(k) || v.nil? }
+        .merge(
+          vendor: mac.vendor,
+          signal_dbm: (ap_signals.any? ? ap_signals.last.dbm : nil)
+        )
     end
 
     def record_signal(dbm)
