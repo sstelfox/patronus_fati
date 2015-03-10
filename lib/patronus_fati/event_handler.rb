@@ -1,21 +1,27 @@
 module PatronusFati
   class EventHandler
-    def initialize
-      @handlers = {}
+    def handlers
+      @handlers ||= {}
     end
 
-    def on(*types, &handler)
-      Array(types).each do |t|
-        @handlers[t.to_sym] ||= []
-        @handlers[t.to_sym].push(handler)
+    def handlers_for(asset_type, event_type)
+      handlers[asset_type] ||= (asset_type == :any ? [] : {})
+      Array(handlers[:any]) | Array(handlers[asset_type][:any]) | Array(handlers[asset_type][event_type])
+    end
+
+    def on(asset_type, event_type = :any, &handler)
+      if asset_type == :any
+        handlers[:any] ||= []
+        handlers[:any].push(handler)
+      else
+        handlers[asset_type] ||= {}
+        handlers[asset_type][event_type] ||= []
+        handlers[asset_type][event_type].push(handler)
       end
     end
 
     def event(asset_type, event_type, msg, optional = {})
-      type = "#{asset_type.to_s}_#{event_type.to_s}".to_sym
-      (Array(@handlers[:any]) & Array(@handlers[type])).each do |handler|
-        handler.call(type, msg, optional)
-      end
+      handlers_for(asset_type, event_type).each { |h| h.call(asset_type, event_type, msg, optional) }
     end
   end
 end

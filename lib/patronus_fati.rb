@@ -63,6 +63,6 @@ module PatronusFati
     DataMapper.finalize
     DataMapper.auto_upgrade!
 
-    PatronusFati::Connections.new(kismet_server, kismet_port)
+    PatronusFati::Connection.new(kismet_server, kismet_port)
   end
 end
