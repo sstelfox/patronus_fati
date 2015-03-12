@@ -60,6 +60,7 @@ module PatronusFati::DataModels
       attributes
         .reject { |k, v| blacklisted_keys.include?(k) || v.nil? }
         .merge(
+          connected_clients: connected_clients.map(&:bssid),
           vendor: mac.vendor,
           signal_dbm: (ap_signals.any? ? ap_signals.last.dbm : nil)
         )
