@@ -62,7 +62,8 @@ module PatronusFati::DataModels
         .merge(
           connected_clients: connected_clients.map(&:bssid),
           vendor: mac.vendor,
-          signal_dbm: (ap_signals.any? ? ap_signals.last.dbm : nil)
+          signal_dbm: (ap_signals.any? ? ap_signals.last.dbm : nil),
+          ssids: current_ssids.map(&:full_state)
         )
     end
 
