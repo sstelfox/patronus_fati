@@ -49,6 +49,7 @@ module PatronusFati::DataModels
       blacklisted_keys = %w(id last_seen_at reported_online).map(&:to_sym)
       base_attrs = attributes.reject { |k, v| blacklisted_keys.include?(k) || v.nil? }
       base_attrs.merge(
+        active: active?,
         connected_access_points: connected_access_points.map(&:bssid),
         probes: probes.map(&:essid),
         signal_dbm: (client_signals.any? ? client_signals.last.dbm : nil),
