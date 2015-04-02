@@ -24,7 +24,7 @@ module PatronusFati
       end
 
       def active?
-        last_seen_at < self.class.current_expiration_threshold
+        last_seen_at >= self.class.current_expiration_threshold
       end
 
       def seen!
