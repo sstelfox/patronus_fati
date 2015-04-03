@@ -3,7 +3,7 @@ module PatronusFati::MessageProcessor::Ssid
 
   def self.process(obj)
     # We don't care about objects that would have expired already...
-    return if obj[:lasttime] < (Time.now.to_i - PatronusFati::SSID_EXPIRATION)
+    return if obj[:lasttime] < PatronusFati::DataModels::Ssid.current_expiration_threshold
 
     ssid_info = ssid_data(obj.attributes)
 

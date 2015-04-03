@@ -3,10 +3,10 @@ module PatronusFati
     extend FactoryBase
 
     def self.cleanup_models
-      @last_cleanup ||= Time.now.to_i
+      @next_cleanup ||= 0
 
-      if @last_cleanup < (Time.now.to_i - 10)
-        @last_cleanup = Time.now.to_i
+      if @next_cleanup <= Time.now.to_i
+        @next_cleanup = Time.now.to_i + 10
 
         PatronusFati::DataModels::AccessPoint.inactive.reported_online.each do |ap|
           ap.update(:reported_online => false)

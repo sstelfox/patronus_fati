@@ -6,16 +6,15 @@ module PatronusFati::MessageProcessor::Client
     return if obj[:lasttime] < PatronusFati::DataModels::Client.current_expiration_threshold
 
     client_info = client_data(obj.attributes)
-
     client = PatronusFati::DataModels::Client.first_or_create({bssid: obj[:mac]}, client_info)
-    client.update(client_info)
 
+    client.update(client_info)
     client.record_signal(obj.signal_dbm)
     client.update_frequencies(obj.freqmhz)
 
     # Don't deal in associations that are outside of our connection expiration
     # time...
-    return if obj[:lasttime] <= (Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION)
+    return if obj[:lasttime] < PatronusFati::DataModels::Connection.current_expiration_threshold
 
     # Handle the associations
     unless obj[:bssid].nil? || obj[:bssid].empty? || obj[:bssid] == obj[:mac]
