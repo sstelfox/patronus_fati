@@ -53,7 +53,7 @@ module PatronusFati
         end
 
         PatronusFati::DataModels::Client.all.each do |cli|
-          PatronusFati.event_handler.event(:client, :sync, ap.full_state, {})
+          PatronusFati.event_handler.event(:client, :sync, cli.full_state, {})
         end
       end
     end
