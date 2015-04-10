@@ -6,7 +6,7 @@ module PatronusFati::DataModels
     include PatronusFati::DataModels::ReportedAttributes
 
     property  :id,              Serial
-    property  :bssid,           String,   :length => 17, :unique => true
+    property  :bssid,           String,   :length => 17, :unique_index => true
     property  :channel,         Integer
 
     property  :crypt_packets,   Integer,  :default => 0
@@ -24,8 +24,6 @@ module PatronusFati::DataModels
     has n, :connections,    :constraint => :destroy
     has n, :access_points,  :through    => :connections
 
-    has n, :client_frequencies, :constraint => :destroy
-    has n, :client_signals,     :constraint => :destroy
     has n, :probes,             :constraint => :destroy
 
     belongs_to :mac, :required => false
@@ -52,20 +50,8 @@ module PatronusFati::DataModels
         active: active?,
         connected_access_points: connected_access_points.map(&:bssid),
         probes: probes.map(&:essid),
-        signal_dbm: (client_signals.any? ? client_signals.last.dbm : nil),
         vendor: mac.vendor
       )
-    end
-
-    def record_signal(dbm)
-      PatronusFati::DataModels::ClientSignal.create(client: self, dbm: dbm)
-    end
-
-    def update_frequencies(freq_hsh)
-      freq_hsh.each do |freq, packet_count|
-        f = client_frequencies.first_or_create({mhz: freq}, {packet_count: packet_count})
-        f.update({packet_count: packet_count})
-      end
     end
   end
 end

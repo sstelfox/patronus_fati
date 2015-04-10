@@ -7,9 +7,9 @@ module PatronusFati::DataModels
 
     property  :id,                Serial
 
-    property  :bssid,             String, :length   => 17,
-                                          :required => true,
-                                          :unique   => true
+    property  :bssid,             String, :length       => 17,
+                                          :required     => true,
+                                          :unique_index => true
 
     property  :channel,           Integer
     property  :max_seen_rate,     Integer
@@ -31,8 +31,6 @@ module PatronusFati::DataModels
     has n, :connections,    :constraint => :destroy,
                             :child_key  => :access_point_id
     has n, :ssids,          :constraint => :destroy
-    has n, :ap_frequencies, :constraint => :destroy
-    has n, :ap_signals,     :constraint => :destroy
 
     belongs_to :mac, :required => false
     before :save do
@@ -63,20 +61,8 @@ module PatronusFati::DataModels
           active: active?,
           connected_clients: connected_clients.map(&:bssid),
           vendor: mac.vendor,
-          signal_dbm: (ap_signals.any? ? ap_signals.last.dbm : nil),
           ssids: current_ssids.map(&:full_state)
         )
-    end
-
-    def record_signal(dbm)
-      PatronusFati::DataModels::ApSignal.create(access_point: self, dbm: dbm)
-    end
-
-    def update_frequencies(freq_hsh)
-      freq_hsh.each do |freq, packet_count|
-        f = ap_frequencies.first_or_create({mhz: freq}, {packet_count: packet_count})
-        f.update({packet_count: packet_count})
-      end
     end
   end
 end

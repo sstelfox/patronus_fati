@@ -7,10 +7,7 @@ module PatronusFati::MessageProcessor::Client
 
     client_info = client_data(obj.attributes)
     client = PatronusFati::DataModels::Client.first_or_create({bssid: obj[:mac]}, client_info)
-
     client.update(client_info)
-    client.record_signal(obj.signal_dbm)
-    client.update_frequencies(obj.freqmhz)
 
     # Don't deal in associations that are outside of our connection expiration
     # time...

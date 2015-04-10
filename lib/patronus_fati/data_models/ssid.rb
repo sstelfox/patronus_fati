@@ -11,7 +11,7 @@ module PatronusFati::DataModels
     property :beacon_info,  String
 
     property :cloaked,      Boolean,  :default => false
-    property :essid,        String,   :length  => 64
+    property :essid,        String,   :length  => 64, :index => true
     property :crypt_set,    CryptFlags
     property :max_rate,     Integer
 
