@@ -7,7 +7,7 @@ module PatronusFati::DataModels
     property :id,               Serial
 
     property :connected_at,     Integer, :default => Proc.new { Time.now.to_i }
-    property :disconnected_at,  Integer, :default => Proc.new { Time.now.to_i }
+    property :disconnected_at,  Integer
     property :duration,         Integer
 
     belongs_to :access_point
