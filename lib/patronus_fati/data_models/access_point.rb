@@ -15,18 +15,6 @@ module PatronusFati::DataModels
     property  :max_seen_rate,     Integer
     property  :type,              String, :required => true
 
-    property  :duplicate_iv_pkts, Integer,  :default => 0
-    property  :crypt_packets,     Integer,  :default => 0
-    property  :data_packets,      Integer,  :default => 0
-    property  :data_size,         Integer,  :default => 0
-
-    property  :fragments,         Integer,  :default => 0
-    property  :retries,           Integer,  :default => 0
-
-    property  :range_ip,          String
-    property  :netmask,           String
-    property  :gateway_ip,        String
-
     has n, :clients,        :through    => :connections
     has n, :connections,    :constraint => :destroy,
                             :child_key  => :access_point_id

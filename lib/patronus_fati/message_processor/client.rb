@@ -31,20 +31,7 @@ module PatronusFati::MessageProcessor::Client
     {
       bssid: attrs[:mac],
       channel: attrs[:channel],
-
-      crypt_packets: attrs[:cryptpackets],
-      data_packets: attrs[:datapackets],
-      data_size: attrs[:datasize],
-
-      fragments: attrs[:fragments],
-      retries: attrs[:retries],
-
       max_seen_rate: attrs[:maxseenrate],
-
-      ip: attrs[:ip],
-      gateway_ip: attrs[:gatewayip],
-      dhcp_host: attrs[:dhcphost],
-
       last_seen_at: Time.now.to_i
     }.reject { |_, v| v.nil? }
   end

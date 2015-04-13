@@ -23,21 +23,6 @@ module PatronusFati::MessageProcessor::Bssid
       bssid: attrs[:bssid],
       type: attrs[:type],
       channel: attrs[:channel],
-
-      crypt_packets: attrs[:cryptpackets],
-      data_packets: attrs[:datapackets],
-      data_size: attrs[:datasize],
-
-      fragments: attrs[:fragments],
-      retries: attrs[:retries],
-
-      max_seen_rate: attrs[:maxseenrate],
-      duplicate_iv_pkts: attrs[:dupeivpackets],
-
-      range_ip: attrs[:rangeip],
-      netmask: attrs[:netmaskip],
-      gateway_ip: attrs[:gatewayip],
-
       last_seen_at: Time.now.to_i
     }.reject { |_, v| v.nil? }
   end

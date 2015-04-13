@@ -8,18 +8,7 @@ module PatronusFati::DataModels
     property  :id,              Serial
     property  :bssid,           String,   :length => 17, :unique_index => true
     property  :channel,         Integer
-
-    property  :crypt_packets,   Integer,  :default => 0
-    property  :data_packets,    Integer,  :default => 0
-    property  :data_size,       Integer,  :default => 0
-    property  :fragments,       Integer,  :default => 0
-    property  :retries,         Integer,  :default => 0
-
     property  :max_seen_rate,   Integer
-
-    property  :ip,              String
-    property  :gateway_ip,      String
-    property  :dhcp_host,       String,   :length => 64
 
     has n, :connections,    :constraint => :destroy
     has n, :access_points,  :through    => :connections
