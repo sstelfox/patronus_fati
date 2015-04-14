@@ -1,4 +1,6 @@
 module PatronusFati
+  DisconnectError = Class.new(StandardError)
+
   class Connection
     attr_reader :port, :read_queue, :server, :write_queue
 
@@ -56,10 +58,13 @@ module PatronusFati
           while (line = socket.readline)
             read_queue << line
           end
+        rescue EOFError => e
+          raise DisconnectError
         rescue => e
-          $stderr.puts format('Error in read thread: %s', e.message)
+          $stderr.puts format('Error in read thread: %s %s', e.class.to_s, e.message)
+          $stderr.puts e.backtrace
         ensure
-          socket.close
+          socket.close if socket
         end
       end
     end
@@ -73,9 +78,10 @@ module PatronusFati
             count += 1
           end
         rescue => e
-          $stderr.puts format('Error in write thread: %s', e.message)
+          $stderr.puts format('Error in write thread: %s %s', e.class.to_s, e.message)
+          $stderr.puts e.backtrace
         ensure
-          socket.close
+          socket.close if socket
         end
       end
     end
