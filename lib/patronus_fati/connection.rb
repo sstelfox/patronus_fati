@@ -11,13 +11,13 @@ module PatronusFati
     def initialize(server, port)
       @server = server
       @port = port
+
+      self.read_queue = Queue.new
+      self.write_queue = Queue.new
     end
 
     def connect
       establish_connection
-
-      self.read_queue = Queue.new
-      self.write_queue = Queue.new
 
       start_read_thread
       start_write_thread
@@ -36,8 +36,10 @@ module PatronusFati
       socket.close unless socket.closed?
 
       self.socket = nil
-      self.read_queue = nil
-      self.write_queue = nil
+    end
+
+    def read
+      read_queue.pop
     end
 
     def write(msg)
