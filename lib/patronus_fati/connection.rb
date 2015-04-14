@@ -33,7 +33,7 @@ module PatronusFati
       Thread.kill(read_thread)
       Thread.kill(write_thread)
 
-      socket.close
+      socket.close unless socket.closed?
 
       self.socket = nil
       self.read_queue = nil
@@ -61,10 +61,13 @@ module PatronusFati
             read_queue << line
           end
         rescue Timeout::Error => e
+          socket.close
           raise ConnectionTimeout, e.message
         rescue EOFError => e
+          socket.close
           raise LostConnection, e.message
         rescue => e
+          socket.close
           raise UnableToRead, e.message
         end
       end
@@ -79,6 +82,7 @@ module PatronusFati
             count += 1
           end
         rescue => e
+          socket.close
           raise UnableToWrite, e.message
         end
       end
