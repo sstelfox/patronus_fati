@@ -1,10 +1,4 @@
 module PatronusFati
-  PatronusFatiError = Class.new(StandardError)
-  LostConnection    = Class.new(PatronusFatiError)
-  ConnectionTimeout = Class.new(PatronusFatiError)
-  UnableToRead      = Class.new(PatronusFatiError)
-  UnableToWrite     = Class.new(PatronusFatiError)
-
   class Connection
     attr_reader :port, :read_queue, :server, :write_queue
 
@@ -62,15 +56,10 @@ module PatronusFati
           while (line = socket.readline)
             read_queue << line
           end
-        rescue Timeout::Error => e
-          socket.close
-          raise ConnectionTimeout, e.message
-        rescue EOFError => e
-          socket.close
-          raise LostConnection, e.message
         rescue => e
+          $stderr.puts format('Error in read thread: %s', e.message)
+        ensure
           socket.close
-          raise UnableToRead, e.message
         end
       end
     end
@@ -84,8 +73,9 @@ module PatronusFati
             count += 1
           end
         rescue => e
+          $stderr.puts format('Error in write thread: %s', e.message)
+        ensure
           socket.close
-          raise UnableToWrite, e.message
         end
       end
     end
