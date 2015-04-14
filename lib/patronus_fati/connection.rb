@@ -1,4 +1,10 @@
 module PatronusFati
+  PatronusFatiError = Class.new(StandardError)
+  LostConnection    = Class.new(PatronusFatiError)
+  ConnectionTimeout = Class.new(PatronusFatiError)
+  UnableToRead      = Class.new(PatronusFatiError)
+  UnableToWrite     = Class.new(PatronusFatiError)
+
   class Connection
     attr_reader :port, :read_queue, :server, :write_queue
 
@@ -54,15 +60,12 @@ module PatronusFati
           while (line = socket.readline)
             read_queue << line
           end
-        rescue Timeout::Error
-          # Connection timed out...
-          exit 1
-        rescue EOFError
-          # We lost our connection...
-          exit 2
+        rescue Timeout::Error => e
+          raise ConnectionTimeout, e.message
+        rescue EOFError => e
+          raise LostConnection, e.message
         rescue => e
-          puts ('Unknown issue reading from socket: %s' % e.message)
-          exit 3
+          raise UnableToRead, e.message
         end
       end
     end
@@ -76,8 +79,7 @@ module PatronusFati
             count += 1
           end
         rescue => e
-          puts ('Unknown issue writing to socket: %s' % e.message)
-          exit 1
+          raise UnableToWrite, e.message
         end
       end
     end
