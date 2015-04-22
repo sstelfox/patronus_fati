@@ -58,7 +58,7 @@ module PatronusFati
           while (line = socket.readline)
             read_queue << line
           end
-        rescue EOFError => e
+        rescue IOError, EOFError => e
           raise DisconnectError
         rescue => e
           $stderr.puts format('Error in read thread: %s %s', e.class.to_s, e.message)
