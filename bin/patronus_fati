@@ -7,7 +7,7 @@ require 'dm-sqlite-adapter'
 require 'patronus_fati'
 
 options = {
-  'database' => 'sqlite::memory:',
+  'database' => 'sqlite::memory:?cache=shared',
   'port'   => 2501,
   'server' => '127.0.0.1'
 }
