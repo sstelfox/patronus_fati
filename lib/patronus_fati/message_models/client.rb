@@ -38,7 +38,7 @@ module PatronusFati
     Client.set_data_filter(:dhcphost) { |val| val.strip.empty? ? nil : val }
 
     Client.set_data_filter(:freqmhz) do |val|
-      raw = val.split('*').reject { |i| i.strip.empty? }.map { |v| v.split(':').map(&:to_i) }
+      raw = val.split('*').compact.reject { |i| i.strip.empty? }.map { |v| v.split(':').map(&:to_i) }
       Hash[raw]
     end
   end
