@@ -42,7 +42,7 @@ module PatronusFati
     end
 
     def self.periodic_flush
-      @next_sync ||= Time.now.to_i + 60
+      @next_sync ||= Time.now.to_i + 300
 
       if @next_sync <= Time.now.to_i
         # Add a variability of +/- half an hour within a day
