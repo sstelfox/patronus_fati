@@ -18,8 +18,14 @@ module PatronusFati::MessageProcessor::Client
       return unless (ap = PatronusFati::DataModels::AccessPoint.first(bssid: obj[:bssid]))
       ap.seen!
 
-      conn = PatronusFati::DataModels::Connection.connected.first_or_create({client: client, access_point: ap})
-      conn.seen!
+      if (conn = PatronusFati::DataModels::Connection.connected.first(client: client, access_point: ap))
+        conn.seen!
+      else
+        average = obj[:datasize] / obj[:datapackets]
+        return unless (average >= 156 && obj[:datapackets] > 10) || (average >= 110 && obj[:datapackets] > 50)
+
+        PatronusFati::DataModels::Connection.connected.create(client: client, access_point: ap)
+      end
     end
 
     nil
