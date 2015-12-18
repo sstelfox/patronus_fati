@@ -57,10 +57,10 @@ module PatronusFati
         end
 
         all_online = {
-          access_points: PatronusFati::DataModels::AccessPoint.all(fields: [:bssid]),
-          clients: PatronusFati::DataModels::AccessPoint.all(fields: [:bssid])
+          access_points: PatronusFati::DataModels::AccessPoint.all(fields: [:bssid]).map(&:bssid),
+          clients: PatronusFati::DataModels::AccessPoint.all(fields: [:bssid]).map(&:bssid)
         }
-        PatronusFati.event_handler.event(:any, :sync, all_online, [])
+        PatronusFati.event_handler.event(:both, :sync, all_online, [])
       end
     end
   end
