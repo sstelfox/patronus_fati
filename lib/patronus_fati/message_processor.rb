@@ -48,17 +48,17 @@ module PatronusFati
         # Add a variability of +/- half an hour within a day
         @next_sync = Time.now.to_i + 84600 + rand(3600)
 
-        PatronusFati::DataModels::AccessPoint.all.each do |ap|
+        PatronusFati::DataModels::AccessPoint.active.each do |ap|
           PatronusFati.event_handler.event(:access_point, :sync, ap.full_state, {})
         end
 
-        PatronusFati::DataModels::Client.all.each do |cli|
+        PatronusFati::DataModels::Client.active.each do |cli|
           PatronusFati.event_handler.event(:client, :sync, cli.full_state, {})
         end
 
         all_online = {
-          access_points: PatronusFati::DataModels::AccessPoint.all(fields: [:bssid]).map(&:bssid),
-          clients: PatronusFati::DataModels::AccessPoint.all(fields: [:bssid]).map(&:bssid)
+          access_points: PatronusFati::DataModels::AccessPoint.active.all(fields: [:bssid]).map(&:bssid),
+          clients: PatronusFati::DataModels::AccessPoint.active.all(fields: [:bssid]).map(&:bssid)
         }
         PatronusFati.event_handler.event(:both, :sync, all_online, [])
       end
