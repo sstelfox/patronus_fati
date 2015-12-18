@@ -55,6 +55,12 @@ module PatronusFati
         PatronusFati::DataModels::Client.all.each do |cli|
           PatronusFati.event_handler.event(:client, :sync, cli.full_state, {})
         end
+
+        all_online = {
+          access_points: PatronusFati::DataModels::AccessPoint.all(fields: [:bssid]),
+          clients: PatronusFati::DataModels::AccessPoint.all(fields: [:bssid])
+        }
+        PatronusFati.event_handler.event(:any, :sync, all_online, [])
       end
     end
   end
