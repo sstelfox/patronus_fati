@@ -42,7 +42,7 @@ module PatronusFati
     end
 
     def self.periodic_flush
-      @next_sync ||= Time.now.to_i + 60
+      @next_sync ||= Time.now.to_i + 300
 
       if @next_sync <= Time.now.to_i
         # Add a variability of +/- half an hour within a day
@@ -55,6 +55,12 @@ module PatronusFati
         PatronusFati::DataModels::Client.all.each do |cli|
           PatronusFati.event_handler.event(:client, :sync, cli.full_state, {})
         end
+
+        all_online = {
+          access_points: PatronusFati::DataModels::AccessPoint.all(fields: [:bssid]).map(&:bssid),
+          clients: PatronusFati::DataModels::AccessPoint.all(fields: [:bssid]).map(&:bssid)
+        }
+        PatronusFati.event_handler.event(:both, :sync, all_online, [])
       end
     end
   end
