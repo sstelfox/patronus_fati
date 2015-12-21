@@ -22,9 +22,9 @@ module PatronusFati::MessageProcessor::Client
         conn.seen!
       else
         average = obj[:datasize] / obj[:datapackets]
-        return unless (average >= 156 && obj[:datapackets] > 10) || (average >= 110 && obj[:datapackets] > 50)
+        return unless obj[:ip] || obj[:gatewayip] || (average >= 156 && obj[:datapackets] > 10) || (average >= 110 && obj[:datapackets] > 50) || (obj[:cryptpackets] > 50)
 
-        PatronusFati::DataModels::Connection.connected.create(client: client, access_point: ap)
+        PatronusFati::DataModels::Connection.create(client: client, access_point: ap)
       end
     end
 
