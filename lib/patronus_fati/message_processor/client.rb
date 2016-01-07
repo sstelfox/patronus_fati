@@ -5,6 +5,10 @@ module PatronusFati::MessageProcessor::Client
     # We don't care about objects that would have expired already...
     return if obj[:lasttime] < PatronusFati::DataModels::Client.current_expiration_threshold
 
+    # These potentially represent wired assets leaking through the WiFi and
+    # devices not following the 802.11 spec.
+    return if %w( unknown from_ds ).include?(obj[:type])
+
     client_info = client_data(obj.attributes)
     client = PatronusFati::DataModels::Client.first_or_create({bssid: obj[:mac]}, client_info)
     client.update(client_info)
@@ -21,7 +25,7 @@ module PatronusFati::MessageProcessor::Client
       if (conn = PatronusFati::DataModels::Connection.connected.first(client: client, access_point: ap))
         conn.seen!
       else
-        average = obj[:datasize] / obj[:datapackets]
+        average =  (obj[:datapackets] == 0 ? 0 : obj[:datasize] / obj[:datapackets])
 
         return unless !(obj[:gatewayip].nil? || obj[:ip].nil?) ||
           (average >= 156 && obj[:datapackets] > 10) ||
