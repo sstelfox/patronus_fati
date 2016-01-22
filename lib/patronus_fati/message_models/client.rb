@@ -35,10 +35,10 @@ module PatronusFati
     Client.set_data_filter(:gpsfixed) { |val| val.to_i == 1 }
 
     Client.set_data_filter(:ip, :gatewayip) { |val| (val == "0.0.0.0") ? nil : val }
-    Client.set_data_filter(:dhcphost) { |val| val.strip.empty? ? nil : val }
+    Client.set_data_filter(:dhcphost) { |val| (val || '').strip.empty? ? nil : val }
 
     Client.set_data_filter(:freqmhz) do |val|
-      raw = val.to_s.split('*').compact.reject { |i| i.strip.empty? }.map { |v| v.split(':').map(&:to_i) }
+      raw = val.to_s.split('*').compact.reject { |i| (i || '').strip.empty? }.map { |v| v.split(':').map(&:to_i) }
       Hash[raw]
     end
   end

@@ -36,7 +36,7 @@ module PatronusFati
     Bssid.set_data_filter(:rangeip, :netmaskip, :gatewayip) { |val| (val == "0.0.0.0") ? nil : val }
 
     Bssid.set_data_filter(:freqmhz) do |val|
-      raw = val.to_s.split('*').compact.reject { |i| i.strip.empty? }.map { |v| v.split(':').map(&:to_i) }
+      raw = val.to_s.split('*').compact.reject { |i| (i || '').strip.empty? }.map { |v| v.split(':').map(&:to_i) }
       Hash[raw]
     end
   end
