@@ -7,7 +7,7 @@ module PatronusFati::MessageProcessor::Client
 
     # These potentially represent wired assets leaking through the WiFi and
     # devices not following the 802.11 spec.
-    return if %w( unknown from_ds ).include?(obj[:type])
+    return if %w( unknown from_ds ).include?(obj[:type]) || obj[:mac].nil?
 
     # Some messages from kismet come in corrupted with partial MACs. We care
     # not for them, just drop the bad data.
