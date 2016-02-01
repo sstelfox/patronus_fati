@@ -64,7 +64,7 @@ module PatronusFati
           $stderr.puts format('Error in read thread: %s %s', e.class.to_s, e.message)
           $stderr.puts e.backtrace
         ensure
-          socket.close if socket
+          socket.close if socket && !socket.closed?
         end
       end
     end
