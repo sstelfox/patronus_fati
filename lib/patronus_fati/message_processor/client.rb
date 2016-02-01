@@ -7,7 +7,11 @@ module PatronusFati::MessageProcessor::Client
 
     # These potentially represent wired assets leaking through the WiFi and
     # devices not following the 802.11 spec.
-    return if %w( unknown from_ds ).include?(obj[:type])
+    return if %w( unknown from_ds ).include?(obj[:type]) || obj[:mac].nil?
+
+    # Some messages from kismet come in corrupted with partial MACs. We care
+    # not for them, just drop the bad data.
+    return unless obj[:mac].match(/^([0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/)
 
     client_info = client_data(obj.attributes)
     client = PatronusFati::DataModels::Client.first_or_create({bssid: obj[:mac]}, client_info)
