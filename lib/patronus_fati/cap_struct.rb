@@ -75,6 +75,8 @@ module PatronusFati
           if self.class.attribute_keys.include?(key.to_sym)
             @attributes[key.to_sym] = self.class.data_filter(key.to_sym, val)
           end
+        rescue => e
+          fail(PatronusFati::ParseError, format("An error occurred parsing field %s on a %s message. Value was '%s'", key, self.class.to_s, val.dump))
         end
 
         # Configure and setup the instance with all the valid parameters for
