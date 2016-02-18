@@ -29,6 +29,12 @@ module PatronusFati
       result = factory(class_to_name(message_obj), message_obj)
       cleanup_models
       result
+    rescue DataObjects::SyntaxError => e
+      # SQLite dropped our database. We need to log the condition and bail out
+      # of the program completely.
+      puts 'SQLite dropped our database: %s: %s' % [e.class, e.message]
+      puts 'Exiting since we don\'t have a database...'
+      exit 1
     rescue => e
       puts 'Error processing the following message object:'
       puts message_obj.inspect
