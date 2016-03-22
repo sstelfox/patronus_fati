@@ -1,6 +1,4 @@
 module PatronusFati
-  DisconnectError = Class.new(StandardError)
-
   class Connection
     attr_reader :port, :read_queue, :server, :write_queue
 
