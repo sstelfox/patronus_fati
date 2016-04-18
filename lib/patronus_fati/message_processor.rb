@@ -12,15 +12,18 @@ module PatronusFati
           ap.update(:reported_online => false)
           PatronusFati.event_handler.event(:access_point, :offline, {'bssid' => ap.bssid, 'uptime' => ap.uptime})
           ap.disconnect_clients!
+          ap.destroy
         end
 
         PatronusFati::DataModels::Client.inactive.reported_online.each do |cli|
           cli.update(:reported_online => false)
           PatronusFati.event_handler.event(:client, :offline, {'bssid' => cli.bssid, 'uptime' => cli.uptime})
           cli.disconnect!
+          cli.destroy
         end
 
         PatronusFati::DataModels::Connection.inactive.connected.map(&:disconnect!)
+        PatronusFati::DataModels::Ssid.inactive.destroy
       end
     end
 

@@ -7,47 +7,29 @@ module PatronusFati::DataObservers
     before :save do
       next unless self.valid?
 
-      # We're about to report this, make sure the attribute gets saved
-      old_ro_val = reported_online
-      self.reported_online = true
-
-      @change_list = {
-        ssids: [
-          [],
-          [full_state]
-        ]
-      }
-
-      unless self.new?
-        dirty = self.dirty_attributes.map { |a| a.first.name }.map(&:to_s)
-        dirty.delete('last_seen_at')
-
-        # If there weren't any meaningful changes, don't print out anything
-        # after we save.
-        if dirty.empty?
-          @change_list = nil
-          self.reported_online = old_ro_val
-          next
-        end
-
-        tmp_obj = Hash[original_attributes.map { |k,v| [k.name, v] }]
-        @change_list[:ssids][0] = PatronusFati::DataModels::Ssid.new(tmp_obj).full_state
-      end
+      @old_ssids = self.access_point.ssids.active.map(&:full_state)
+        .sort_by { |s| s[:essid] }
     end
 
     after :save do
-      next unless @change_list
+      new_ssids = self.access_point.ssids.active.map(&:full_state)
+        .sort_by { |s| s[:essid] }
 
-      access_point.mac.update_cached_counts!
+      change_list = {
+        ssids: [
+          @old_ssids,
+          new_ssids
+        ]
+      }
 
       PatronusFati.event_handler.event(
         :access_point,
         :changed,
         self.access_point.full_state,
-        @change_list
+        change_list
       )
 
-      @change_list = nil
+      @old_ssids = nil
     end
   end
 end
