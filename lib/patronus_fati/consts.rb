@@ -82,4 +82,8 @@ module PatronusFati
   # Number of seconds before we consider an access point no longer advertising an
   # SSID.
   SSID_EXPIRATION = 300
+
+  Error = Class.new(StandardError)
+  DisconnectError = Class.new(PatronusFati::Error)
+  ParseError = Class.new(PatronusFati::Error)
 end
