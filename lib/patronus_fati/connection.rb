@@ -12,17 +12,18 @@ module PatronusFati
 
     def connect
       establish_connection
+      return unless connected?
 
       start_read_thread
       start_write_thread
     end
 
     def connected?
-      !socket.nil?
+      !(socket.nil? || socket.closed?)
     end
 
     def disconnect
-      return unless connected?
+      return unless socket
 
       Thread.kill(read_thread)
       Thread.kill(write_thread)
