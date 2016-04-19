@@ -10,10 +10,6 @@ module PatronusFati::DataModels
     has n, :access_points
     has n, :clients
 
-    has n, :dst_alerts,   :model => 'Alert', :child_key => :dst_mac_id
-    has n, :other_alerts, :model => 'Alert', :child_key => :other_mac_id
-    has n, :src_alerts,   :model => 'Alert', :child_key => :src_mac_id
-
     before :save do
       next if self.vendor
 
