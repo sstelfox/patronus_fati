@@ -7,12 +7,6 @@ module PatronusFati::DataModels
     property :mac,    String, :length => 17, :unique => true
     property :vendor, String, :length => 255
 
-    property :alert_count,        Integer, :default => 0
-    property :clients_connected,  Integer, :default => 0
-    property :active_ssids,       Integer, :default => 0
-    property :is_client,          Boolean, :default => false
-    property :connections_to_ap,  Integer, :default => 0
-
     has n, :access_points
     has n, :clients
 
@@ -33,16 +27,6 @@ module PatronusFati::DataModels
 
     def is_client?
       clients.active.any?
-    end
-
-    def update_cached_counts!
-      update(
-        alert_count:        (dst_alerts | other_alerts | src_alerts).count,
-        active_ssids:       access_points.ssids.active.count,
-        clients_connected:  access_points.connections.connected.count,
-        connections_to_ap:  clients.connections.connected.count,
-        is_client:          is_client?
-      )
     end
   end
 end
