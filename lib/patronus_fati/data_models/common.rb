@@ -17,6 +17,26 @@ module PatronusFati
       end
     end
 
+    module AutoVendorLookup
+      def self.included?(klass)
+        klass.extend AVLClassMethods
+        klass.property :vendor, DataMapper::Property::String, :length => 255
+
+        klass.before(:save) do
+          next if self.vendor || self.class.vendor_attribute.nil?
+          result = Louis.lookup(attributes[self.class.vendor_attribute])
+          self.vendor = result['long_vendor'] || result['short_vendor']
+        end
+      end
+
+      module AVLClassMethods
+        def vendor_attribute(attr = nil)
+          @@vendor_attribute = attr if attr && attributes.keys.include?(attr)
+          @@vendor_attribute
+        end
+      end
+    end
+
     module ExpirationAttributes
       def self.included(klass)
         klass.extend EAClassMethods

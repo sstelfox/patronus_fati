@@ -2,6 +2,7 @@ module PatronusFati::DataModels
   class AccessPoint
     include DataMapper::Resource
 
+    include PatronusFati::DataModels::AutoVendorLookup
     include PatronusFati::DataModels::ExpirationAttributes
     include PatronusFati::DataModels::ReportedAttributes
 
@@ -20,10 +21,7 @@ module PatronusFati::DataModels
                             :child_key  => :access_point_id
     has n, :ssids,          :constraint => :destroy
 
-    belongs_to :mac, :required => false
-    before :save do
-      self.mac = Mac.first_or_create(mac: bssid)
-    end
+    vendor_attribute :bssid
 
     def self.current_expiration_threshold
       Time.now.to_i - PatronusFati::AP_EXPIRATION
@@ -42,13 +40,13 @@ module PatronusFati::DataModels
     end
 
     def full_state
-      blacklisted_keys = %w(id last_seen_at mac_id reported_online).map(&:to_sym)
+      blacklisted_keys = %w(id last_seen_at reported_online).map(&:to_sym)
       attributes
         .reject { |k, v| blacklisted_keys.include?(k) || v.nil? }
         .merge(
           active: active?,
           connected_clients: connected_clients.map(&:bssid),
-          vendor: mac.vendor,
+          vendor: vendor,
           ssids: current_ssids.map(&:full_state)
         )
     end
