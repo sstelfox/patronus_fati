@@ -18,7 +18,7 @@ module PatronusFati
     end
 
     module AutoVendorLookup
-      def self.included?(klass)
+      def self.included(klass)
         klass.extend AVLClassMethods
         klass.property :vendor, DataMapper::Property::String, :length => 255
 
@@ -31,7 +31,7 @@ module PatronusFati
 
       module AVLClassMethods
         def vendor_attribute(attr = nil)
-          @@vendor_attribute = attr if attr && attributes.keys.include?(attr)
+          @@vendor_attribute = attr if attr && properties[attr]
           @@vendor_attribute
         end
       end

@@ -7,7 +7,7 @@ module PatronusFati::MessageProcessor::Alert
     nil
   end
 
-  def process_obj(obj)
+  def self.process_obj(obj)
     {
       created_at: obj[:sec],
       message: obj[:text],
