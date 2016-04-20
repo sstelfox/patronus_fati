@@ -37,12 +37,17 @@ module PatronusFati::DataObservers
     after :save do
       next unless @change_type
 
-      mac.update_cached_counts!
+      fs = self.full_state
+
+      # During the initial creation we haven't had the opportunity to see any
+      # broadcast SSIDs yet. If we sent up an empty one it would delete the
+      # existing SSIDs.
+      fs.delete(:ssids) if @change_type == :new
 
       PatronusFati.event_handler.event(
         :access_point,
         @change_type,
-        self.full_state,
+        fs,
         @change_list || {}
       )
 

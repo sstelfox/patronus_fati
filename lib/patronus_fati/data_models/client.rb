@@ -2,6 +2,7 @@ module PatronusFati::DataModels
   class Client
     include DataMapper::Resource
 
+    include PatronusFati::DataModels::AutoVendorLookup
     include PatronusFati::DataModels::ExpirationAttributes
     include PatronusFati::DataModels::ReportedAttributes
 
@@ -15,10 +16,7 @@ module PatronusFati::DataModels
 
     has n, :probes,             :constraint => :destroy
 
-    belongs_to :mac, :required => false
-    before :save do
-      self.mac = Mac.first_or_create(mac: bssid)
-    end
+    vendor_attribute :bssid
 
     def self.current_expiration_threshold
       Time.now.to_i - PatronusFati::CLIENT_EXPIRATION
@@ -39,7 +37,7 @@ module PatronusFati::DataModels
         active: active?,
         connected_access_points: connected_access_points.map(&:bssid),
         probes: probes.map(&:essid),
-        vendor: mac.vendor
+        vendor: vendor
       )
     end
   end

@@ -3,7 +3,6 @@ module PatronusFati::DataModels
     include DataMapper::Resource
 
     include PatronusFati::DataModels::ExpirationAttributes
-    include PatronusFati::DataModels::ReportedAttributes
 
     property :id,           Serial
 

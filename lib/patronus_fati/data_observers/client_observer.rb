@@ -36,8 +36,6 @@ module PatronusFati::DataObservers
     after :save do
       next unless @change_type
 
-      mac.update_cached_counts!
-
       PatronusFati.event_handler.event(
         :client,
         @change_type,
