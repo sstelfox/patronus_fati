@@ -7,13 +7,17 @@ module PatronusFati::DataObservers
     before :save do
       next unless self.valid?
 
-      @should_announce = dirty_attributes.select { |s| s != :last_seen_at }.empty?
+      interesting_attrs = dirty_attributes.select { |s| s.name != :last_seen_at }
+      next if interesting_attrs.empty?
+
       @old_ssids = self.access_point.ssids.active.map(&:full_state)
         .sort_by { |s| s[:essid] }
     end
 
     after :save do
-      next unless @should_announce
+      # This will only be set when interesting changes have happened
+      next unless @old_ssids
+
       new_ssids = self.access_point.ssids.active.map(&:full_state)
         .sort_by { |s| s[:essid] }
 
