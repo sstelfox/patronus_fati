@@ -23,7 +23,27 @@ module PatronusFati
         end
 
         PatronusFati::DataModels::Connection.inactive.connected.map(&:disconnect!)
-        PatronusFati::DataModels::Ssid.inactive.destroy
+
+        # When we destroy SSIDs we need to announce the change has occurred,
+        # otherwise they won't go away until the next sync message.
+        PatronusFati::DataModels::Ssid.inactive.each do |ssid|
+          ap = ssid.access_point
+          prev_ssids = ap.ssids.active.map(&:full_state)
+
+          ssid.destroy
+
+          PatronusFati.event_handler.event(
+            :access_point,
+            :changed,
+            ap.full_state,
+            {
+              ssids: [
+                prev_ssids,
+                ap.ssids.active.map(&:full_state)
+              ]
+            }
+          )
+        end
       end
     end
 
