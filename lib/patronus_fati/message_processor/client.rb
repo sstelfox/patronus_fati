@@ -34,13 +34,6 @@ module PatronusFati::MessageProcessor::Client
       if (conn = PatronusFati::DataModels::Connection.connected.first(client: client, access_point: ap))
         conn.seen!
       else
-        average =  (obj[:datapackets] == 0 ? 0 : obj[:datasize] / obj[:datapackets])
-
-        # Create a connection only if it meets our thresholding logic below
-        return unless !(obj[:gatewayip].nil? || obj[:ip].nil?) ||
-          (average >= 156 && obj[:datapackets] > 10) ||
-          (average >= 110 && obj[:datapackets] > 50)
-
         PatronusFati::DataModels::Connection.create(client: client, access_point: ap)
       end
     end
