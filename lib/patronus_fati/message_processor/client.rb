@@ -18,12 +18,12 @@ module PatronusFati::MessageProcessor::Client
 
     # These potentially represent wired assets leaking through the WiFi and
     # devices not following the 802.11 spec.
-    if %w( unknown from_ds ).include?(obj[:type]) || obj[:mac].nil?
-      client = PatronusFati::DataModels::Client.first({bssid: obj[:mac]})
-    else
-      client = PatronusFati::DataModels::Client.first_or_create({bssid: obj[:mac]}, client_info)
-    end
-    client.update(client_info) if client
+    return if %w( unknown from_ds ).include?(obj[:type]) || obj[:mac].nil?
+
+    client = PatronusFati::DataModels::Client.first_or_create({bssid: obj[:mac]}, client_info)
+    return unless client
+
+    client.update(client_info)
 
     # Don't deal in associations that are outside of our connection expiration
     # time...
