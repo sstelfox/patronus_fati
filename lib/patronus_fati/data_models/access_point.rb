@@ -47,7 +47,7 @@ module PatronusFati::DataModels
           active: active?,
           connected_clients: connected_clients.map(&:bssid),
           vendor: vendor,
-          ssids: current_ssids.map(&:full_state)
+          ssids: current_ssids.ordered_limit(16).map(&:full_state)
         )
     end
   end
