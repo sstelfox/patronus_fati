@@ -64,7 +64,7 @@ module PatronusFati
           all(:last_seen_at.lt => current_expiration_threshold)
         end
 
-        def limit_tst(num)
+        def ordered_limit(num)
           all(:limit => num, :order => [ :last_seen_at.desc ])
         end
       end
