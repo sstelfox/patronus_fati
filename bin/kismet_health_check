@@ -9,7 +9,8 @@ require 'timeout'
 options = {
   'database' => 'sqlite::memory:?cache=shared',
   'port'   => 2501,
-  'server' => '127.0.0.1'
+  'server' => '127.0.0.1',
+  'quiet' => false
 }
 
 OptionParser.new(nil, 32, '  ') do |opts|
@@ -19,6 +20,10 @@ OptionParser.new(nil, 32, '  ') do |opts|
 
   opts.on('-p', '--port PORT', 'Port that kismet server is running on.') do |port|
     options['port'] = port.to_i
+  end
+
+  opts.on('-q', '--quiet', 'Don\'t print anything to STDOUT just use the exit status') do
+    options['quiet'] = true
   end
 end.parse(ARGV)
 
@@ -33,26 +38,24 @@ end
 
 exception_logger('process') do
   PatronusFati.event_handler.on(:any) do |asset_type, event_type, msg, opts|
-    puts "Server appears to be in good health"
-    exit 0
   end
 
   begin
+    connection = PatronusFati.setup(options['server'], options['port'], options['database'])
+
     Timeout.timeout(10) do
-      connection = PatronusFati.setup(options['server'], options['port'], options['database'])
       connection.connect
 
       while (line = connection.read_queue.pop)
         next unless (obj = PatronusFati::MessageParser.parse(line))
-        responses = PatronusFati::MessageProcessor.handle(obj)
-
-        Array(responses).each { |msg| connection.write(msg) }
+        puts "Server appears to be in good health" unless options['quiet']
+        exit 0
       end
-
-      connection.disconnect
     end
   rescue Timeout::Error
-    puts "Server did not send data. It appears to be locked up."
+    puts "Server did not send data. It appears to be locked up." unless options['quiet']
     exit 1
+  ensure
+    connection.disconnect
   end
 end
