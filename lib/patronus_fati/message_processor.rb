@@ -6,7 +6,7 @@ module PatronusFati
       @next_cleanup ||= Time.now.to_i + 60
 
       if @next_cleanup <= Time.now.to_i
-        @next_cleanup = Time.now.to_i + 10
+        @next_cleanup = Time.now.to_i + 30
 
         PatronusFati::DataModels::AccessPoint.inactive.reported_online.each do |ap|
           ap.update(:reported_online => false)
