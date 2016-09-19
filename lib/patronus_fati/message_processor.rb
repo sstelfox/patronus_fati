@@ -47,8 +47,34 @@ module PatronusFati
       end
     end
 
+    def self.report_recently_seen
+      # Every four minutes to ensure we hit the five minute window
+      @next_recent_msg ||= Time.now.to_i + 240
+
+      if @next_recent_msg <= Time.now.to_i
+        @next_recent_msg = Time.now.to_i + 240
+
+        aps = PatronusFati::DataModels::AccessPoint.all(
+          :last_seen_at.gte => (Time.now.to_i - 300),
+          :fields => [:last_seen_at, :bssid]
+        ).map { |c| c.bssid }
+        clients = PatronusFati::DataModels::Client.all(
+          :last_seen_at.gte => (Time.now.to_i - 300),
+          :fields => [:last_seen_at, :bssid]
+        ).map { |c| c.bssid }
+
+        return if clients.empty? && aps.empty?
+        PatronusFati.event_handler.event(
+          :sync,
+          :recent,
+          { access_points: aps, clients: clients }
+        )
+      end
+    end
+
     def self.handle(message_obj)
       periodic_flush
+      report_recently_seen
       result = factory(class_to_name(message_obj), message_obj)
       cleanup_models
       result
