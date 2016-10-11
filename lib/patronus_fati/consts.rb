@@ -79,9 +79,11 @@ module PatronusFati
   # consider no longer actively connected.
   CONNECTION_EXPIRATION = 1800
 
-  # Number of seconds before we consider an access point no longer advertising an
-  # SSID.
-  SSID_EXPIRATION = 300
+  # Number of seconds before we consider an access point no longer advertising
+  # an SSID. It is safe for this to be longer than the AP expiration; If we
+  # think the AP has gone offline we will automatically mark all SSIDs as
+  # inactive.
+  SSID_EXPIRATION = 600
 
   Error = Class.new(StandardError)
   DisconnectError = Class.new(PatronusFati::Error)
