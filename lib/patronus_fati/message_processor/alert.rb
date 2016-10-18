@@ -10,6 +10,7 @@ module PatronusFati::MessageProcessor::Alert
   def self.process_obj(obj)
     {
       created_at: obj[:sec],
+      type: obj[:header],
       message: obj[:text],
 
       source: obj[:source],
