@@ -12,6 +12,11 @@ module PatronusFati::MessageProcessor::Ssid
       return unless access_point # Only happens with a corrupt message
 
       ssid = PatronusFati::DataModels::Ssid.first_or_create({access_point: access_point, essid: ssid_info[:essid]}, ssid_info)
+      unless ssid.saved?
+        puts "Created but failed to persist SSID for unknown reason. Available validation errors: #{ssid.errors.to_a.inspect}"
+        raise "SSID wasn't able to be saved: #{ssid.errors.to_a.inspect}" unless ssid.save
+      end
+
       ssid.update(ssid_info)
       access_point.seen!
     elsif obj[:type] == 'probe_request'
