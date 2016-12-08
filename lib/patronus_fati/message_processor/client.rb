@@ -2,9 +2,6 @@ module PatronusFati::MessageProcessor::Client
   include PatronusFati::MessageProcessor
 
   def self.process(obj)
-    # We don't care about objects that would have expired already...
-    return if obj[:lasttime] < PatronusFati::DataModels::Client.current_expiration_threshold
-
     # obj[:mac] is the client's MAC address
     # obj[:bssid] is the AP's MAC address
     unless obj[:bssid].nil? || obj[:bssid].empty? || obj[:bssid] == obj[:mac]
