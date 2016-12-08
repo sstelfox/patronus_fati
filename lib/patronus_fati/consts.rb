@@ -79,6 +79,11 @@ module PatronusFati
   # consider no longer actively connected.
   CONNECTION_EXPIRATION = 1800
 
+  # This is how long after startup we trust kismet's timestamps. It apparently
+  # does not reliably update it's timestamps so after the initial flood we
+  # start ignoring it.
+  STARTUP_TRUST_WINDOW = 300
+
   # Number of seconds before we consider an access point no longer advertising
   # an SSID. It is safe for this to be longer than the AP expiration; If we
   # think the AP has gone offline we will automatically mark all SSIDs as

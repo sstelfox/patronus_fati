@@ -2,6 +2,11 @@ module PatronusFati::MessageProcessor::Client
   include PatronusFati::MessageProcessor
 
   def self.process(obj)
+    # We don't care about objects that would have expired already but only at
+    # the beginning because kismet can't be trusted.
+    return if (PatronusFati.startup_time + PatronusFati::STARTUP_TRUST_WINDOW) < Time.now.to_i &&
+      obj[:lasttime] < PatronusFati::DataModels::Client.current_expiration_threshold
+
     # obj[:mac] is the client's MAC address
     # obj[:bssid] is the AP's MAC address
     unless obj[:bssid].nil? || obj[:bssid].empty? || obj[:bssid] == obj[:mac]

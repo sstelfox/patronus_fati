@@ -45,6 +45,8 @@ require 'patronus_fati/data_observers/connection_observer'
 require 'patronus_fati/data_observers/ssid_observer'
 
 module PatronusFati
+  @@startup_time = Time.now.to_i
+
   def self.event_handler
     @event_handler ||= PatronusFati::EventHandler.new
   end
@@ -57,5 +59,9 @@ module PatronusFati
     DataMapper.auto_upgrade!
 
     PatronusFati::Connection.new(kismet_server, kismet_port)
+  end
+
+  def self.startup_time
+    @@startup_time
   end
 end
