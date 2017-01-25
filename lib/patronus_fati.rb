@@ -70,6 +70,7 @@ module PatronusFati
   end
 
   def self.past_initial_flood!
+    puts 'Got past initial flood'
     @@flood_status = true
   end
 end

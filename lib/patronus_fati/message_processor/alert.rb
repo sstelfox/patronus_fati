@@ -2,6 +2,9 @@ module PatronusFati::MessageProcessor::Alert
   include PatronusFati::MessageProcessor
 
   def self.process(obj)
+    # Ignore the initial flood of cached data
+    return unless PatronusFati.past_initial_flood?
+
     PatronusFati.event_handler.event(:alert, :new, process_obj(obj))
 
     nil

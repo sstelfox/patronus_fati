@@ -76,7 +76,7 @@ module PatronusFati
       if !PatronusFati.past_initial_flood? && @last_msg_received && (Time.now.to_f - @last_msg_received) >= 1.0
         PatronusFati.past_initial_flood!
       end
-      @last_message_received = Time.now.to_f
+      @last_msg_received = Time.now.to_f
 
       periodic_flush
       report_recently_seen
