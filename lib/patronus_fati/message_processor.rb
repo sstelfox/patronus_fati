@@ -73,7 +73,7 @@ module PatronusFati
     end
 
     def self.handle(message_obj)
-      if !PatronusFati.past_initial_flood? && @last_msg_received && (Time.now.to_f - @last_msg_received) >= 1.0
+      if !PatronusFati.past_initial_flood? && @last_msg_received && (Time.now.to_f - @last_msg_received) >= 0.8
         PatronusFati.past_initial_flood!
       end
       @last_msg_received = Time.now.to_f
