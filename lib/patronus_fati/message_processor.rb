@@ -73,11 +73,17 @@ module PatronusFati
     end
 
     def self.handle(message_obj)
+      if !PatronusFati.past_initial_flood? && @last_msg_received && (Time.now.to_f - @last_msg_received) >= 1.0
+        PatronusFati.past_initial_flood!
+      end
+
       periodic_flush
       report_recently_seen
       result = factory(class_to_name(message_obj), message_obj)
       cleanup_models
       result
+
+      @last_message_received = Time.now.to_f
     rescue DataObjects::SyntaxError => e
       # SQLite dropped our database. We need to log the condition and bail out
       # of the program completely.

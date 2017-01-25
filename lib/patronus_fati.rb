@@ -64,4 +64,12 @@ module PatronusFati
   def self.startup_time
     @@startup_time
   end
+
+  def self.past_initial_flood?
+    @@flood_status ||= false
+  end
+
+  def self.past_initial_flood!
+    @@flood_status = true
+  end
 end
