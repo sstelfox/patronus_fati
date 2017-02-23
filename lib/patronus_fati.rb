@@ -46,6 +46,8 @@ require 'patronus_fati/data_observers/connection_observer'
 require 'patronus_fati/data_observers/ssid_observer'
 
 module PatronusFati
+  @@startup_time = Time.now.to_i
+
   def self.event_handler
     @event_handler ||= PatronusFati::EventHandler.new
   end
@@ -65,5 +67,16 @@ module PatronusFati
 
   def logger=(logger)
     @logger = logger
+
+  def self.startup_time
+    @@startup_time
+  end
+
+  def self.past_initial_flood?
+    @@flood_status ||= false
+  end
+
+  def self.past_initial_flood!
+    @@flood_status = true
   end
 end

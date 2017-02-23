@@ -2,8 +2,10 @@ module PatronusFati::MessageProcessor::Bssid
   include PatronusFati::MessageProcessor
 
   def self.process(obj)
-    # We don't care about objects that would have expired already...
-    return if obj[:lasttime] < (Time.now.to_i - PatronusFati::AP_EXPIRATION) || obj[:bssid].nil?
+    # Ignore the initial flood of cached data and any objects that would have
+    # already expired
+    return unless PatronusFati.past_initial_flood? &&
+      obj[:lasttime] >= PatronusFati::DataModels::Ssid.current_expiration_threshold
 
     # Some messages from kismet come in corrupted with partial MACs. We care
     # not for them, just drop the bad data.

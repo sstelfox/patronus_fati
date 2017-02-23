@@ -15,6 +15,10 @@ module PatronusFati
 
       src_keys = cap.enabled_keys.empty? ? cap.attribute_keys : cap.enabled_keys
       cap.new(Hash[src_keys.zip(raw_data[1])])
+    rescue ParseError => e
+      # Detected corrupt messages from kismet in the wild, warn about them but
+      # don't fail the connection.
+      $stderr.puts("Warning: Unable to parse message from kismet: #{e.message}")
     end
 
     protected

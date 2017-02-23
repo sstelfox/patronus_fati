@@ -2,8 +2,10 @@ module PatronusFati::MessageProcessor::Ssid
   include PatronusFati::MessageProcessor
 
   def self.process(obj)
-    # We don't care about objects that would have expired already...
-    return if obj[:lasttime] < PatronusFati::DataModels::Ssid.current_expiration_threshold
+    # Ignore the initial flood of cached data and any objects that would have
+    # already expired
+    return unless PatronusFati.past_initial_flood? &&
+      obj[:lasttime] >= PatronusFati::DataModels::Ssid.current_expiration_threshold
 
     ssid_info = ssid_data(obj.attributes)
 
@@ -12,6 +14,11 @@ module PatronusFati::MessageProcessor::Ssid
       return unless access_point # Only happens with a corrupt message
 
       ssid = PatronusFati::DataModels::Ssid.first_or_create({access_point: access_point, essid: ssid_info[:essid]}, ssid_info)
+      unless ssid.saved?
+        puts "Created but failed to persist SSID for unknown reason. Available validation errors: #{ssid.errors.to_a.inspect}"
+        raise "SSID wasn't able to be saved: #{ssid.errors.to_a.inspect}" unless ssid.save
+      end
+
       ssid.update(ssid_info)
       access_point.seen!
     elsif obj[:type] == 'probe_request'
