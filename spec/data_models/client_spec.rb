@@ -14,12 +14,4 @@ RSpec.describe 'DataModels::Client' do
 
   it { expect(subject).to have_many(:connections) }
   it { expect(subject).to have_many(:access_points).through(:connections) }
-
-  it { expect(subject).to belong_to(:mac) }
-
-  it 'should associate to a MAC object before saving' do
-    expect(unsaved_instance.mac).to be_nil
-    unsaved_instance.save
-    expect(unsaved_instance.mac).to be_instance_of(PatronusFati::DataModels::Mac)
-  end
 end
