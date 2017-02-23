@@ -60,8 +60,10 @@ module PatronusFati
         rescue IOError, EOFError => e
           raise DisconnectError
         rescue => e
-          $stderr.puts format('Error in read thread: %s %s', e.class.to_s, e.message)
-          $stderr.puts e.backtrace
+          PatronusFati.logger.error(format('Error in read thread: %s %s', e.class.to_s, e.message))
+          e.backtrace.each do |l|
+            PatronusFati.logger.error(l)
+          end
         ensure
           socket.close if socket && !socket.closed?
         end
@@ -77,8 +79,10 @@ module PatronusFati
             count += 1
           end
         rescue => e
-          $stderr.puts format('Error in write thread: %s %s', e.class.to_s, e.message)
-          $stderr.puts e.backtrace
+          PatronusFati.logger.error(format('Error in write thread: %s %s', e.class.to_s, e.message))
+          e.backtrace.each do |l|
+            PatronusFati.logger.error(l)
+          end
         ensure
           socket.close if socket && !socket.closed?
         end

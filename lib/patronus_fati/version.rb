@@ -1,3 +1,3 @@
 module PatronusFati
-  VERSION = '0.9.24'
+  VERSION = '0.9.30'
 end
