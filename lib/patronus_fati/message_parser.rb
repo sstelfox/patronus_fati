@@ -9,7 +9,7 @@ module PatronusFati
       return unless (raw_data = handle_msg(msg))
 
       unless (cap = get_model(raw_data[0]))
-        warn('Message received had unknown message type: ' + raw_data[0])
+        PatronusFati.logger.warn('Message received had unknown message type: ' + raw_data[0])
         return
       end
 
