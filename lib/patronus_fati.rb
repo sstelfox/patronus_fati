@@ -61,12 +61,13 @@ module PatronusFati
     PatronusFati::Connection.new(kismet_server, kismet_port)
   end
 
-  def logger
-    @logger ||= Logger.new
+  def self.logger
+    @@logger ||= Logger.new
   end
 
-  def logger=(logger)
-    @logger = logger
+  def self.logger=(logger)
+    @@logger = logger
+  end
 
   def self.startup_time
     @@startup_time
