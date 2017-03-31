@@ -2,10 +2,10 @@ module PatronusFati::MessageProcessor::Ssid
   include PatronusFati::MessageProcessor
 
   def self.process(obj)
-    # We don't care about objects that would have expired already but only at
-    # the beginning because kismet can't be trusted.
-    return if (PatronusFati.startup_time + PatronusFati::STARTUP_TRUST_WINDOW) < Time.now.to_i &&
-      obj[:lasttime] < PatronusFati::DataModels::Ssid.current_expiration_threshold
+    # Ignore the initial flood of cached data and any objects that would have
+    # already expired
+    return unless PatronusFati.past_initial_flood? &&
+      obj[:lasttime] >= PatronusFati::DataModels::Ssid.current_expiration_threshold
 
     ssid_info = ssid_data(obj.attributes)
 
@@ -29,9 +29,6 @@ module PatronusFati::MessageProcessor::Ssid
 
       return if obj[:ssid].nil? || obj[:ssid].empty?
       client.probes.first_or_create(essid: obj[:ssid])
-    else
-      # The only thing left is the 'file' type which no one seems to understand
-      #puts ('Unknown SSID type (%s): %s' % [obj[:type], obj.inspect])
     end
 
     nil

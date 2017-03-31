@@ -3,6 +3,7 @@ STDOUT.sync = true
 require 'date'
 require 'digest'
 require 'json'
+require 'logger'
 require 'openssl'
 require 'socket'
 require 'timeout'
@@ -52,7 +53,6 @@ module PatronusFati
   end
 
   def self.setup(kismet_server, kismet_port, database_uri)
-    #DataMapper::Logger.new('pf-db.log', :debug)
     DataMapper.setup(:default, database_uri)
     DataMapper.repository(:default).adapter.resource_naming_convention = PatronusFati::NullTablePrefix
     DataMapper.finalize
@@ -61,7 +61,23 @@ module PatronusFati
     PatronusFati::Connection.new(kismet_server, kismet_port)
   end
 
+  def self.logger
+    @@logger ||= Logger.new
+  end
+
+  def self.logger=(logger)
+    @@logger = logger
+  end
+
   def self.startup_time
     @@startup_time
+  end
+
+  def self.past_initial_flood?
+    @@flood_status ||= false
+  end
+
+  def self.past_initial_flood!
+    @@flood_status = true
   end
 end

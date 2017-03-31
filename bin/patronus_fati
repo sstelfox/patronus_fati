@@ -29,10 +29,12 @@ end.parse(ARGV)
 def exception_logger(tag)
   yield
 rescue Interrupt
-  warn('Quitting...')
+  PatronusFati.logger.info('Quitting...')
 rescue => e
-  puts "(#{tag}) Rescued from error: #{e.message}"
-  puts e.backtrace
+  PatronusFati.logger.error("#{tag}) Rescued from error: #{e.message}")
+  e.backtrace.each do |l|
+    PatronusFati.logger.error(l)
+  end
 end
 
 exception_logger('process') do
@@ -40,7 +42,7 @@ exception_logger('process') do
   connection.connect
 
   PatronusFati.event_handler.on(:any) do |asset_type, event_type, msg, opts|
-    puts JSON.generate({asset_type: asset_type, event_type: event_type, data: msg, additional_data: opts, timestamp: Time.now})
+    PatronusFati.logger.info(JSON.generate({asset_type: asset_type, event_type: event_type, data: msg, additional_data: opts, timestamp: Time.now}))
   end
 
   while (line = connection.read_queue.pop)

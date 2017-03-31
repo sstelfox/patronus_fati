@@ -42,7 +42,7 @@ module PatronusFati::DataObservers
           )
         else
           # Weird situation, new record that is already disconnected...
-          warn('Connection (%i) created that is already disconnected' % id)
+          PatronusFati.logger.warn('Connection (%i) created that is already disconnected' % id)
         end
       else
         if @change_list.keys.include?('disconnected_at') && @change_list['disconnected_at'][0] == nil && !disconnected_at.nil?
@@ -52,7 +52,7 @@ module PatronusFati::DataObservers
             self.full_state.merge(duration: duration)
           )
         else
-          warn('Connection (%i) updated in a weird way: %s' % [id, @change_list.inspect])
+          PatronusFati.logger.warn('Connection (%i) updated in a weird way: %s' % [id, @change_list.inspect])
         end
       end
 

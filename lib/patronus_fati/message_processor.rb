@@ -73,6 +73,11 @@ module PatronusFati
     end
 
     def self.handle(message_obj)
+      if !PatronusFati.past_initial_flood? && @last_msg_received && (Time.now.to_f - @last_msg_received) >= 0.8
+        PatronusFati.past_initial_flood!
+      end
+      @last_msg_received = Time.now.to_f
+
       periodic_flush
       report_recently_seen
       result = factory(class_to_name(message_obj), message_obj)
@@ -81,14 +86,16 @@ module PatronusFati
     rescue DataObjects::SyntaxError => e
       # SQLite dropped our database. We need to log the condition and bail out
       # of the program completely.
-      puts 'SQLite dropped our database: %s: %s' % [e.class, e.message]
-      puts 'Exiting since we don\'t have a database...'
+      PatronusFati.logger.error('SQLite dropped our database: %s: %s' % [e.class, e.message])
+      PatronusFati.logger.error('Exiting since we don\'t have a database...')
       exit 1
     rescue => e
-      puts 'Error processing the following message object:'
-      puts message_obj.inspect
-      puts '%s: %s' % [e.class, e.message]
-      puts e.backtrace.join("\n")
+      PatronusFati.logger.error('Error processing the following message object:')
+      PatronusFati.logger.error(message_obj.inspect)
+      PatronusFati.logger.error('%s: %s' % [e.class, e.message])
+      e.backtrace.each do |l|
+        PatronusFati.logger.error(l)
+      end
     end
 
     def self.ignored_types
