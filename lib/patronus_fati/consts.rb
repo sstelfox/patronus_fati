@@ -34,23 +34,21 @@ module PatronusFati
     (1 << 3) => 'WEP40',
     (1 << 4) => 'WEP104',
     (1 << 5) => 'WPA+TKIP',
-    (1 << 6) => 'WPA', # Appears deprecated but still in the kismet source
     (1 << 7) => 'WPA+PSK',
     (1 << 8) => 'WPA+AES-OCB',
     (1 << 9) => 'WPA+AES-CCM',
-    (1 << 10) => 'WPA Migration Mode',
-    (1 << 11) => 'WPA+EAP', # Not a value that shows up in kismet exports... Bonus?
-    (1 << 12) => 'WPA+LEAP',
-    (1 << 13) => 'WPA+TTLS',
-    (1 << 14) => 'WPA+TLS',
-    (1 << 15) => 'WPA+PEAP',
-    (1 << 20) => 'ISAKMP',
-    (1 << 21) => 'PPTP',
-    (1 << 22) => 'Fortress',
-    (1 << 23) => 'Keyguard',
-    (1 << 24) => 'Unknown Protected',
-    (1 << 25) => 'Unknown Non-WEP',
-    (1 << 26) => 'WPS'
+    (1 << 10) => 'WPA+LEAP',
+    (1 << 11) => 'WPA+TTLS',
+    (1 << 12) => 'WPA+TLS',
+    (1 << 13) => 'WPA+PEAP',
+    (1 << 14) => 'ISAKMP',
+    (1 << 15) => 'PPTP',
+    (1 << 16) => 'Fortress',
+    (1 << 17) => 'Keyguard',
+    (1 << 18) => 'Unknown_NonWEP',
+    (1 << 19) => 'WPA Migration Mode',
+    (1 << 20) => 'WPA',
+    (1 << 21) => 'WPA2',
   }
 
   SSID_CRYPT_MAP_INVERTED = Hash[SSID_CRYPT_MAP.map { |k, v| [v, k] }]
