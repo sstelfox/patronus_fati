@@ -82,6 +82,12 @@ module PatronusFati
   # think the AP has gone offline we will automatically mark all SSIDs as
   # inactive.
   SSID_EXPIRATION = 600
+  WPS_SETTING_MAP = {
+    0 => 'NO_WPS',
+    1 => 'WPS_CONFIGURED',
+    (1 << 1) => 'WPS_NOT_CONFIGURED',
+    (1 << 2) => 'WPS_LOCKED',
+  }
 
   Error = Class.new(StandardError)
   DisconnectError = Class.new(PatronusFati::Error)
