@@ -3,7 +3,7 @@ module PatronusFati
   # Tests can be done to see whether or not whatever this is tracking was
   # present at a specific time or during a specific time interval.
   class Presence
-    attr_accessor :current_presence, :last_presence, :window_start
+    attr_accessor :current_presence, :first_seen, :last_presence, :window_start
 
     # How many seconds do each of our windows last
     WINDOW_LENGTH = 3600
@@ -39,6 +39,7 @@ module PatronusFati
     # handle rotation if the window has slipped.
     def mark_visible
       rotate_presence
+      self.first_seen ||= Time.now.to_i
       self.current_presence |= (1 << current_bit_offset)
     end
 
