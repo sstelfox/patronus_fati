@@ -1,8 +1,11 @@
 module PatronusFati
   module MessageModels
+    # NOTE: If you change these fields the SSID message parser needs to be
+    # manually updated since these fields are very broken.
     Ssid = CapStruct.new(
       :mac, :checksum, :type, :ssid, :beaconinfo, :cryptset, :cloaked,
-      :firsttime, :lasttime, :maxrate, :beaconrate
+      :maxrate, :beaconrate, :firsttime, :lasttime, :wps, :wps_device_name,
+      :wps_manuf, :wps_model_name, :wps_model_number
     )
     Ssid.set_data_filter(:mac) { |val| val.downcase }
     Ssid.set_data_filter(:checksum, :firsttime, :lasttime, :maxrate,
@@ -19,6 +22,16 @@ module PatronusFati
       val = val ^ SSID_CRYPT_MAP_INVERTED['WEP'] if val > SSID_CRYPT_MAP_INVERTED['WEP']
 
       SSID_CRYPT_MAP.select { |k, _| (k & val) != 0 }.map { |_, v| v }
+    end
+    Ssid.set_data_filter(:wps) do |val|
+      next WPS_SETTING_MAP[0] unless val
+      next WPS_SETTING_MAP[0] if val.ord == 0
+
+      WPS_SETTING_MAP.select { |k, _| (k & val.ord) != 0 }.map { |_, v| v}.first
+    end
+    Ssid.set_data_filter(:wps_device_name) do |val|
+      next if val.nil? || val.empty?
+      val
     end
 
     # Attempt to map the returned SSID type to one we know about it and convert
