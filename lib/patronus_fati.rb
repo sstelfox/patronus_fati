@@ -45,6 +45,8 @@ require 'patronus_fati/data_observers/client_observer'
 require 'patronus_fati/data_observers/connection_observer'
 require 'patronus_fati/data_observers/ssid_observer'
 
+require 'patronus_fati/presence'
+
 module PatronusFati
   @@startup_time = Time.now.to_i
 
