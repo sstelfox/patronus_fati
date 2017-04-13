@@ -37,12 +37,15 @@ module PatronusFati::MessageProcessor::Ssid
   protected
 
   def self.ssid_data(attrs)
+    crypt_set = attrs[:cryptset].map(&:to_s)
+    crypt_set << 'WPS' if %w(WPS_CONFIGURED WPS_LOCKED).include?(attrs[:wps])
+
     {
       beacon_info: attrs[:beaconinfo],
       beacon_rate: attrs[:beaconrate],
 
       cloaked:  attrs[:cloaked],
-      crypt_set: attrs[:cryptset].map(&:to_s),
+      crypt_set: crypt_set,
       essid: attrs[:ssid],
       max_rate: attrs[:maxrate],
 
