@@ -31,7 +31,7 @@ def exception_logger(tag)
 rescue Interrupt
   PatronusFati.logger.info('Quitting...')
 rescue => e
-  PatronusFati.logger.error("#{tag}) Rescued from error: #{e.message}")
+  PatronusFati.logger.error("(#{tag}) Rescued from error: #{e.message}")
   e.backtrace.each do |l|
     PatronusFati.logger.error(l)
   end

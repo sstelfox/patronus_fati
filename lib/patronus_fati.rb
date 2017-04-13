@@ -62,7 +62,7 @@ module PatronusFati
   end
 
   def self.logger
-    @@logger ||= Logger.new
+    @@logger ||= Logger.new(STDOUT)
   end
 
   def self.logger=(logger)
