@@ -13,16 +13,6 @@ module DataMapper
         true
       end
 
-      #def dump(value)
-      #  unless value.nil?
-      #    flags = Array(value).map(&:to_s)
-      #    flags.uniq!
-
-      #    valid_values = flags & PatronusFati::SSID_CRYPT_MAP.values
-      #    PatronusFati::SSID_CRYPT_MAP.map { |k, v| valid_values.include?(v) ? k : 0 }.inject(&:+)
-      #  end
-      #end
-
       def dump(value)
         unless value.nil?
           flags = Array(value).map { |flag| flag.to_sym }

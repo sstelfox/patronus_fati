@@ -49,6 +49,7 @@ module PatronusFati
     (1 << 19) => 'WPA Migration Mode',
     (1 << 20) => 'WPA',
     (1 << 21) => 'WPA2',
+    (1 << 26) => 'WPS',
   }
 
   SSID_CRYPT_MAP_INVERTED = Hash[SSID_CRYPT_MAP.map { |k, v| [v, k] }]

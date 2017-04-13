@@ -25,9 +25,10 @@ module PatronusFati
     end
     Ssid.set_data_filter(:wps) do |val|
       next WPS_SETTING_MAP[0] unless val
-      next WPS_SETTING_MAP[0] if val.ord == 0
+      val = val.ord
 
-      WPS_SETTING_MAP.select { |k, _| (k & val.ord) != 0 }.map { |_, v| v}.first
+      next WPS_SETTING_MAP[0] if val == 0
+      WPS_SETTING_MAP.select { |k, _| (k & val) != 0 }.map { |_, v| v}.first
     end
     Ssid.set_data_filter(:wps_device_name) do |val|
       next if val.nil? || val.empty?
