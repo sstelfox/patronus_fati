@@ -35,10 +35,41 @@ module PatronusFati
       window_start - WINDOW_LENGTH
     end
 
+    # Provides the beginning of the last interval when the tracked object was
+    # seen. This could probably be optimized with a B tree search or the like
+    # but this is more than enough for now.
+    def last_visible
+      rotate_presence
+
+      puts 'before'
+      return nil if last_presence == 0 && current_presence == 0
+
+      if current_presence == 0
+        # We've ruled out the current_presence we only need to check the
+        # last_presence.
+        WINDOW_INTERVALS.times.to_a.reverse do |i|
+          if ((1 << i) & last_presence) > 0
+            return last_window_start + (i * INTERVAL_DURATION)
+          end
+        end
+      else
+        # We haven't seen it since the last_presence so we only need to check
+        # that window
+        WINDOW_INTERVALS.times.to_a.reverse do |i|
+          if ((1 << i) & current_presence) > 0
+            return window_start + (i * INTERVAL_DURATION)
+          end
+        end
+      end
+
+      nil
+    end
+
     # Mark the current interval as having been seen in the presence field. Will
     # handle rotation if the window has slipped.
     def mark_visible
       rotate_presence
+
       self.first_seen ||= Time.now.to_i
       self.current_presence |= (1 << current_bit_offset)
     end
