@@ -1,5 +1,3 @@
-STDOUT.sync = true
-
 require 'date'
 require 'digest'
 require 'json'
@@ -41,7 +39,7 @@ module PatronusFati
     @event_handler ||= PatronusFati::EventHandler.new
   end
 
-  def self.setup(kismet_server, kismet_port, database_uri)
+  def self.setup(kismet_server, kismet_port)
     PatronusFati::Connection.new(kismet_server, kismet_port)
   end
 

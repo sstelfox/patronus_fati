@@ -3,6 +3,8 @@ module PatronusFati
     extend FactoryBase
 
     def self.cleanup_models
+      # TODO: This functionality needs to updated to not use the database
+      return
       @next_cleanup ||= Time.now.to_i + 60
 
       if @next_cleanup <= Time.now.to_i
@@ -48,6 +50,8 @@ module PatronusFati
     end
 
     def self.report_recently_seen
+      # TODO: This functionality needs to updated to not use the database
+      return
       # Every four minutes to ensure we hit the five minute window
       @next_recent_msg ||= Time.now.to_i + 240
 
@@ -104,6 +108,8 @@ module PatronusFati
     end
 
     def self.periodic_flush
+      # TODO: This functionality needs to updated to not use the database
+      return
       @next_sync ||= Time.now.to_i + 300
 
       if @next_sync <= Time.now.to_i

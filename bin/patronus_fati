@@ -2,21 +2,17 @@
 
 $:.push(File.expand_path(File.join('..', '..', 'lib'), __FILE__))
 
+STDOUT.sync = true
+
 require 'optparse'
-require 'dm-sqlite-adapter'
 require 'patronus_fati'
 
 options = {
-  'database' => 'sqlite::memory:?cache=shared',
   'port'   => 2501,
   'server' => '127.0.0.1'
 }
 
 OptionParser.new(nil, 32, '  ') do |opts|
-  opts.on('-d', '--db-path DB_PATH', 'Path where SQLite database will be stored') do |path|
-    options['database'] = ('sqlite://%s' % File.expand_path(path))
-  end
-
   opts.on('-s', '--server SERVER', 'IP or hostname of running kismet server.') do |srv|
     options['server'] = srv
   end
@@ -38,7 +34,7 @@ rescue => e
 end
 
 exception_logger('process') do
-  connection = PatronusFati.setup(options['server'], options['port'], options['database'])
+  connection = PatronusFati.setup(options['server'], options['port'])
   connection.connect
 
   PatronusFati.event_handler.on(:any) do |asset_type, event_type, msg, opts|

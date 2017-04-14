@@ -30,10 +30,12 @@ require 'patronus_fati/message_models/time'
 require 'patronus_fati/message_models/trackinfo'
 require 'patronus_fati/message_models/wepkey'
 
-module MessageModels
+module PatronusFati
   # @note In all of the message models the ordering of the attributes is
   #   actually important, as these are the default orderings provided by the
-  #   server I was developing against.  The casing of the name is also important
-  #   as the best we can automatically do from the header information is a
-  #   downcase and capitalize.
+  #   server I was developing against.  The casing of the name is also
+  #   important as the best we can automatically do from the header information
+  #   is a downcase and capitalize.
+  module MessageModels
+  end
 end
