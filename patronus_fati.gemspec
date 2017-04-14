@@ -19,18 +19,8 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
-  gem.add_dependency 'dm-constraints'
-  gem.add_dependency 'dm-core'
-  gem.add_dependency 'dm-migrations'
-  gem.add_dependency 'dm-observer'
-  gem.add_dependency 'dm-sqlite-adapter'
-  gem.add_dependency 'dm-timestamps'
-  gem.add_dependency 'dm-validations'
   gem.add_dependency 'louis', '~> 2.0'
 
-  gem.add_development_dependency 'database_cleaner'
-  gem.add_development_dependency 'dm-rspec'
-  gem.add_development_dependency 'dm-transactions'
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rdoc'
   gem.add_development_dependency 'pry'

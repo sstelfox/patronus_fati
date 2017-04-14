@@ -38,7 +38,6 @@ AccessPoint:
 
 * BSSID -> MAC, key, required
 * Channel -> integer, optional
-* Max Seen Rate -> integer, optional
 * Type -> string, required
 * Client MACs -> array of MACs, should always be present but may be empty.
 * SSIDs -> Will be an array of ESSID, should always be present but may be
@@ -64,8 +63,8 @@ Client:
 SSID:
 
 * BSSID: BSSID of the AccessPoint that is hosting this SSID
-* Beacon Rate: integer, optional
 * Beacon Info: string, optional
+* Beacon Rate: integer, optional
 * Cloaked: boolean
 * ESSID: string, optional
 * Cryptset: array of strings, should always be present, must contain at least
