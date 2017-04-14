@@ -44,8 +44,8 @@ AccessPoint:
   empty. Cloaked APs will have an ESSID of nil.
 * Vendor -> string, optional
 * Sync Status -> Enum(syncedOffline, syncedOnline, dirtyAttributes,
-  dirtyChild, active, expired), metadata based on the last output status and
-  whether or not it needs to be re-announced.
+  dirtyChild, active, expired, new), metadata based on the last output status
+  and whether or not it needs to be re-announced.
 
 Client:
 
@@ -57,9 +57,8 @@ Client:
   empty
 * Vendor -> string, optional
 * Sync Status -> Enum(syncedOffline, syncedOnline, dirtyAttributes,
-  dirtyChild, active, expired), metadata based on the last output status and
-  whether or not it needs to be re-announced.
-
+  dirtyChild, active, expired, new), metadata based on the last output status
+  and whether or not it needs to be re-announced.
 SSID:
 
 * BSSID: BSSID of the AccessPoint that is hosting this SSID
