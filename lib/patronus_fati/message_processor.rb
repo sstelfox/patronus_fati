@@ -15,7 +15,6 @@ module PatronusFati
     end
 
     def self.close_inactive_connections
-      DataModels::Connection.inactive.connected.map(&:disconnect!)
       DataModels::Connection.instances.each do |_, connection|
         if !connection.active? && (connection.sync_flags == SYNC[:unsynced] || connection.sync_flag?(:syncedOnline))
           # Intentionally clear all other flags
