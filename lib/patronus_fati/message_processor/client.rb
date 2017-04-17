@@ -9,10 +9,6 @@ module PatronusFati::MessageProcessor::Client
     }.reject { |_, v| v.nil? }
   end
 
-  def self.connection_threshold
-    Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION
-  end
-
   def self.process(obj)
     # Ignore the initial flood of cached data and any objects that would have
     # already expired
@@ -47,12 +43,15 @@ module PatronusFati::MessageProcessor::Client
 
     # Don't deal in associations that are outside of our connection expiration
     # time... or if we don't have an access point
-    return if obj[:lasttime] < connection_threshold || access_point.nil?
+    return if access_point.nil? ||
+      obj[:lasttime] < PatronusFati::DataModels::Connection.current_expiration_threshold
 
     access_point.add_client(obj[:mac])
     client.add_access_point(obj[:bssid])
 
-    # TODO: Track connection
+    connection_key = "#{access_point.bssid}:#{client.mac}"
+    connection = PatronusFati::DataModels::Connection[connection_key]
+    connection.mark_presence
 
     nil
   end

@@ -22,6 +22,7 @@ require 'patronus_fati/message_processor'
 
 require 'patronus_fati/data_models/access_point'
 require 'patronus_fati/data_models/client'
+require 'patronus_fati/data_models/connection'
 require 'patronus_fati/data_models/ssid'
 
 # TODO: Need to emulate this functionality

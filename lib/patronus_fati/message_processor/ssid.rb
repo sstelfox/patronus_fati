@@ -8,13 +8,11 @@ module PatronusFati::MessageProcessor::Ssid
       obj[:lasttime] >= PatronusFati::DataModels::Ssid.current_expiration_threshold
 
     if %w(beacon probe_response).include?(obj[:type])
-      access_point = PatronusFati::DataModels::AccessPoint[obj[:mac]]
-      access_point.presence.mark_visible
-
-      # TODO: Track SSID
       ssid_info = ssid_data(obj.attributes)
-      ssid = PatronusFati::DataModels::Ssid.first_or_create({access_point: access_point, essid: ssid_info[:essid]}, ssid_info)
-      ssid.update(ssid_info)
+
+      access_point = PatronusFati::DataModels::AccessPoint[obj[:mac]]
+      access_point.track_ssid(ssid_info)
+      access_point.presence.mark_visible
     elsif obj[:type] == 'probe_request'
       client = PatronusFati::DataModels::Client[obj[:mac]]
       client.presence.mark_visisble
