@@ -149,5 +149,11 @@ module PatronusFati
 
       false
     end
+
+    # Returns the duration in seconds of how long the specific object was
+    # absolutely seen.
+    def visible_time
+      last_visible - first_seen
+    end
   end
 end

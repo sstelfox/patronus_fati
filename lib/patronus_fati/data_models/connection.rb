@@ -1,7 +1,7 @@
 module PatronusFati
   module DataModels
     class Connection
-      attr_accessor :bssid, :mac, :presence, :sync_status
+      attr_accessor :bssid, :link_lost, :mac, :presence, :sync_status
 
       def self.[](key)
         bssid, mac = key.split(':')
@@ -17,7 +17,7 @@ module PatronusFati
       end
 
       def active?
-        presence.visible_since?(current_expiration_threshold)
+        presence.visible_since?(current_expiration_threshold) && !link_lost
       end
 
       def dirty?
@@ -29,6 +29,7 @@ module PatronusFati
 
       def initialize(bssid, mac)
         self.bssid = bssid
+        self.link_lost = false
         self.mac = mac
         self.presence = Presence.new
         self.sync_status = 0
