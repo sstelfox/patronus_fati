@@ -40,6 +40,15 @@ module PatronusFati
         probes.reject { |_, v| v.presence.dead? }
       end
 
+      def dirty?
+        return true if sync_status == SYNC_FLAGS[:unsynced] ||
+                       sync_flag?(:dirtyAttributes) ||
+                       sync_flag?(:dirtyChildren) ||
+                       (sync_flag?(:syncedOnline) && !active?) ||
+                       (sync_flag?(:syncedOffline) && active?)
+        false
+      end
+
       def full_state
         {
           mac: mac,

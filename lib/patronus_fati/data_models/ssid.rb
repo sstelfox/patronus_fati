@@ -16,7 +16,8 @@ module PatronusFati
       end
 
       def dirty?
-        return true if sync_flag?(:dirtyAttributes) ||
+        return true if sync_status == SYNC_FLAGS[:unsynced] ||
+                       sync_flag?(:dirtyAttributes) ||
                        (sync_flag?(:syncedOnline) && !active?) ||
                        (sync_flag?(:syncedOffline) && active?)
         false

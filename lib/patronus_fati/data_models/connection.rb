@@ -20,11 +20,26 @@ module PatronusFati
         presence.visible_since?(current_expiration_threshold)
       end
 
+      def dirty?
+        return true if sync_status == SYNC_FLAGS[:unsynced] ||
+                       (sync_flag?(:syncedOnline) && !active?) ||
+                       (sync_flag?(:syncedOffline) && active?)
+        false
+      end
+
       def initialize(bssid, mac)
         self.bssid = bssid
         self.mac = mac
         self.presence = Presence.new
         self.sync_status = 0
+      end
+
+      def set_sync_flag(flag)
+        sync_flags |= SYNC_FLAGS[flag]
+      end
+
+      def sync_flag?(flag)
+        (sync_status & SYNC_FLAGS[flag]) > 0
       end
     end
   end
