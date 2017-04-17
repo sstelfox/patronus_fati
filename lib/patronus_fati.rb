@@ -4,6 +4,7 @@ require 'json'
 require 'logger'
 require 'openssl'
 require 'socket'
+require 'strscan'
 require 'timeout'
 require 'thread'
 
