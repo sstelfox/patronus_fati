@@ -131,6 +131,9 @@ module PatronusFati
       e.backtrace.each do |l|
         PatronusFati.logger.error(l)
       end
+
+      # Need to ensure our backtrace doesn't get sent to kismet
+      nil
     end
 
     def self.ignored_types
