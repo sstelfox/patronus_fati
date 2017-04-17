@@ -53,12 +53,13 @@ Client:
 * Channel -> integer, optional
 * Max Seen Rate -> integer, optional
 * Access Points -> array of MACs, should always be present but may be empty.
-* Probes -> Will be an array of strings, should always be present but may be
-  empty
+* Probes -> Will be a hash of presence objects, should always be present but
+  may be empty
 * Vendor -> string, optional
 * Sync Status -> Enum(syncedOffline, syncedOnline, dirtyAttributes,
   dirtyChild, active, expired, new), metadata based on the last output status
   and whether or not it needs to be re-announced.
+
 SSID:
 
 * BSSID: BSSID of the AccessPoint that is hosting this SSID
@@ -77,10 +78,6 @@ AccessPointVisibility:
 * Visbility -> bitstring / integer, required, must be > 0
 * LastVisibility -> bitstring / integer, must be >= 0
 
-I may need to add 'first seen' as a unix timestamp into this table to handle
-the uptime field in the access point->offline messages. It may also not be
-needed if pulse is not doing anything with it.
-
 ClientVisibility:
 
 * Key -> client mac
@@ -91,17 +88,6 @@ ClientVisibility:
 ConnectionVisibility:
 
 * Key -> hash(ap bssid + client mac)
-* WindowStart -> integer, unix timestamp of beginning of visibility window
-* Visbility -> bitstring / integer, required, must be > 0
-* LastVisibility -> bitstring / integer, must be >= 0
-
-I may need to add 'first seen' as a unix timestamp into this table to handle
-the duration field in the connection->disconnect messages. It may also not be
-needed if pulse is not doing anything with it.
-
-ProbeVisbility:
-
-* Key -> hash(client mac + essid)
 * WindowStart -> integer, unix timestamp of beginning of visibility window
 * Visbility -> bitstring / integer, required, must be > 0
 * LastVisibility -> bitstring / integer, must be >= 0

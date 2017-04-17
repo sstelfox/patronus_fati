@@ -68,6 +68,17 @@ module PatronusFati
     ^\*\g<header>:\s+\g<data>$
   /x
 
+  # Various states of synchronization an individual model can be in. The
+  # various sync states should remain exclusive to each other (no more than
+  # one should be set). Dirtiness is an indicator of what we need to sync.
+  SYNC_FLAGS = {
+    unsynced: 0,
+    syncedOnline: 1,
+    syncedOffline: (1 << 1),
+    dirtyAttributes: (1 << 2),
+    dirtyChildren: (1 << 3),
+  }.freeze
+
   # Number of seconds before we consider an access point as offline
   AP_EXPIRATION = 300
 
@@ -83,6 +94,7 @@ module PatronusFati
   # think the AP has gone offline we will automatically mark all SSIDs as
   # inactive.
   SSID_EXPIRATION = 600
+
   WPS_SETTING_MAP = {
     0 => 'NO_WPS',
     1 => 'WPS_CONFIGURED',

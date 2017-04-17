@@ -4,24 +4,8 @@ module PatronusFati::DataModels
       :sync_status
 
     # This is the list of keys that represent attributes about this particular
-    # AP. This does not include internal tracking state or information about
-    # relations with other objects.
-    LOCAL_ATTRIBUTE_KEYS = [ :bssid, :channel, :type ]
-
-    # Various states of synchronization an individual model can be in. The
-    # various sync states should remain exclusive to each other (no more than
-    # one should be set). Dirtiness is an indicator of what we need to sync.
-    SYNC_FLAGS = {
-      unsynced: 0,
-      syncedOnline: 1,
-      syncedOffline: (1 << 1),
-      dirtyAttributes: (1 << 2),
-      dirtyChildren: (1 << 3),
-    }.freeze
-
-    def self.instances
-      @instances ||= {}
-    end
+    # AP.
+    LOCAL_ATTRIBUTE_KEYS = [ :bssid, :channel, :type ].freeze
 
     def self.[](bssid)
       instances[bssid] ||= new(bssid)
@@ -31,12 +15,8 @@ module PatronusFati::DataModels
       Time.now.to_i - PatronusFati::AP_EXPIRATION
     end
 
-    def initialize(bssid)
-      self.local_attributes = { bssid: bssid }
-      self.client_macs = []
-      self.presence = PatronusFati::Presence.new
-      self.ssids = []
-      self.sync_status = 0
+    def self.instances
+      @instances ||= {}
     end
 
     def active?
@@ -60,12 +40,20 @@ module PatronusFati::DataModels
       }
     end
 
+    def initialize(bssid)
+      self.local_attributes = { bssid: bssid }
+      self.client_macs = []
+      self.presence = PatronusFati::Presence.new
+      self.ssids = []
+      self.sync_status = 0
+    end
+
     def update(attrs)
       attrs.each do |k, v|
         next unless LOCAL_ATTRIBUTE_KEYS.include?(k)
         next if local_attributes[k] == v
 
-        self.sync_status |= SYNC_FLAGS[:dirtyAttributes]
+        self.sync_status |= PatronusFati::SYNC_FLAGS[:dirtyAttributes]
         local_attributes[k] = v
       end
     end

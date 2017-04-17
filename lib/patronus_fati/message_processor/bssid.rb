@@ -1,6 +1,14 @@
 module PatronusFati::MessageProcessor::Bssid
   include PatronusFati::MessageProcessor
 
+  def self.ap_data(attrs)
+    {
+      bssid: attrs[:bssid],
+      type: attrs[:type],
+      channel: attrs[:channel]
+    }.reject { |_, v| v.nil? }
+  end
+
   def self.process(obj)
     # Ignore the initial flood of cached data and any objects that would have
     # already expired
@@ -22,15 +30,5 @@ module PatronusFati::MessageProcessor::Bssid
     access_point.presence.mark_visible
 
     nil
-  end
-
-  protected
-
-  def self.ap_data(attrs)
-    {
-      bssid: attrs[:bssid],
-      type: attrs[:type],
-      channel: attrs[:channel]
-    }.reject { |_, v| v.nil? }
   end
 end
