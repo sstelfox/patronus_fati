@@ -23,7 +23,7 @@ module PatronusFati
       end
 
       def active?
-        presence.visible_since?(current_expiration_threshold)
+        presence.visible_since?(self.class.current_expiration_threshold)
       end
 
       def add_access_point(bssid)

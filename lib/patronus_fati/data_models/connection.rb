@@ -17,7 +17,7 @@ module PatronusFati
       end
 
       def active?
-        presence.visible_since?(current_expiration_threshold) && !link_lost
+        presence.visible_since?(self.class.current_expiration_threshold) && !link_lost
       end
 
       def dirty?
