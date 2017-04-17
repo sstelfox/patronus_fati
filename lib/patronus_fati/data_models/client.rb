@@ -62,7 +62,7 @@ module PatronusFati
       end
 
       def initialize(mac)
-        self.access_point_bssids = {}
+        self.access_point_bssids = []
         self.local_attributes = { mac: mac }
         self.presence = Presence.new
         self.probes = {}
