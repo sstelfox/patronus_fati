@@ -65,7 +65,7 @@ module PatronusFati
         self.local_attributes = { bssid: bssid }
         self.client_macs = []
         self.presence = Presence.new
-        self.ssids = []
+        self.ssids = {}
         self.sync_status = 0
       end
 

@@ -3,5 +3,6 @@ module PatronusFati::MessageProcessor::Error
 
   def self.process(opts)
     PatronusFati.logger.warn('Failed command ID %i with error: %s' % [opts.cmdid, opts.text])
+    nil
   end
 end
