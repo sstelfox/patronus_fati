@@ -23,7 +23,7 @@ module PatronusFati
       end
 
       def active_ssids
-        ssids.select { |_, v| v.active? }
+        ssids.select { |_, v| v.active? }.values
       end
 
       def add_client(mac)
