@@ -25,6 +25,13 @@ module PatronusFati
       ts - (ts % WINDOW_LENGTH)
     end
 
+    # Returns true if we have no data points indicating we've seen the presence
+    # of this instance in the entirety of our time window.
+    def dead?
+      rotate_presence
+      current_presence == 0 && last_presence == 0
+    end
+
     def initialize
       self.current_presence = 0
       self.last_presence = 0

@@ -4,8 +4,6 @@ module PatronusFati
       attr_accessor :access_point_bssids, :local_attributes, :presence, :probes,
         :sync_status
 
-      # This is the list of keys that represent attributes about this particular
-      # Client.
       LOCAL_ATTRIBUTE_KEYS = [ :mac, :channel, :max_seen_rate ].freeze
 
       def self.[](mac)
@@ -33,6 +31,13 @@ module PatronusFati
           access_point_bssids << mac
           set_sync_flag(:dirtyChildren)
         end
+      end
+
+      def cleanup_probes
+        return if probes.select { |_, v| v.presence.dead? }.empty?
+
+        set_sync_flag(:dirtyChildren)
+        probes.reject { |_, v| v.presence.dead? }
       end
 
       def full_state

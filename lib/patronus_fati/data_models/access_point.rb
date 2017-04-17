@@ -33,6 +33,13 @@ module PatronusFati
         end
       end
 
+      def cleanup_ssids
+        return if ssids.select { |_, v| v.presence.dead? }.empty?
+
+        set_sync_flag(:dirtyChildren)
+        ssids.reject { |_, v| v.presence.dead? }
+      end
+
       def dirty?
         return true if sync_flag?(:dirtyAttributes) ||
                        sync_flag?(:dirtyChildren) ||
