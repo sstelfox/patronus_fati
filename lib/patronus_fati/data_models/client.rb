@@ -27,8 +27,8 @@ module PatronusFati
       end
 
       def add_access_point(bssid)
-        unless access_point_bssids.include?(mac)
-          access_point_bssids << mac
+        unless access_point_bssids.include?(bssid)
+          access_point_bssids << bssid
           set_sync_flag(:dirtyChildren)
         end
       end
