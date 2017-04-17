@@ -82,7 +82,7 @@ module PatronusFati
       end
 
       def track_ssid(ssid_data)
-        ssids[ssid_data[:essid]] |= DataModels::Ssid.new(ssid_data[:essid])
+        ssids[ssid_data[:essid]] ||= DataModels::Ssid.new(ssid_data[:essid])
 
         ssid = ssids[ssid_data[:essid]]
         ssid.presence.mark_presence
