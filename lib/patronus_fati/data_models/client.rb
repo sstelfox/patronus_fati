@@ -85,7 +85,7 @@ module PatronusFati
         return unless probe && probe.length > 0
 
         self.probes[probe] ||= Presence.new
-        self.probes[probe].mark_presence
+        self.probes[probe].mark_visible
       end
 
       def update(attrs)

@@ -36,7 +36,7 @@ module PatronusFati
         end
       end
 
-      DataModels::Connection.instances.reject! { |_, conn| conn.dead? }
+      DataModels::Connection.instances.reject! { |_, conn| conn.presence.dead? }
     end
 
     def self.offline_access_points
@@ -61,7 +61,7 @@ module PatronusFati
         end
       end
 
-      DataModels::AccessPoint.instances.reject! { |_, ap| ap.dead? }
+      DataModels::AccessPoint.instances.reject! { |_, ap| ap.presence.dead? }
     end
 
     def self.offline_clients
@@ -84,7 +84,7 @@ module PatronusFati
         end
       end
 
-      DataModels::Client.instances.reject! { |_, ap| ap.dead? }
+      DataModels::Client.instances.reject! { |_, ap| ap.presence.dead? }
     end
 
     def self.report_recently_seen
