@@ -9,21 +9,16 @@ module PatronusFati::MessageProcessor::Ssid
 
     if %w(beacon probe_response).include?(obj[:type])
       access_point = PatronusFati::DataModels::AccessPoint[obj[:mac]]
-      return unless access_point
+      access_point.presence.mark_visible
 
+      # TODO: Track SSID
       ssid_info = ssid_data(obj.attributes)
       ssid = PatronusFati::DataModels::Ssid.first_or_create({access_point: access_point, essid: ssid_info[:essid]}, ssid_info)
       ssid.update(ssid_info)
-
-      access_point.presence.mark_visible
     elsif obj[:type] == 'probe_request'
-      client = PatronusFati::DataModels::Client.first(bssid: obj[:mac])
-
-      return if client.nil?
-      client.seen!
-
-      return if obj[:ssid].nil? || obj[:ssid].empty?
-      client.probes.first_or_create(essid: obj[:ssid])
+      client = PatronusFati::DataModels::Client[obj[:mac]]
+      client.presence.mark_visisble
+      client.track_probe(obj[:ssid])
     end
 
     nil
@@ -38,10 +33,10 @@ module PatronusFati::MessageProcessor::Ssid
     {
       beacon_info: attrs[:beaconinfo],
       beacon_rate: attrs[:beaconrate],
-      cloaked:  attrs[:cloaked],
-      crypt_set: crypt_set,
-      essid: attrs[:ssid],
-      max_rate: attrs[:maxrate],
+      cloaked:     attrs[:cloaked],
+      crypt_set:   crypt_set,
+      essid:       attrs[:ssid],
+      max_rate:    attrs[:maxrate],
     }.reject { |_, v| v.nil? }
   end
 end

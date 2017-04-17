@@ -46,8 +46,11 @@ module PatronusFati::MessageProcessor::Client
     client.presence.mark_visible
 
     # Don't deal in associations that are outside of our connection expiration
-    # time...
-    return if obj[:lasttime] < connection_threshold
+    # time... or if we don't have an access point
+    return if obj[:lasttime] < connection_threshold || access_point.nil?
+
+    access_point.add_client(obj[:mac])
+    client.add_access_point(obj[:bssid])
 
     # TODO: Track connection
 

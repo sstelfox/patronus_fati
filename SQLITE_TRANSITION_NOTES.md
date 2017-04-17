@@ -29,8 +29,15 @@ sync messages.
 Visibility information will be stored for an hour in a bitstring for each model
 with minute precision.
 
-NOTE: I should add a warning if I detected an AP that is reported as cloaked:
-false but has an empty ESSID.
+TODO NOTE: I should add a warning if I detected an AP that is reported as
+cloaked: false but has an empty ESSID.
+
+TODO: Something to consider: Right now when tracking a 'connection' I add the
+bssid to the client, and the mac to the access point then mark the records with
+the 'dirtyChildren' flag. Since connections are tracked independently, with
+their own connect / disconnect messages I likely don't need to trigger a sync
+of each of those models. I want to test and make sure that will work cleanly
+though...
 
 ## Fields Needing Populating
 
