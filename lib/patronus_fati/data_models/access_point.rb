@@ -85,7 +85,7 @@ module PatronusFati
         ssids[ssid_data[:essid]] ||= DataModels::Ssid.new(ssid_data[:essid])
 
         ssid = ssids[ssid_data[:essid]]
-        ssid.presence.mark_presence
+        ssid.presence.mark_visible
         ssid.update(ssid_data)
 
         set_sync_flag(:dirtyChildren) if ssid.dirty?
