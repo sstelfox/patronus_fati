@@ -6,7 +6,7 @@ module PatronusFati
       attr_accessor :access_point_bssids, :local_attributes, :presence,
         :probes, :sync_status
 
-      LOCAL_ATTRIBUTE_KEYS = [ :mac, :channel, :max_seen_rate ].freeze
+      LOCAL_ATTRIBUTE_KEYS = [ :mac, :channel ].freeze
 
       def self.[](mac)
         instances[mac] ||= new(mac)

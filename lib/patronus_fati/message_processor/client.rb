@@ -5,7 +5,6 @@ module PatronusFati::MessageProcessor::Client
     {
       bssid:          attrs[:mac],
       channel:        attrs[:channel],
-      max_seen_rate:  attrs[:maxseenrate],
     }.reject { |_, v| v.nil? }
   end
 
