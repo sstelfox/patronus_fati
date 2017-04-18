@@ -32,15 +32,10 @@ with minute precision.
 TODO NOTE: I should add a warning if I detected an AP that is reported as
 cloaked: false but has an empty ESSID.
 
-TODO: Something to consider: Right now when tracking a 'connection' I add the
-bssid to the client, and the mac to the access point then mark the records with
-the 'dirtyChildren' flag. Since connections are tracked independently, with
-their own connect / disconnect messages I likely don't need to trigger a sync
-of each of those models. I want to test and make sure that will work cleanly
-though...
-
 TODO: When I bring an access point, client, or SSID back online I need to reset
 the first seen field in the respective instance's presence.
+
+TODO: Connections seem to be getting announced as connected multiple times...
 
 ## Messages for Compatibility
 
@@ -55,9 +50,3 @@ Client -> Changed
 I couldn't find a sample of this and it may not be a thing really... but the
 data processor supports it so I'm going to treat it just like the new
 message...
-
-Connection -> Connect
-
-```
-{"asset_type":"connection","event_type":"connect","data":{"access_point":"82:2a:a8:5b:5f:82","client":"28:f0:76:27:9b:68","connected":true},"additional_data":{},"timestamp":"2017-04-13 12:02:31 -0400"}
-```
