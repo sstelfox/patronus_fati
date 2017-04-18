@@ -16,7 +16,7 @@ module PatronusFati
 
     def self.close_inactive_connections
       DataModels::Connection.instances.each do |_, connection|
-        if !connection.active? && (connection.sync_status == SYNC[:unsynced] || connection.sync_flag?(:syncedOnline))
+        if !connection.active? && (connection.sync_status == SYNC_FLAGS[:unsynced] || connection.sync_flag?(:syncedOnline))
           # Intentionally clear all other flags
           connection.sync_status = SYNC_FLAGS[:syncedOffline]
 
@@ -40,7 +40,7 @@ module PatronusFati
 
     def self.offline_access_points
       DataModels::AccessPoint.instances.each do |bssid, access_point|
-        if !access_point.active? && (access_point.sync_status == SYNC[:unsynced] || access_point.sync_flag?(:syncedOnline))
+        if !access_point.active? && (access_point.sync_status == SYNC_FLAGS[:unsynced] || access_point.sync_flag?(:syncedOnline))
           # Intentionally clear all other flags
           access_point.sync_status = SYNC_FLAGS[:syncedOffline]
 
@@ -65,7 +65,7 @@ module PatronusFati
 
     def self.offline_clients
       DataModels::Client.instances.each do |mac, client|
-        if !client.active? && (client.sync_status == SYNC[:unsynced] || client.sync_flag?(:syncedOnline))
+        if !client.active? && (client.sync_status == SYNC_FLAGS[:unsynced] || client.sync_flag?(:syncedOnline))
           # Intentionally clear all other flags
           client.sync_status = SYNC_FLAGS[:syncedOffline]
 

@@ -153,7 +153,10 @@ module PatronusFati
     # Returns the duration in seconds of how long the specific object was
     # absolutely seen.
     def visible_time
-      last_visible - first_seen
+      # TODO: last_visible can be nil, and doesn't seem to be working right
+      # now... so cheese it (this is basically what it was doing before anyway).
+      #last_visible - first_seen
+      Time.now.to_i - first_seen
     end
   end
 end
