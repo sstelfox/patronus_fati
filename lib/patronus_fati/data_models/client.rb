@@ -51,7 +51,7 @@ module PatronusFati
 
       def full_state
         local_attributes.merge({
-          active: presence.visible_since?(current_expiration_threshold),
+          active: active?
           connected_access_points: access_point_bssids,
           probes: probes.keys,
           vendor: vendor
