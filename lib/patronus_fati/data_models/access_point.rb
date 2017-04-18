@@ -79,7 +79,7 @@ module PatronusFati
         return unless dirty?
 
         if active?
-          status = new? ? :changed : :new
+          status = new? ? :new : :changed
 
           PatronusFati.event_handler.event(
             :access_point,
@@ -91,8 +91,8 @@ module PatronusFati
         else
           PatronusFati.event_handler.event(
             :access_point, :offline, {
-              'bssid' => bssid,
-              'uptime' => access_point.presence.visible_time
+              'bssid' => local_attributes[:bssid],
+              'uptime' => presence.visible_time
             }
           )
 
