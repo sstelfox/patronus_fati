@@ -24,6 +24,29 @@ module PatronusFati
         @instances ||= {}
       end
 
+      def announce_changes
+        return unless dirty?
+
+        if active?
+          status = new? ? :new : :changed
+          PatronusFati.event_handler.event(:client, status, full_state)
+        else
+          PatronusFati.event_handler.event(
+            :client, :offline, {
+              'bssid' => local_attributes[:mac],
+              'uptime' => presence.visible_time
+            }
+          )
+
+          client.access_point_bssids.each do |bssid|
+            DataModels::AccessPoint[bssid].remove_client(local_attributes[:mac])
+            DataModels::Connection["#{bssid}^#{local_attributes[:mac]}"].link_lost = true
+          end
+        end
+
+        mark_synced
+      end
+
       def add_access_point(bssid)
         access_point_bssids << bssid unless access_point_bssids.include?(bssid)
       end

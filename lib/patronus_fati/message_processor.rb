@@ -32,23 +32,8 @@ module PatronusFati
     end
 
     def self.offline_clients
-      DataModels::Client.instances.each do |mac, client|
-        if !client.active? && (client.sync_status == SYNC_FLAGS[:unsynced] || client.sync_flag?(:syncedOnline))
-          # Intentionally clear all other flags
-          client.sync_status = SYNC_FLAGS[:syncedOffline]
-
-          PatronusFati.event_handler.event(
-            :client, :offline, {
-              'bssid' => mac,
-              'uptime' => client.presence.visible_time
-            }
-          )
-
-          client.access_point_bssids.each do |bssid|
-            DataModels::AccessPoint[bssid].remove_client(mac)
-            DataModels::Connection["#{bssid}^#{mac}"].link_lost = true
-          end
-        end
+      DataModels::Client.instances.each do |_, client|
+        client.announce_changes
       end
 
       DataModels::Client.instances.reject! { |_, ap| ap.presence.dead? }

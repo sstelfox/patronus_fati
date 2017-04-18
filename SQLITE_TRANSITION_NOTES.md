@@ -36,17 +36,3 @@ TODO: When I bring an access point, client, or SSID back online I need to reset
 the first seen field in the respective instance's presence.
 
 TODO: Connections seem to be getting announced as connected multiple times...
-
-## Messages for Compatibility
-
-Client -> New
-
-```
-{"asset_type":"client","event_type":"new","data":{"vendor":"Hewlett Packard","bssid":"98:e7:f4:af:fa:6c","channel":0,"max_seen_rate":10,"active":true,"connected_access_points":[],"probes":[]},"additional_data":{},"timestamp":"2017-04-13 11:58:25 -0400"}
-```
-
-Client -> Changed
-
-I couldn't find a sample of this and it may not be a thing really... but the
-data processor supports it so I'm going to treat it just like the new
-message...
