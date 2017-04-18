@@ -101,7 +101,7 @@ module PatronusFati
 
       def mark_synced
         flag = active? ? :syncedOnline : :syncedOffline
-        self.sync_status = SYNC_FLAGS[:flag]
+        self.sync_status = SYNC_FLAGS[flag]
         ssids.each { |_, v| v.mark_synced }
       end
 

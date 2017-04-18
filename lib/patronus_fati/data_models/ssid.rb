@@ -31,7 +31,7 @@ module PatronusFati
 
       def mark_synced
         flag = active? ? :syncedOnline : :syncedOffline
-        self.sync_status = SYNC_FLAGS[:flag]
+        self.sync_status = SYNC_FLAGS[flag]
       end
 
       def new?
