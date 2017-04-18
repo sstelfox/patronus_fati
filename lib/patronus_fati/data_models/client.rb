@@ -76,7 +76,7 @@ module PatronusFati
       end
 
       def remove_access_point(bssid)
-        access_point_bssids.delete(mac)
+        access_point_bssids.delete(bssid)
       end
 
       def track_probe(probe)
