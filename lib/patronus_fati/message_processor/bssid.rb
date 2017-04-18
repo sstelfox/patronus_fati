@@ -28,6 +28,7 @@ module PatronusFati::MessageProcessor::Bssid
     access_point = PatronusFati::DataModels::AccessPoint[obj.bssid]
     access_point.update(ap_info)
     access_point.presence.mark_visible
+    access_point.announce_changes
 
     nil
   end

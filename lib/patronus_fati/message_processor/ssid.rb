@@ -13,6 +13,7 @@ module PatronusFati::MessageProcessor::Ssid
       access_point = PatronusFati::DataModels::AccessPoint[obj[:mac]]
       access_point.track_ssid(ssid_info)
       access_point.presence.mark_visible
+      access_point.announce_changes
     elsif obj[:type] == 'probe_request'
       client = PatronusFati::DataModels::Client[obj[:mac]]
       client.presence.mark_visible

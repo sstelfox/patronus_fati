@@ -72,7 +72,7 @@ module PatronusFati
       end
 
       def new?
-        sync_flags == SYNC_FLAGS[:unsynced]
+        sync_status == SYNC_FLAGS[:unsynced]
       end
 
       def announce_changes
@@ -87,7 +87,7 @@ module PatronusFati
             full_state
           )
 
-          sync_flags = SYNC_FLAGS[:syncedOnline]
+          self.sync_status = SYNC_FLAGS[:syncedOnline]
         else
           PatronusFati.event_handler.event(
             :access_point, :offline, {
@@ -101,7 +101,7 @@ module PatronusFati
             DataModels::Connection["#{bssid}:#{mac}"].link_lost = true
           end
 
-          sync_flags = SYNC_FLAGS[:syncedOffline]
+          self.sync_status = SYNC_FLAGS[:syncedOffline]
         end
       end
 

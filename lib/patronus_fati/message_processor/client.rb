@@ -47,6 +47,8 @@ module PatronusFati::MessageProcessor::Client
       obj[:lasttime] < PatronusFati::DataModels::Connection.current_expiration_threshold
 
     access_point.add_client(obj[:mac])
+    access_point.announce_changes
+
     client.add_access_point(obj[:bssid])
 
     connection_key = "#{obj[:bssid]}:#{obj[:mac]}"
