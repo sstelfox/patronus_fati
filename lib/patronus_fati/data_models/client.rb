@@ -71,7 +71,7 @@ module PatronusFati
       end
 
       def set_sync_flag(flag)
-        sync_flags |= SYNC_FLAGS[flag]
+        self.sync_status |= SYNC_FLAGS[flag]
       end
 
       def sync_flag?(flag)
