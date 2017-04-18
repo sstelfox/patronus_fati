@@ -7,6 +7,8 @@ STDOUT.sync = true
 require 'optparse'
 require 'patronus_fati'
 
+$0 = File.basename(__FILE__)
+
 options = {
   'port'   => 2501,
   'server' => '127.0.0.1'
