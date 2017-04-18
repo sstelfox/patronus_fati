@@ -46,7 +46,7 @@ module PatronusFati
 
           client.access_point_bssids.each do |bssid|
             DataModels::AccessPoint[bssid].remove_client(mac)
-            DataModels::Connection["#{bssid}:#{mac}"].link_lost = true
+            DataModels::Connection["#{bssid}^#{mac}"].link_lost = true
           end
         end
       end

@@ -51,7 +51,7 @@ module PatronusFati::MessageProcessor::Client
 
     client.add_access_point(obj[:bssid])
 
-    connection_key = "#{obj[:bssid]}:#{obj[:mac]}"
+    connection_key = "#{obj[:bssid]}^#{obj[:mac]}"
     connection = PatronusFati::DataModels::Connection[connection_key]
     connection.presence.mark_visible
     connection.announce_changes

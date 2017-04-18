@@ -6,7 +6,7 @@ module PatronusFati
       attr_accessor :bssid, :link_lost, :mac, :presence, :sync_status
 
       def self.[](key)
-        bssid, mac = key.split(':')
+        bssid, mac = key.split('^')
         instances[key] ||= new(bssid, mac)
       end
 
