@@ -38,6 +38,9 @@ module PatronusFati
             }
           )
 
+          # We need to reset the first seen so we get fresh duration information
+          presence.first_seen = nil
+
           access_point_bssids.each do |bssid|
             DataModels::AccessPoint[bssid].remove_client(local_attributes[:mac])
             DataModels::Connection["#{bssid}^#{local_attributes[:mac]}"].link_lost = true

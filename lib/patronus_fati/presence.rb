@@ -48,7 +48,6 @@ module PatronusFati
     def last_visible
       rotate_presence
 
-      puts 'before'
       return nil if last_presence == 0 && current_presence == 0
 
       if current_presence == 0

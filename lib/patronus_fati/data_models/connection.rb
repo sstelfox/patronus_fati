@@ -24,6 +24,9 @@ module PatronusFati
         state = active? ? :connect : :disconnect
         PatronusFati.event_handler.event(:connection, state, full_state)
 
+        # We need to reset the first seen so we get fresh duration information
+        presence.first_seen = nil
+
         unless active?
           DataModels::AccessPoint[bssid].remove_client(mac)
           DataModels::Client[mac].remove_access_point(bssid)
@@ -46,7 +49,7 @@ module PatronusFati
 
       def full_state
         data = { 'access_point' => bssid, 'client' => mac, 'connected' => active?}
-        data['duration'] = presence.visible_time unless active?
+        data['duration'] = presence.visible_time if !active? && presence.visible_time
         data
       end
     end

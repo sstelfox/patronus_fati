@@ -32,10 +32,5 @@ with minute precision.
 TODO NOTE: I should add a warning if I detected an AP that is reported as
 cloaked: false but has an empty ESSID.
 
-TODO: When I bring an access point, client, or SSID back online I need to reset
-the first seen field in the respective instance's presence.
-
-TODO: Connections seem to be getting announced as connected multiple times...
-
 TODO: I need to have a validity check on each of the models before validating
 them...

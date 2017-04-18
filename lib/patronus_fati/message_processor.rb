@@ -8,9 +8,10 @@ module PatronusFati
       if @next_cleanup <= Time.now.to_i
         @next_cleanup = Time.now.to_i + 60
 
+        close_inactive_connections
+
         offline_access_points
         offline_clients
-        close_inactive_connections
       end
     end
 
