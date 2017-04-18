@@ -40,6 +40,7 @@ module PatronusFati::MessageProcessor::Client
     client = PatronusFati::DataModels::Client[obj[:mac]]
     client.update(client_info)
     client.presence.mark_visible
+    client.announce_changes
 
     # Don't deal in associations that are outside of our connection expiration
     # time... or if we don't have an access point

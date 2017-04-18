@@ -18,6 +18,7 @@ module PatronusFati::MessageProcessor::Ssid
       client = PatronusFati::DataModels::Client[obj[:mac]]
       client.presence.mark_visible
       client.track_probe(obj[:ssid])
+      client.announce_changes
     end
 
     nil
