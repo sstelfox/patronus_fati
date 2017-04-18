@@ -1,6 +1,8 @@
 module PatronusFati
   module DataModels
     class Ssid
+      include CommonState
+
       attr_accessor :local_attributes, :presence, :sync_status
 
       LOCAL_ATTRIBUTE_KEYS = [
@@ -9,18 +11,6 @@ module PatronusFati
 
       def self.current_expiration_threshold
         Time.now.to_i - SSID_EXPIRATION
-      end
-
-      def active?
-        presence.visible_since?(self.class.current_expiration_threshold)
-      end
-
-      def data_dirty?
-        sync_flag?(:dirtyAttributes) || sync_flag?(:dirtyChildren)
-      end
-
-      def dirty?
-        new? || data_dirty? || status_dirty?
       end
 
       def initialize(essid)
@@ -32,23 +22,6 @@ module PatronusFati
       def mark_synced
         flag = active? ? :syncedOnline : :syncedOffline
         self.sync_status = SYNC_FLAGS[flag]
-      end
-
-      def new?
-        sync_status == SYNC_FLAGS[:unsynced]
-      end
-
-      def set_sync_flag(flag)
-        self.sync_status |= SYNC_FLAGS[flag]
-      end
-
-      def status_dirty?
-        sync_flag?(:syncedOnline) && !active? ||
-          sync_flag?(:syncedOffline) && active?
-      end
-
-      def sync_flag?(flag)
-        (sync_status & SYNC_FLAGS[flag]) > 0
       end
 
       def update(attrs)

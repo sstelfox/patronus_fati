@@ -1,6 +1,8 @@
 module PatronusFati
   module DataModels
     class Client
+      include CommonState
+
       attr_accessor :access_point_bssids, :local_attributes, :presence, :probes,
         :sync_status
 
@@ -22,10 +24,6 @@ module PatronusFati
         @instances ||= {}
       end
 
-      def active?
-        presence.visible_since?(self.class.current_expiration_threshold)
-      end
-
       def add_access_point(bssid)
         unless access_point_bssids.include?(bssid)
           access_point_bssids << bssid
@@ -38,15 +36,6 @@ module PatronusFati
 
         set_sync_flag(:dirtyChildren)
         probes.reject { |_, v| v.presence.dead? }
-      end
-
-      def dirty?
-        return true if sync_status == SYNC_FLAGS[:unsynced] ||
-                       sync_flag?(:dirtyAttributes) ||
-                       sync_flag?(:dirtyChildren) ||
-                       (sync_flag?(:syncedOnline) && !active?) ||
-                       (sync_flag?(:syncedOffline) && active?)
-        false
       end
 
       def full_state
@@ -68,14 +57,6 @@ module PatronusFati
 
       def remove_access_point(bssid)
         set_sync_flag(:dirtyChildren) if access_point_bssids.delete(mac)
-      end
-
-      def set_sync_flag(flag)
-        self.sync_status |= SYNC_FLAGS[flag]
-      end
-
-      def sync_flag?(flag)
-        (sync_status & SYNC_FLAGS[flag]) > 0
       end
 
       def track_probe(probe)
