@@ -39,8 +39,8 @@ exception_logger('process') do
   connection = PatronusFati.setup(options['server'], options['port'])
   connection.connect
 
-  PatronusFati.event_handler.on(:any) do |asset_type, event_type, msg, opts|
-    puts JSON.generate({asset_type: asset_type, event_type: event_type, data: msg, additional_data: opts})
+  PatronusFati.event_handler.on(:any) do |asset_type, event_type, msg, _|
+    puts JSON.generate({asset_type: asset_type, event_type: event_type, data: msg})
   end
 
   while (line = connection.read_queue.pop)
