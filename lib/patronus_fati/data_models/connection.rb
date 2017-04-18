@@ -19,7 +19,8 @@ module PatronusFati
       end
 
       def announce_changes
-        return unless dirty?
+        return unless dirty? && DataModels::AccessPoint[bssid].valid? &&
+          DataModels::Client[mac].valid?
 
         state = active? ? :connect : :disconnect
         PatronusFati.event_handler.event(:connection, state, full_state)

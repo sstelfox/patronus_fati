@@ -25,7 +25,7 @@ module PatronusFati
       end
 
       def announce_changes
-        return unless dirty?
+        return unless dirty? && valid?
 
         if active?
           status = new? ? :new : :changed
@@ -97,6 +97,10 @@ module PatronusFati
           set_sync_flag(:dirtyAttributes)
           local_attributes[k] = v
         end
+      end
+
+      def valid?
+        !local_attributes(:mac).nil?
       end
 
       def vendor
