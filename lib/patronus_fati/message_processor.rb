@@ -16,23 +16,7 @@ module PatronusFati
 
     def self.close_inactive_connections
       DataModels::Connection.instances.each do |_, connection|
-        if !connection.active? && (connection.sync_status == SYNC_FLAGS[:unsynced] || connection.sync_flag?(:syncedOnline))
-          # Intentionally clear all other flags
-          connection.sync_status = SYNC_FLAGS[:syncedOffline]
-
-          PatronusFati.event_handler.event(
-            :connection, :disconnect,
-            {
-              'access_point' => connection.bssid,
-              'client' => connection.mac,
-              'connected' => false,
-              'duration' => connection.presence.visible_time
-            }
-          )
-
-          DataModels::AccessPoint[connection.bssid].remove_client(connection.mac)
-          DataModels::Client[connection.mac].remove_access_point(connection.bssid)
-        end
+        connection.announce_changes
       end
 
       DataModels::Connection.instances.reject! { |_, conn| conn.presence.dead? }

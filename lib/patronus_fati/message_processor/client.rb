@@ -54,6 +54,7 @@ module PatronusFati::MessageProcessor::Client
     connection_key = "#{obj[:bssid]}:#{obj[:mac]}"
     connection = PatronusFati::DataModels::Connection[connection_key]
     connection.presence.mark_visible
+    connection.announce_changes
 
     nil
   end

@@ -17,6 +17,11 @@ module PatronusFati
         sync_status == SYNC_FLAGS[:unsynced]
       end
 
+      def mark_synced
+        flag = active? ? :syncedOnline : :syncedOffline
+        self.sync_status = SYNC_FLAGS[flag]
+      end
+
       def set_sync_flag(flag)
         self.sync_status |= SYNC_FLAGS[flag]
       end

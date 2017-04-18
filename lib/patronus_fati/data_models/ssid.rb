@@ -19,11 +19,6 @@ module PatronusFati
         self.sync_status = 0
       end
 
-      def mark_synced
-        flag = active? ? :syncedOnline : :syncedOffline
-        self.sync_status = SYNC_FLAGS[flag]
-      end
-
       def update(attrs)
         attrs.each do |k, v|
           next unless LOCAL_ATTRIBUTE_KEYS.include?(k)

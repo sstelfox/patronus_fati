@@ -25,10 +25,7 @@ module PatronusFati
       end
 
       def add_client(mac)
-        unless client_macs.include?(mac)
-          client_macs << mac
-          set_sync_flag(:dirtyChildren)
-        end
+        client_macs << mac unless client_macs.include?(mac)
       end
 
       def announce_changes
@@ -86,13 +83,12 @@ module PatronusFati
       end
 
       def mark_synced
-        flag = active? ? :syncedOnline : :syncedOffline
-        self.sync_status = SYNC_FLAGS[flag]
+        super
         ssids.each { |_, v| v.mark_synced }
       end
 
       def remove_client(mac)
-        set_sync_flag(:dirtyChildren) if client_macs.delete(mac)
+        client_macs.delete(mac)
       end
 
       def track_ssid(ssid_data)
