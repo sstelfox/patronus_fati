@@ -155,7 +155,7 @@ module PatronusFati
       # TODO: last_visible can be nil, and doesn't seem to be working right
       # now... so cheese it (this is basically what it was doing before anyway).
       #last_visible - first_seen
-      Time.now.to_i - first_seen
+      Time.now.to_i - first_seen if first_seen
     end
   end
 end
