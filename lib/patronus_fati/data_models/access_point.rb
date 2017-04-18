@@ -36,17 +36,19 @@ module PatronusFati
       def cleanup_ssids
         return if ssids.select { |_, v| v.presence.dead? }.empty?
 
-        set_sync_flag(:dirtyChildren)
+        # When an AP is offline we don't care about it's SSIDs
+        # expiring
+        set_sync_flag(:dirtyChildren) if active? && !status_dirty?
         ssids.reject { |_, v| v.presence.dead? }
       end
 
+      def data_dirty?
+        sync_flag?(:dirtyAttributes) ||
+          sync_flag?(:dirtyChildren)
+      end
+
       def dirty?
-        return true if sync_status == SYNC_FLAGS[:unsynced] ||
-                       sync_flag?(:dirtyAttributes) ||
-                       sync_flag?(:dirtyChildren) ||
-                       (sync_flag?(:syncedOnline) && !active?) ||
-                       (sync_flag?(:syncedOffline) && active?)
-        false
+        new? || data_dirty? || status_dirty?
       end
 
       def full_state
@@ -69,12 +71,51 @@ module PatronusFati
         self.sync_status = 0
       end
 
+      def new?
+        sync_flags == SYNC_FLAGS[:unsynced]
+      end
+
+      def announce_changes
+        return unless dirty?
+
+        if active?
+          status = new? ? :changed : :new
+
+          PatronusFati.event_handler.event(
+            :access_point,
+            status,
+            full_state
+          )
+
+          sync_flags = SYNC_FLAGS[:syncedOnline]
+        else
+          PatronusFati.event_handler.event(
+            :access_point, :offline, {
+              'bssid' => bssid,
+              'uptime' => access_point.presence.visible_time
+            }
+          )
+
+          client_macs.each do |mac|
+            DataModels::Client[mac].remove_access_point(bssid)
+            DataModels::Connection["#{bssid}:#{mac}"].link_lost = true
+          end
+
+          sync_flags = SYNC_FLAGS[:syncedOffline]
+        end
+      end
+
       def remove_client(mac)
         set_sync_flag(:dirtyChildren) if client_macs.delete(mac)
       end
 
       def set_sync_flag(flag)
         sync_flags |= SYNC_FLAGS[flag]
+      end
+
+      def status_dirty?
+        sync_flag?(:syncedOnline) && !active? ||
+          sync_flag?(:syncedOffline) && active?
       end
 
       def sync_flag?(flag)
@@ -102,8 +143,8 @@ module PatronusFati
       end
 
       def vendor
-        return unless bssid
-        result = Louis.lookup(bssid)
+        return unless local_attributes[:bssid]
+        result = Louis.lookup(local_attributes[:bssid])
         result['long_vendor'] || result['short_vendor']
       end
     end

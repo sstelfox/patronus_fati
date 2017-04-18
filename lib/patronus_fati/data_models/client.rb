@@ -99,8 +99,8 @@ module PatronusFati
       end
 
       def vendor
-        return unless mac
-        result = Louis.lookup(mac)
+        return unless local_attributes[:mac]
+        result = Louis.lookup(local_attributes[:mac])
         result['long_vendor'] || result['short_vendor']
       end
     end

@@ -40,24 +40,8 @@ module PatronusFati
 
     def self.offline_access_points
       DataModels::AccessPoint.instances.each do |bssid, access_point|
-        if !access_point.active? && (access_point.sync_status == SYNC_FLAGS[:unsynced] || access_point.sync_flag?(:syncedOnline))
-          # Intentionally clear all other flags
-          access_point.sync_status = SYNC_FLAGS[:syncedOffline]
-
-          PatronusFati.event_handler.event(
-            :access_point, :offline, {
-              'bssid' => bssid,
-              'uptime' => access_point.presence.visible_time
-            }
-          )
-
-          access_point.client_macs.each do |mac|
-            DataModels::Client[mac].remove_access_point(bssid)
-            DataModels::Connection["#{bssid}:#{mac}"].link_lost = true
-          end
-        else
-          access_point.cleanup_ssids
-        end
+        access_point.cleanup_ssids
+        access_point.announce_changes
       end
 
       DataModels::AccessPoint.instances.reject! { |_, ap| ap.presence.dead? }
