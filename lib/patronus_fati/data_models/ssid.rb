@@ -27,6 +27,10 @@ module PatronusFati
           set_sync_flag(:dirtyAttributes)
           local_attributes[k] = v
         end
+
+        if !cloaked && (essid.nil? || essid.empty?)
+          PatronusFati.logger.warn('Detected empty ESSID on uncloaked AP!')
+        end
       end
     end
   end

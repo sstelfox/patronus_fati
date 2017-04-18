@@ -29,8 +29,5 @@ sync messages.
 Visibility information will be stored for an hour in a bitstring for each model
 with minute precision.
 
-TODO NOTE: I should add a warning if I detected an AP that is reported as
-cloaked: false but has an empty ESSID.
-
 TODO: I need to have a validity check on each of the models before validating
 them...
