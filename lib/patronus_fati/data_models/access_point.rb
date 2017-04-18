@@ -33,6 +33,34 @@ module PatronusFati
         end
       end
 
+      def announce_changes
+        return unless dirty?
+
+        if active?
+          status = new? ? :new : :changed
+
+          PatronusFati.event_handler.event(
+            :access_point,
+            status,
+            full_state
+          )
+        else
+          PatronusFati.event_handler.event(
+            :access_point, :offline, {
+              'bssid' => local_attributes[:bssid],
+              'uptime' => presence.visible_time
+            }
+          )
+
+          client_macs.each do |mac|
+            DataModels::Client[mac].remove_access_point(bssid)
+            DataModels::Connection["#{bssid}:#{mac}"].link_lost = true
+          end
+        end
+
+        mark_synced
+      end
+
       def cleanup_ssids
         return if ssids.select { |_, v| v.presence.dead? }.empty?
 
@@ -43,8 +71,7 @@ module PatronusFati
       end
 
       def data_dirty?
-        sync_flag?(:dirtyAttributes) ||
-          sync_flag?(:dirtyChildren)
+        sync_flag?(:dirtyAttributes) || sync_flag?(:dirtyChildren)
       end
 
       def dirty?
@@ -52,12 +79,9 @@ module PatronusFati
       end
 
       def full_state
-        {
-          bssid: local_attributes[:bssid],
-          channel: local_attributes[:channel],
-          type: local_attributes[:type],
+        local_attributes.merge({
           active: active?,
-          connected_clients: local_attributes[:client_macs],
+          connected_clients: client_macs,
           ssids: active_ssids.map(&:local_attributes),
           vendor: vendor
         }
@@ -75,34 +99,10 @@ module PatronusFati
         sync_status == SYNC_FLAGS[:unsynced]
       end
 
-      def announce_changes
-        return unless dirty?
-
-        if active?
-          status = new? ? :new : :changed
-
-          PatronusFati.event_handler.event(
-            :access_point,
-            status,
-            full_state
-          )
-
-          self.sync_status = SYNC_FLAGS[:syncedOnline]
-        else
-          PatronusFati.event_handler.event(
-            :access_point, :offline, {
-              'bssid' => local_attributes[:bssid],
-              'uptime' => presence.visible_time
-            }
-          )
-
-          client_macs.each do |mac|
-            DataModels::Client[mac].remove_access_point(bssid)
-            DataModels::Connection["#{bssid}:#{mac}"].link_lost = true
-          end
-
-          self.sync_status = SYNC_FLAGS[:syncedOffline]
-        end
+      def mark_synced
+        flag = active? ? :syncedOnline : :syncedOffline
+        self.sync_status = SYNC_FLAGS[:flag]
+        ssids.each { |_, v| v.mark_synced }
       end
 
       def remove_client(mac)

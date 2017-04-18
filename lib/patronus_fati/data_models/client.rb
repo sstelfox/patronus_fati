@@ -50,15 +50,12 @@ module PatronusFati
       end
 
       def full_state
-        {
-          mac: mac,
-          channel: channel,
-          max_seen_rate: max_seen_rate,
+        local_attributes.merge({
           active: presence.visible_since?(current_expiration_threshold),
           connected_access_points: access_point_bssids,
           probes: probes.keys,
           vendor: vendor
-        }
+        })
       end
 
       def initialize(mac)
