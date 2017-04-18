@@ -116,7 +116,7 @@ module PatronusFati
       end
 
       def valid?
-        LOCAL_ATTRIBUTE_KEYS.map { |k| !local_attributes[k].nil? }.all? &&
+        !([:bssid, :channel, :type].map { |k| local_attributes[k].nil? }.any?) &&
           local_attributes[:channel] != 0
       end
 

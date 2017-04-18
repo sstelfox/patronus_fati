@@ -100,7 +100,7 @@ module PatronusFati
       end
 
       def valid?
-        !local_attributes(:mac).nil?
+        !local_attributes[:mac].nil?
       end
 
       def vendor
