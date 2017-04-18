@@ -84,7 +84,7 @@ module PatronusFati
           connected_clients: client_macs,
           ssids: active_ssids.map(&:local_attributes),
           vendor: vendor
-        }
+        })
       end
 
       def initialize(bssid)
