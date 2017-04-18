@@ -21,16 +21,12 @@ require 'patronus_fati/message_models'
 require 'patronus_fati/message_parser'
 require 'patronus_fati/message_processor'
 
+require 'patronus_fati/data_models/common_state'
+
 require 'patronus_fati/data_models/access_point'
 require 'patronus_fati/data_models/client'
 require 'patronus_fati/data_models/connection'
 require 'patronus_fati/data_models/ssid'
-
-# TODO: Need to emulate this functionality
-#require 'patronus_fati/data_observers/access_point_observer'
-#require 'patronus_fati/data_observers/client_observer'
-#require 'patronus_fati/data_observers/connection_observer'
-#require 'patronus_fati/data_observers/ssid_observer'
 
 require 'patronus_fati/presence'
 

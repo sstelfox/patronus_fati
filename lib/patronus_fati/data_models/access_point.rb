@@ -1,6 +1,8 @@
 module PatronusFati
   module DataModels
     class AccessPoint
+      include CommonState
+
       attr_accessor :client_macs, :local_attributes, :presence, :ssids,
         :sync_status
 
@@ -16,10 +18,6 @@ module PatronusFati
 
       def self.instances
         @instances ||= {}
-      end
-
-      def active?
-        presence.visible_since?(self.class.current_expiration_threshold)
       end
 
       def active_ssids
@@ -54,7 +52,7 @@ module PatronusFati
 
           client_macs.each do |mac|
             DataModels::Client[mac].remove_access_point(bssid)
-            DataModels::Connection["#{bssid}:#{mac}"].link_lost = true
+            DataModels::Connection["#{local_attributes[:bssid]}:#{mac}"].link_lost = true
           end
         end
 
@@ -68,14 +66,6 @@ module PatronusFati
         # expiring
         set_sync_flag(:dirtyChildren) if active? && !status_dirty?
         ssids.reject { |_, v| v.presence.dead? }
-      end
-
-      def data_dirty?
-        sync_flag?(:dirtyAttributes) || sync_flag?(:dirtyChildren)
-      end
-
-      def dirty?
-        new? || data_dirty? || status_dirty?
       end
 
       def full_state
@@ -95,10 +85,6 @@ module PatronusFati
         self.sync_status = 0
       end
 
-      def new?
-        sync_status == SYNC_FLAGS[:unsynced]
-      end
-
       def mark_synced
         flag = active? ? :syncedOnline : :syncedOffline
         self.sync_status = SYNC_FLAGS[flag]
@@ -107,19 +93,6 @@ module PatronusFati
 
       def remove_client(mac)
         set_sync_flag(:dirtyChildren) if client_macs.delete(mac)
-      end
-
-      def set_sync_flag(flag)
-        self.sync_status |= SYNC_FLAGS[flag]
-      end
-
-      def status_dirty?
-        sync_flag?(:syncedOnline) && !active? ||
-          sync_flag?(:syncedOffline) && active?
-      end
-
-      def sync_flag?(flag)
-        (sync_status & SYNC_FLAGS[flag]) > 0
       end
 
       def track_ssid(ssid_data)

@@ -44,18 +44,6 @@ the first seen field in the respective instance's presence.
 
 ## Messages for Compatibility
 
-AccessPoint -> New
-
-```
-{"asset_type":"access_point","event_type":"new","data":{"vendor":"PEGATRON CORPORATION","bssid":"74:85:2a:6e:bb:da","channel":6,"type":"infrastructure","active":true,"connected_clients":[]},"additional_data":{},"timestamp":"2017-04-13 11:58:58 -0400"}
-```
-
-AccessPoint -> Changed
-
-```
-{"asset_type":"access_point","event_type":"changed","data":{"vendor":"PEGATRON CORPORATION","bssid":"74:85:2a:6e:bb:da","channel":6,"type":"infrastructure","active":true,"connected_clients":[],"ssids":[{"beacon_info":" ","beacon_rate":10,"cloaked":false,"crypt_set":["None"],"essid":"xfinitywifi","max_rate":216}]},"additional_data":{"ssids":[[],[{"beacon_info":" ","beacon_rate":10,"cloaked":false,"crypt_set":["None"],"essid":"xfinitywifi","max_rate":216}]]},"timestamp":"2017-04-13 11:58:58 -0400"}
-```
-
 Client -> New
 
 ```
