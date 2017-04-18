@@ -51,7 +51,7 @@ module PatronusFati
 
       def full_state
         local_attributes.merge({
-          active: active?
+          active: active?,
           connected_access_points: access_point_bssids,
           probes: probes.keys,
           vendor: vendor
