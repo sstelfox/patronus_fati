@@ -28,6 +28,7 @@ require 'patronus_fati/data_models/client'
 require 'patronus_fati/data_models/connection'
 require 'patronus_fati/data_models/ssid'
 
+require 'patronus_fati/bit_field'
 require 'patronus_fati/presence'
 
 module PatronusFati
