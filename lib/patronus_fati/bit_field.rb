@@ -2,6 +2,10 @@ module PatronusFati
   class BitField
     attr_accessor :bits, :tracked_count
 
+    def any_set_in?(rng)
+      rng.find { |i| bit_set?(i) }
+    end
+
     def bit_set?(bit)
       raise ArgumentError, "Bit #{bit} is out of range of #{tracked_count}" unless valid_bit?(bit)
       (bits & (1 << (bit - 1))) > 0
@@ -9,7 +13,7 @@ module PatronusFati
 
     def highest_bit_set
       return nil if bits == 0
-      tracked_count.times.reverse_each { |i| return (i + 1) if bit_set?(i + 1) }
+      tracked_count.times.reverse_each.find { |i| bit_set?(i + 1) } + 1
     end
 
     def initialize(count)
@@ -21,7 +25,7 @@ module PatronusFati
 
     def lowest_bit_set
       return nil if bits == 0
-      tracked_count.times.each { |i| return (i + 1) if bit_set?(i + 1) }
+      tracked_count.times.each.find { |i| bit_set?(i + 1) } + 1
     end
 
     def set_bit(bit)
