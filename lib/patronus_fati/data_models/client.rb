@@ -1,44 +1,113 @@
-module PatronusFati::DataModels
-  class Client
-    include DataMapper::Resource
+module PatronusFati
+  module DataModels
+    class Client
+      include CommonState
 
-    include PatronusFati::DataModels::AutoVendorLookup
-    include PatronusFati::DataModels::ExpirationAttributes
-    include PatronusFati::DataModels::ReportedAttributes
+      attr_accessor :access_point_bssids, :local_attributes, :presence,
+        :probes, :sync_status
 
-    property  :id,              Serial
-    property  :bssid,           String,   :length => 17, :unique_index => true
-    property  :channel,         Integer
-    property  :max_seen_rate,   Integer
+      LOCAL_ATTRIBUTE_KEYS = [ :mac, :channel ].freeze
 
-    has n, :connections,    :constraint => :destroy
-    has n, :access_points,  :through    => :connections
+      def self.[](mac)
+        instances[mac] ||= new(mac)
+      end
 
-    has n, :probes,             :constraint => :destroy
+      def self.current_expiration_threshold
+        Time.now.to_i - CLIENT_EXPIRATION
+      end
 
-    vendor_attribute :bssid
+      def self.exists?(mac)
+        instances.key?(mac)
+      end
 
-    def self.current_expiration_threshold
-      Time.now.to_i - PatronusFati::CLIENT_EXPIRATION
-    end
+      def self.instances
+        @instances ||= {}
+      end
 
-    def connected_access_points
-      connections.active.access_points
-    end
+      def announce_changes
+        return unless dirty? && valid?
 
-    def disconnect!
-      connections.connected.map(&:disconnect!)
-    end
+        if active?
+          status = new? ? :new : :changed
+          PatronusFati.event_handler.event(:client, status, full_state)
+        else
+          PatronusFati.event_handler.event(
+            :client, :offline, {
+              'bssid' => local_attributes[:mac],
+              'uptime' => presence.visible_time
+            }
+          )
 
-    def full_state
-      blacklisted_keys = %w(id last_seen_at reported_online).map(&:to_sym)
-      base_attrs = attributes.reject { |k, v| blacklisted_keys.include?(k) || v.nil? }
-      base_attrs.merge(
-        active: active?,
-        connected_access_points: connected_access_points.map(&:bssid),
-        probes: probes.map(&:essid),
-        vendor: vendor
-      )
+          # We need to reset the first seen so we get fresh duration information
+          presence.first_seen = nil
+
+          access_point_bssids.each do |bssid|
+            DataModels::AccessPoint[bssid].remove_client(local_attributes[:mac])
+            DataModels::Connection["#{bssid}^#{local_attributes[:mac]}"].link_lost = true
+          end
+        end
+
+        mark_synced
+      end
+
+      def add_access_point(bssid)
+        access_point_bssids << bssid unless access_point_bssids.include?(bssid)
+      end
+
+      def cleanup_probes
+        return if probes.select { |_, v| v.presence.dead? }.empty?
+
+        set_sync_flag(:dirtyChildren)
+        probes.reject { |_, v| v.presence.dead? }
+      end
+
+      def full_state
+        local_attributes.merge({
+          active: active?,
+          connected_access_points: access_point_bssids,
+          probes: probes.keys,
+          vendor: vendor
+        })
+      end
+
+      def initialize(mac)
+        self.access_point_bssids = []
+        self.local_attributes = { mac: mac }
+        self.presence = Presence.new
+        self.probes = {}
+        self.sync_status = 0
+      end
+
+      def remove_access_point(bssid)
+        access_point_bssids.delete(bssid)
+      end
+
+      def track_probe(probe)
+        return unless probe && probe.length > 0
+
+        self.probes[probe] ||= Presence.new
+        self.probes[probe].mark_visible
+      end
+
+      def update(attrs)
+        attrs.each do |k, v|
+          next unless LOCAL_ATTRIBUTE_KEYS.include?(k)
+          next if local_attributes[k] == v
+
+          set_sync_flag(:dirtyAttributes)
+          local_attributes[k] = v
+        end
+      end
+
+      def valid?
+        !local_attributes[:mac].nil?
+      end
+
+      def vendor
+        return unless local_attributes[:mac]
+        result = Louis.lookup(local_attributes[:mac])
+        result['long_vendor'] || result['short_vendor']
+      end
     end
   end
 end

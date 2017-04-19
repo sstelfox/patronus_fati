@@ -6,62 +6,56 @@ module PatronusFati
       @next_cleanup ||= Time.now.to_i + 60
 
       if @next_cleanup <= Time.now.to_i
-        @next_cleanup = Time.now.to_i + 30
+        @next_cleanup = Time.now.to_i + 60
 
-        PatronusFati::DataModels::AccessPoint.inactive.reported_online.each do |ap|
-          ap.update(:reported_online => false)
-          PatronusFati.event_handler.event(:access_point, :offline, {'bssid' => ap.bssid, 'uptime' => ap.uptime})
-          ap.disconnect_clients!
-          ap.destroy
-        end
+        close_inactive_connections
 
-        PatronusFati::DataModels::Client.inactive.reported_online.each do |cli|
-          cli.update(:reported_online => false)
-          PatronusFati.event_handler.event(:client, :offline, {'bssid' => cli.bssid, 'uptime' => cli.uptime})
-          cli.disconnect!
-          cli.destroy
-        end
-
-        PatronusFati::DataModels::Connection.inactive.connected.map(&:disconnect!)
-
-        # When we destroy SSIDs we need to announce the change has occurred,
-        # otherwise they won't go away until the next sync message.
-        PatronusFati::DataModels::Ssid.inactive.each do |ssid|
-          ap = ssid.access_point
-          prev_ssids = ap.ssids.active.map(&:full_state)
-
-          ssid.destroy
-
-          PatronusFati.event_handler.event(
-            :access_point,
-            :changed,
-            ap.full_state,
-            {
-              ssids: [
-                prev_ssids,
-                ap.ssids.active.map(&:full_state)
-              ]
-            }
-          )
-        end
+        offline_access_points
+        offline_clients
       end
     end
 
+    def self.close_inactive_connections
+      DataModels::Connection.instances.each do |_, connection|
+        connection.announce_changes
+      end
+
+      DataModels::Connection.instances.reject! { |_, conn| conn.presence.dead? }
+    end
+
+    def self.offline_access_points
+      DataModels::AccessPoint.instances.each do |bssid, access_point|
+        access_point.cleanup_ssids
+        access_point.announce_changes
+      end
+
+      DataModels::AccessPoint.instances.reject! { |_, ap| ap.presence.dead? }
+    end
+
+    def self.offline_clients
+      DataModels::Client.instances.each do |_, client|
+        client.announce_changes
+      end
+
+      DataModels::Client.instances.reject! { |_, ap| ap.presence.dead? }
+    end
+
     def self.report_recently_seen
-      # Every four minutes to ensure we hit the five minute window
       @next_recent_msg ||= Time.now.to_i + 240
 
       if @next_recent_msg <= Time.now.to_i
         @next_recent_msg = Time.now.to_i + 240
+        cutoff_time = Time.now.to_i - 300
 
-        aps = PatronusFati::DataModels::AccessPoint.all(
-          :last_seen_at.gte => (Time.now.to_i - 300),
-          :fields => [:last_seen_at, :bssid]
-        ).map { |c| c.bssid }
-        clients = PatronusFati::DataModels::Client.all(
-          :last_seen_at.gte => (Time.now.to_i - 300),
-          :fields => [:last_seen_at, :bssid]
-        ).map { |c| c.bssid }
+        aps = DataModels::AccessPoint.instances.map do |bssid, ap|
+          next unless ap.active? && ap.presence.visible_since?(cutoff_time)
+          bssid
+        end.compact
+
+        clients = DataModels::Client.instances.map do |mac, client|
+          next unless client.active? && client.presence.visible_since?(cutoff_time)
+          mac
+        end.compact
 
         return if clients.empty? && aps.empty?
         PatronusFati.event_handler.event(
@@ -83,12 +77,6 @@ module PatronusFati
       result = factory(class_to_name(message_obj), message_obj)
       cleanup_models
       result
-    rescue DataObjects::SyntaxError => e
-      # SQLite dropped our database. We need to log the condition and bail out
-      # of the program completely.
-      PatronusFati.logger.error('SQLite dropped our database: %s: %s' % [e.class, e.message])
-      PatronusFati.logger.error('Exiting since we don\'t have a database...')
-      exit 1
     rescue => e
       PatronusFati.logger.error('Error processing the following message object:')
       PatronusFati.logger.error(message_obj.inspect)
@@ -96,6 +84,9 @@ module PatronusFati
       e.backtrace.each do |l|
         PatronusFati.logger.error(l)
       end
+
+      # Need to ensure our backtrace doesn't get sent to kismet
+      nil
     end
 
     def self.ignored_types
@@ -110,19 +101,23 @@ module PatronusFati
         # Add a variability of +/- half an hour within a day
         @next_sync = Time.now.to_i + 84600 + rand(3600)
 
-        PatronusFati::DataModels::AccessPoint.active.each do |ap|
-          PatronusFati.event_handler.event(:access_point, :sync, ap.full_state, {})
+        access_points = []
+        clients = []
+
+        PatronusFati::DataModels::AccessPoint.instances.each do |bssid, access_point|
+          next unless access_point.active?
+          PatronusFati.event_handler.event(:access_point, :sync, access_point.full_state)
+          access_points << bssid
         end
 
-        PatronusFati::DataModels::Client.active.each do |cli|
-          PatronusFati.event_handler.event(:client, :sync, cli.full_state, {})
+        PatronusFati::DataModels::Client.instances.each do |mac, client|
+          next unless client.active?
+          PatronusFati.event_handler.event(:client, :sync, client.full_state)
+          clients << mac
         end
 
-        all_online = {
-          access_points: PatronusFati::DataModels::AccessPoint.active.all(fields: [:bssid]).map(&:bssid),
-          clients: PatronusFati::DataModels::Client.active.all(fields: [:bssid]).map(&:bssid)
-        }
-        PatronusFati.event_handler.event(:both, :sync, all_online, [])
+        all_online = { access_points: access_points, clients: clients }
+        PatronusFati.event_handler.event(:both, :sync, all_online)
       end
     end
   end

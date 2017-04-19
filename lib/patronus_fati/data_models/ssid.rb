@@ -1,34 +1,33 @@
-module PatronusFati::DataModels
-  class Ssid
-    include DataMapper::Resource
+module PatronusFati
+  module DataModels
+    class Ssid
+      include CommonState
 
-    include PatronusFati::DataModels::ExpirationAttributes
+      attr_accessor :local_attributes, :presence, :sync_status
 
-    property :id,           Serial
+      LOCAL_ATTRIBUTE_KEYS = [
+        :beacon_info, :beacon_rate, :cloaked, :crypt_set, :essid, :max_rate
+      ].freeze
 
-    property :beacon_rate,  Integer
-    property :beacon_info,  String
+      def self.current_expiration_threshold
+        Time.now.to_i - SSID_EXPIRATION
+      end
 
-    property :cloaked,      Boolean,  :default => false
-    property :essid,        String,   :length  => 64, :index => true
-    property :crypt_set,    CryptFlags
-    property :max_rate,     Integer
+      def initialize(essid)
+        self.local_attributes = { essid: essid }
+        self.presence = PatronusFati::Presence.new
+        self.sync_status = 0
+      end
 
-    belongs_to :access_point
+      def update(attrs)
+        attrs.each do |k, v|
+          next unless LOCAL_ATTRIBUTE_KEYS.include?(k)
+          next if local_attributes[k] == v
 
-    def self.current_expiration_threshold
-      Time.now.to_i - PatronusFati::SSID_EXPIRATION
-    end
-
-    def full_state
-      {
-        beacon_info: beacon_info,
-        beacon_rate: beacon_rate,
-        cloaked: cloaked,
-        crypt_set: crypt_set,
-        essid: essid,
-        max_rate: max_rate
-      }
+          set_sync_flag(:dirtyAttributes)
+          local_attributes[k] = v
+        end
+      end
     end
   end
 end

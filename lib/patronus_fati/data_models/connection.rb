@@ -1,48 +1,58 @@
-module PatronusFati::DataModels
-  class Connection
-    include DataMapper::Resource
+module PatronusFati
+  module DataModels
+    class Connection
+      include CommonState
 
-    include PatronusFati::DataModels::ExpirationAttributes
+      attr_accessor :bssid, :link_lost, :mac, :presence, :sync_status
 
-    property :id,               Serial
+      def self.[](key)
+        bssid, mac = key.split('^')
+        instances[key] ||= new(bssid, mac)
+      end
 
-    property :connected_at,     Integer, :default => Proc.new { Time.now.to_i }
-    property :disconnected_at,  Integer
-    property :duration,         Integer
+      def self.current_expiration_threshold
+        Time.now.to_i - CONNECTION_EXPIRATION
+      end
 
-    belongs_to :access_point
-    belongs_to :client
+      def self.instances
+        @instances ||= {}
+      end
 
-    def self.connected
-      all(:disconnected_at => nil)
-    end
+      def announce_changes
+        return unless dirty? && DataModels::AccessPoint[bssid].valid? &&
+          DataModels::Client[mac].valid?
 
-    def self.disconnected
-      all(:disconnected_at.not => nil)
-    end
+        state = active? ? :connect : :disconnect
+        PatronusFati.event_handler.event(:connection, state, full_state)
 
-    def self.current_expiration_threshold
-      Time.now.to_i - PatronusFati::CONNECTION_EXPIRATION
-    end
+        # We need to reset the first seen so we get fresh duration information
+        presence.first_seen = nil
 
-    def connected?
-      disconnected_at.nil?
-    end
+        unless active?
+          DataModels::AccessPoint[bssid].remove_client(mac)
+          DataModels::Client[mac].remove_access_point(bssid)
+        end
 
-    def disconnect!
-      update(disconnected_at: Time.now.to_i, duration: duration) if connected?
-    end
+        mark_synced
+      end
 
-    def duration
-      self[:duration] || (Time.now.to_i - connected_at)
-    end
+      def active?
+        super && !link_lost
+      end
 
-    def full_state
-      {
-        access_point: access_point.bssid,
-        client: client.bssid,
-        connected: connected?
-      }
+      def initialize(bssid, mac)
+        self.bssid = bssid
+        self.link_lost = false
+        self.mac = mac
+        self.presence = Presence.new
+        self.sync_status = 0
+      end
+
+      def full_state
+        data = { 'access_point' => bssid, 'client' => mac, 'connected' => active?}
+        data['duration'] = presence.visible_time if !active? && presence.visible_time
+        data
+      end
     end
   end
 end
