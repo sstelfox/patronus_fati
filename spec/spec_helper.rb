@@ -11,7 +11,6 @@ SimpleCov.add_filter do |source_file|
 end
 
 SimpleCov.add_group 'Internal Data Models', 'data_models'
-SimpleCov.add_group 'Internal Data Observers', 'data_observers'
 SimpleCov.add_group 'Server Message Models', 'message_models'
 SimpleCov.add_group 'Message Processors', 'message_processors'
 
