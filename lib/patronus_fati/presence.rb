@@ -12,15 +12,24 @@ module PatronusFati
     # less than 64.
     WINDOW_INTERVALS = 60
 
+    # How long each interval will last in seconds
     INTERVAL_DURATION = WINDOW_LENGTH / WINDOW_INTERVALS
+
+    # Translate a timestamp relative to the provided reference window into an
+    # appropriate bit within our bit field.
+    def bit_for_time(reference_window, timestamp)
+      offset = timestamp - reference_window
+      raise ArgumentError if offset < 0 || offset > WINDOW_LENGTH
+      (offset / INTERVAL_DURATION) + 1
+    end
 
     # Get the bit representing our current interval within the window
     def current_bit_offset
-      (Time.now.to_i - current_window) / INTERVAL_DURATION
+      bit_for_time(current_window_start, Time.now.to_i)
     end
 
     # Returns the unix timestamp of the beginning of the current window.
-    def current_window
+    def current_window_start
       ts = Time.now.to_i
       ts - (ts % WINDOW_LENGTH)
     end
@@ -29,17 +38,17 @@ module PatronusFati
     # of this instance in the entirety of our time window.
     def dead?
       rotate_presence
-      current_presence == 0 && last_presence == 0
+      current_presence.bits == 0 && last_presence.bits == 0
     end
 
     def initialize
-      self.current_presence = 0
-      self.last_presence = 0
-      self.window_start = current_window
+      self.current_presence = BitField.new(WINDOW_INTERVALS)
+      self.last_presence = BitField.new(WINDOW_INTERVALS)
+      self.window_start = current_window_start
     end
 
     def last_window_start
-      window_start - WINDOW_LENGTH
+      current_window_start - WINDOW_LENGTH
     end
 
     # Provides the beginning of the last interval when the tracked object was
@@ -48,27 +57,13 @@ module PatronusFati
     def last_visible
       rotate_presence
 
-      return nil if last_presence == 0 && current_presence == 0
+      return nil if dead?
 
-      if current_presence == 0
-        # We've ruled out the current_presence we only need to check the
-        # last_presence.
-        WINDOW_INTERVALS.times.to_a.reverse do |i|
-          if ((1 << i) & last_presence) > 0
-            return last_window_start + (i * INTERVAL_DURATION)
-          end
-        end
+      if (bit = current_presence.highest_bit_set)
+        time_for_bit(current_window_start, bit)
       else
-        # We haven't seen it since the last_presence so we only need to check
-        # that window
-        WINDOW_INTERVALS.times.to_a.reverse do |i|
-          if ((1 << i) & current_presence) > 0
-            return window_start + (i * INTERVAL_DURATION)
-          end
-        end
+        time_for_bit(last_window_start, last_presence.highest_bit_set)
       end
-
-      nil
     end
 
     # Mark the current interval as having been seen in the presence field. Will
@@ -77,7 +72,7 @@ module PatronusFati
       rotate_presence
 
       self.first_seen ||= Time.now.to_i
-      self.current_presence |= (1 << current_bit_offset)
+      self.current_presence.set_bit(current_bit_offset)
     end
 
     # Should be called before reading or writing from/to the current_presence
@@ -85,32 +80,18 @@ module PatronusFati
     # a new bit window, this method will move the current window into the old
     # one, and reset the current bit field.
     def rotate_presence
-      return if window_start == current_window
+      return if window_start == current_window_start
 
       self.last_presence = current_presence
-      self.window_start = current_window
-      self.current_presence = 0
+      self.window_start = current_window_start
+      self.current_presence = BitField.new(WINDOW_INTERVALS)
     end
 
-    # Check whether or not we had seen the presence of what we're tracking at
-    # the specific time. If it was seen at all during the interval encompassing
-    # the provided time it will return true, otherwise false. If the provided
-    # time is outside of our tracking range this will return false.
-    def visible_at?(unix_time)
-      rotate_presence
-
-      if unix_time >= window_start
-        bit_offset = (unix_time - window_start) / INTERVAL_DURATION
-        window = current_presence
-      else
-        bit_offset = (unix_time - last_window_start) / INTERVAL_DURATION
-        window = last_presence
-      end
-
-      # Out of our visible range
-      return false if bit_offset < 0 || bit_offset >= WINDOW_INTERVALS
-
-      (window & (1 << bit_offset)) > 0
+    # Translate a bit into an absolute unix time relative to the reference
+    # window
+    def time_for_bit(reference_window, bit)
+      raise ArgumentError if bit <= 0 || bit > WINDOW_INTERVALS
+      reference_window + (INTERVAL_DURATION * (bit - 1))
     end
 
     # Checks to see if the presence of the tracked object has been visible at
@@ -120,42 +101,16 @@ module PatronusFati
     # This could be significantly sped up by a direct bit field check against
     # both the presence fields.
     def visible_since?(unix_time)
-      current = unix_time - (unix_time % INTERVAL_DURATION)
-      return false if current > Time.now.to_i
+      rotate_presence
 
-      # Shortcut our time ranges
-      if current <= last_window_start
-        return last_presence > 0 || current_presence > 0
-      elsif current < window_start
-        # We can quickly check if it's been seen at all in the entirety of the
-        # current_presence
-        return true if current_presence > 0
-
-        # Only the remainder of the last_presence needs to be checked...
-        while current < window_start
-          return true if visible_at?(current)
-          current += INTERVAL_DURATION
-        end
-      else
-        # Only the time between the call and the end of the current window
-        # needs to be checked now
-        window_end = window_start + WINDOW_LENGTH
-        while current < window_end
-          return true if visible_at?(current)
-          current += INTERVAL_DURATION
-        end
-      end
-
-      false
+      return false unless (lv = last_visible)
+      unix_time <= last_visible
     end
 
     # Returns the duration in seconds of how long the specific object was
     # absolutely seen.
     def visible_time
-      # TODO: last_visible can be nil, and doesn't seem to be working right
-      # now... so cheese it (this is basically what it was doing before anyway).
-      #last_visible - first_seen
-      Time.now.to_i - first_seen if first_seen
+      last_visible - first_seen if first_seen
     end
   end
 end
