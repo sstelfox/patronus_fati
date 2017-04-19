@@ -71,7 +71,7 @@ module PatronusFati
     def mark_visible
       rotate_presence
 
-      self.first_seen ||= Time.now.to_i
+      set_first_seen unless first_seen
       self.current_presence.set_bit(current_bit_offset)
     end
 
@@ -85,6 +85,14 @@ module PatronusFati
       self.last_presence = current_presence
       self.window_start = current_window_start
       self.current_presence = BitField.new(WINDOW_INTERVALS)
+    end
+
+    # Set the time we first saw whatever we're tracking to be the beginning of
+    # the current interval. This prevents negative durations in the event we
+    # only see it once.
+    def set_first_seen
+      cur_time = Time.now.to_i
+      self.first_seen = cur_time - (cur_time % INTERVAL_DURATION)
     end
 
     # Translate a bit into an absolute unix time relative to the reference

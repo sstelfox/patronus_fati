@@ -97,7 +97,7 @@ RSpec.describe(PatronusFati::Presence) do
     end
 
     it 'should set the first_seen timestamp if it hasn\'t been seen yet' do
-      expect { subject.mark_visible }.to change { subject.first_seen }.from(nil).to(Time.now.to_i)
+      expect { subject.mark_visible }.to change { subject.first_seen }.from(nil)
     end
 
     it 'should not modify the first_seen timestamp if it has already been set' do
