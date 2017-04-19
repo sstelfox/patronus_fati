@@ -17,7 +17,7 @@ module PatronusFati
     # requested type of factory.
     #
     # @param [Symbol] type Type of generator to create
-    # @param [Hash<Symbol=>String>] options
+    # @param [Hash<Symbol=>String>] opts
     def factory(type, opts = {})
       return if ignored_types.include?(type)
       if registered_factories[type].nil?
