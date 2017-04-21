@@ -62,12 +62,14 @@ module PatronusFati
       end
 
       def full_state
-        local_attributes.merge({
+        {
           active: active?,
+          bssid: local_attributes[:mac],
+          channel: local_attributes[:channel],
           connected_access_points: access_point_bssids,
           probes: probes.keys,
           vendor: vendor
-        })
+        }
       end
 
       def initialize(mac)
