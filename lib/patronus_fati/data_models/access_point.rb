@@ -37,14 +37,16 @@ module PatronusFati
           PatronusFati.event_handler.event(
             :access_point,
             status,
-            full_state
+            full_state,
+            diagnostic_data
           )
         else
           PatronusFati.event_handler.event(
             :access_point, :offline, {
               'bssid' => local_attributes[:bssid],
               'uptime' => presence.visible_time
-            }
+            },
+            diagnostic_data
           )
 
           # We need to reset the first seen so we get fresh duration
@@ -67,6 +69,14 @@ module PatronusFati
         # expiring
         set_sync_flag(:dirtyChildren) if active? && !status_dirty?
         ssids.reject { |_, v| v.presence.dead? }
+      end
+
+      def diagnostic_data
+        {
+          current_presence: presence.current_presence.bits,
+          last_presence: presence.last_presence.bits,
+          ssids: ssids.map { |k, s| [k, s.diagnostic_data] }
+        }
       end
 
       def full_state

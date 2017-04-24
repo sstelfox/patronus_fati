@@ -29,13 +29,14 @@ module PatronusFati
 
         if active?
           status = new? ? :new : :changed
-          PatronusFati.event_handler.event(:client, status, full_state)
+          PatronusFati.event_handler.event(:client, status, full_state, diagnostic_data)
         else
           PatronusFati.event_handler.event(
             :client, :offline, {
               'bssid' => local_attributes[:mac],
               'uptime' => presence.visible_time
-            }
+            },
+            diagnostic_data
           )
 
           # We need to reset the first seen so we get fresh duration information
@@ -59,6 +60,13 @@ module PatronusFati
 
         set_sync_flag(:dirtyChildren)
         probes.reject { |_, v| v.presence.dead? }
+      end
+
+      def diagnostic_data
+        {
+          current_presence: presence.current_presence.bits,
+          last_presence: presence.last_presence.bits
+        }
       end
 
       def full_state

@@ -23,7 +23,7 @@ module PatronusFati
           DataModels::Client[mac].valid?
 
         state = active? ? :connect : :disconnect
-        PatronusFati.event_handler.event(:connection, state, full_state)
+        PatronusFati.event_handler.event(:connection, state, full_state, diagnostic_data)
 
         # We need to reset the first seen so we get fresh duration information
         presence.first_seen = nil
@@ -38,6 +38,13 @@ module PatronusFati
 
       def active?
         super && !link_lost
+      end
+
+      def diagnostic_data
+        {
+          current_presence: presence.current_presence.bits,
+          last_presence: presence.last_presence.bits
+        }
       end
 
       def initialize(bssid, mac)

@@ -13,6 +13,13 @@ module PatronusFati
         Time.now.to_i - SSID_EXPIRATION
       end
 
+      def diagnostic_data
+        {
+          current_presence: presence.current_presence.bits,
+          last_presence: presence.last_presence.bits
+        }
+      end
+
       def initialize(essid)
         self.local_attributes = { essid: essid }
         self.presence = PatronusFati::Presence.new
