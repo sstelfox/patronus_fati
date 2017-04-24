@@ -14,7 +14,7 @@ module PatronusFati
       end
 
       def new?
-        sync_status == SYNC_FLAGS[:unsynced]
+        sync_status & (SYNC_FLAGS[:syncedOnline] | SYNC_FLAGS[:syncedOffline]) > 0
       end
 
       def mark_synced
