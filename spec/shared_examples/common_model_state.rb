@@ -137,20 +137,67 @@ RSpec.shared_examples_for('a common stateful model') do
   end
 
   context '#set_sync_flag' do
-    it 'should not change the value when it\'s already set'
-    it 'should set the flag if it\'s not already set'
-    it 'should not change other flags when being set'
+    it 'should not change the value when it\'s already set' do
+      subject.set_sync_flag(:syncedOnline)
+      expect { subject.set_sync_flag(:syncedOnline) }
+        .to_not change { subject.sync_status }
+    end
+
+    it 'should set the flag if it\'s not already set' do
+      expect(subject.sync_flag?(:dirtyAttributes)).to be_falsey
+      subject.set_sync_flag(:dirtyAttributes)
+      expect(subject.sync_flag?(:dirtyAttributes)).to be_truthy
+    end
+
+    it 'should not change other flags when being set' do
+      subject.set_sync_flag(:dirtyChildren)
+      subject.set_sync_flag(:syncedOnline)
+
+      expect(subject.sync_flag?(:dirtyChildren)).to be_truthy
+    end
   end
 
   context '#status_dirty?' do
-    it 'should be true when inactive and marked as active'
-    it 'should be true when active and marked as inactive'
-    it 'should be false when status matches it\'s marking'
+    it 'should be true when inactive and marked as active' do
+      expect(subject).to receive(:active?).and_return(false)
+      subject.set_sync_flag(:syncedOnline)
+      expect(subject.status_dirty?).to be_truthy
+    end
+
+    it 'should be true when active and marked as inactive' do
+      expect(subject).to receive(:active?).and_return(true)
+      subject.set_sync_flag(:syncedOffline)
+      expect(subject.status_dirty?).to be_truthy
+    end
+
+    it 'should be false when status and marking are active' do
+      expect(subject).to receive(:active?).and_return(true)
+      subject.set_sync_flag(:syncedOnline)
+      expect(subject.status_dirty?).to be_falsey
+    end
+
+    it 'should be false when status and marking are inactive' do
+      expect(subject).to receive(:active?).and_return(false)
+      subject.set_sync_flag(:syncedOffline)
+      expect(subject.status_dirty?).to be_falsey
+    end
   end
 
   context '#sync_flag?' do
-    it 'should be true when the provided flag is set'
-    it 'should be false when the provided flag isn\'t set'
-    it 'should be flase when just another flag is set'
+    it 'should be true when the provided flag is set' do
+      expect { subject.set_sync_flag(:dirtyAttributes) }
+        .to change { subject.sync_flag?(:dirtyAttributes) }.from(false).to(true)
+    end
+
+    it 'should be false when the provided flag isn\'t set' do
+      subject.sync_status = 0
+      expect(subject.sync_flag?(:dirtyChildren)).to be_falsey
+    end
+
+    it 'should be false when just another flag is set' do
+      subject.sync_status = 0
+      subject.set_sync_flag(:dirtyAttributes)
+      expect(subject.sync_flag?(:syncedOffline)).to be_falsey
+    end
   end
 end
