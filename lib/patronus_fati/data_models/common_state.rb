@@ -13,13 +13,13 @@ module PatronusFati
         new? || data_dirty? || status_dirty?
       end
 
-      def new?
-        sync_status & (SYNC_FLAGS[:syncedOnline] | SYNC_FLAGS[:syncedOffline]) > 0
-      end
-
       def mark_synced
         flag = active? ? :syncedOnline : :syncedOffline
         self.sync_status = SYNC_FLAGS[flag]
+      end
+
+      def new?
+        !(sync_flag?(:syncedOnline) || sync_flag?(:syncedOffline))
       end
 
       def set_sync_flag(flag)
