@@ -56,10 +56,11 @@ module PatronusFati
       def cleanup_ssids
         return if ssids.select { |_, v| v.presence.dead? }.empty?
 
-        # When an AP is offline we don't care about it's SSIDs
-        # expiring
+        # When an AP is offline we don't care about announcing that it's SSIDs
+        # have expired, but we do want to remove them.
         set_sync_flag(:dirtyChildren) if active? && !status_dirty?
-        ssids.reject { |_, v| v.presence.dead? }
+
+        ssids.reject! { |_, v| v.presence.dead? }
       end
 
       def diagnostic_data

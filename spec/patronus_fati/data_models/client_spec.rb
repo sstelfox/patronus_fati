@@ -332,7 +332,7 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       inst = 'test string'
       subject.update(mac: inst)
 
-      expect(Louis).to receive(:lookup).and_return({})
+      expect(Louis).to receive(:lookup).with(inst).and_return({})
       subject.vendor
     end
 
