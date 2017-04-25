@@ -137,6 +137,16 @@ RSpec.shared_examples_for('a common stateful model') do
     end
   end
 
+  context '#initialize' do
+    it 'should initialize sync_status to zero' do
+      expect(subject.sync_status).to eql(0)
+    end
+
+    it 'should initialize a new presence instance' do
+      expect(subject.presence).to be_kind_of(PatronusFati::Presence)
+    end
+  end
+
   context '#mark_synced' do
     it 'should set the sync status to syncedOnline when active' do
       expect(subject).to receive(:active?).and_return(true)
