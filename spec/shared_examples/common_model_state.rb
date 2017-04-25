@@ -88,6 +88,24 @@ RSpec.shared_examples_for('a common stateful model') do
     end
   end
 
+  context '#diagnostic_data' do
+    it 'should be a hash' do
+      expect(subject.diagnostic_data).to be_kind_of(Hash)
+    end
+
+    it 'should include the raw sync_status value' do
+      data = subject.diagnostic_data
+      expect(data.keys).to include(:sync_status)
+      expect(data[:sync_status]).to eql(subject.sync_status)
+    end
+
+    it 'should include the raw presence information' do
+      data = subject.diagnostic_data
+      expect(data.keys).to include(:current_presence)
+      expect(data.keys).to include(:last_presence)
+    end
+  end
+
   context '#dirty?' do
     it 'should be dirty when it\'s new' do
       expect(subject).to receive(:new?).and_return(true)
