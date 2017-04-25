@@ -1,4 +1,42 @@
 RSpec.shared_examples_for('a common stateful model') do
+  context 'class methods' do
+    # Helper to ensure tests don't interfere with each other
+    before(:each) do
+      described_class.instance_variable_set(:@instances, nil)
+    end
+
+    context '#[]' do
+      it 'should create a new instance when the key doesn\'t exist' do
+        expect { described_class['test'] }.to change { described_class.instances.count }.from(0).to(1)
+        expect(described_class['test']).to be_instance_of(described_class)
+      end
+
+      it 'should return an existing instance when the key already exists' do
+        dbl = double(described_class)
+        described_class.instances['just^keyed'] = dbl
+        expect(described_class['just^keyed']).to eq(dbl)
+      end
+    end
+
+    context '#exists?' do
+      it 'should be true when an instance matching the key exists' do
+        described_class.instances['test'] = double(described_class)
+        expect(described_class.exists?('test')).to be_truthy
+      end
+
+      it 'should be false when there is no instance matching the key' do
+        expect(described_class.exists?('other')).to be_falsey
+      end
+    end
+
+    context '#instances' do
+      it 'should default to an empty hash' do
+        expect(described_class.instances).to be_kind_of(Hash)
+        expect(described_class.instances).to be_empty
+      end
+    end
+  end
+
   context '#active?' do
     it 'should use it\'s expiration time against the presence instance' do
       expect(described_class).to receive(:current_expiration_threshold).and_return(137)

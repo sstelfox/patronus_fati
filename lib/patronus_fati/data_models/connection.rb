@@ -7,7 +7,7 @@ module PatronusFati
 
       def self.[](key)
         bssid, mac = key.split('^')
-        super(bssid, mac)
+        instances[key] ||= new(bssid, mac)
       end
 
       def self.current_expiration_threshold
