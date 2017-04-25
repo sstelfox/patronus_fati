@@ -46,7 +46,7 @@ exception_logger('process') do
         event_type: event_type,
         data: msg,
         diagnostics: diagnostics,
-        timestamp: Time.now
+        timestamp: Time.now.to_i
       }
     ))
   end
