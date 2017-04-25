@@ -34,6 +34,7 @@ module PatronusFati
 
     def self.offline_clients
       DataModels::Client.instances.each do |_, client|
+        client.cleanup_probes
         client.announce_changes
       end
 

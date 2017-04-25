@@ -42,6 +42,9 @@ module PatronusFati
         access_point_bssids << bssid unless access_point_bssids.include?(bssid)
       end
 
+      # Probes don't have an explicit visibility window so this will only
+      # remove probes that haven't been seen in the entire duration of the time
+      # we track any visibility.
       def cleanup_probes
         return if probes.select { |_, pres| pres.dead? }.empty?
         set_sync_flag(:dirtyChildren)
