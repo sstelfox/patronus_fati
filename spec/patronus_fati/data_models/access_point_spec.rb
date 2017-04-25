@@ -14,7 +14,50 @@ RSpec.describe(PatronusFati::DataModels::AccessPoint) do
   context '#initialize'
   context '#mark_synced'
   context '#remove_client'
-  context '#track_ssid'
+
+  context '#track_ssid' do
+    let(:valid_ssid_data) { { essid: 'test' } }
+
+    it 'should create a new SSID instance if one doesn\'t already exist' do
+      expect(subject.ssids).to be_empty
+      expect { subject.track_ssid(valid_ssid_data) }.to change { subject.ssids }
+    end
+
+    it 'should mark the SSID as visible' do
+      ssid_dbl = double(PatronusFati::DataModels::Ssid)
+      pres_dbl = double(PatronusFati::Presence)
+
+      subject.ssids = { 'test' => ssid_dbl }
+
+      allow(ssid_dbl).to receive(:dirty?)
+      allow(ssid_dbl).to receive(:update)
+      expect(ssid_dbl).to receive(:presence).and_return(pres_dbl)
+      expect(pres_dbl).to receive(:mark_visible)
+
+      subject.track_ssid(valid_ssid_data)
+    end
+
+    it 'should update the SSID with the attributes provided' do
+      subject.track_ssid(valid_ssid_data)
+      expect(subject.ssids['test'].presence).to receive(:mark_visible)
+      subject.track_ssid(valid_ssid_data)
+    end
+
+    it 'should set the dirty children attribute if the SSID changed' do
+      expect(subject.sync_flag?(:dirtyChildren)).to be_falsey
+      subject.track_ssid(max_rate: 100)
+      expect(subject.sync_flag?(:dirtyChildren)).to be_truthy
+    end
+
+    it 'should not set the dirty children attribute if the SSID info didn\'t change' do
+      subject.track_ssid(valid_ssid_data)
+      subject.mark_synced
+
+      expect(subject.sync_flag?(:dirtyChildren)).to be_falsey
+      subject.track_ssid(valid_ssid_data)
+      expect(subject.sync_flag?(:dirtyChildren)).to be_falsey
+    end
+  end
 
   context '#update' do
     it 'should not set invalid keys' do
