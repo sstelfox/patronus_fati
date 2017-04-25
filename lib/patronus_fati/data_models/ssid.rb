@@ -15,7 +15,10 @@ module PatronusFati
 
       def initialize(essid)
         super
-        self.local_attributes = { essid: essid }
+        self.local_attributes = {
+          cloaked: essid.nil? || essid.empty?,
+          essid: essid
+        }
       end
 
       def update(attrs)
