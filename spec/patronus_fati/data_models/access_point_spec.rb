@@ -27,9 +27,33 @@ RSpec.describe(PatronusFati::DataModels::AccessPoint) do
     end
   end
 
-  context '#add_client'
+  context '#add_client' do
+    it 'should not add a client more than once' do
+      sample_mac = 'cc:bb:cc:bb:cc:bb'
+      subject.client_macs = [ sample_mac ]
+
+      expect { subject.add_client(sample_mac) }
+        .to_not change { subject.client_macs }
+    end
+
+    it 'should add a client if it\'s not presently in the list' do
+      sample_mac = 'ac:db:fc:4b:8c:0b'
+      subject.client_macs = []
+
+      expect { subject.add_client(sample_mac) }
+        .to change { subject.client_macs }.from([]).to([sample_mac])
+    end
+  end
+
+  # TODO:
   context '#announce_changes'
-  context '#cleanup_ssids'
+
+  context '#cleanup_ssids' do
+    it 'should not set the dirty children flag if there is nothing to change'
+    it 'should not set the dirty children flag when the AP is offline'
+    it 'should remove dead SSIDs from the SSID list'
+    it 'should set the dirty children flag when SSIDs have been removed while the AP is active'
+  end
 
   context '#diagnostic_data' do
     it 'should include all SSID diagnostic data' do

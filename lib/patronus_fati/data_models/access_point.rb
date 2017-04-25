@@ -58,7 +58,7 @@ module PatronusFati
 
         # When an AP is offline we don't care about announcing that it's SSIDs
         # have expired, but we do want to remove them.
-        set_sync_flag(:dirtyChildren) if active? && !status_dirty?
+        set_sync_flag(:dirtyChildren) if active?
 
         ssids.reject! { |_, v| v.presence.dead? }
       end
