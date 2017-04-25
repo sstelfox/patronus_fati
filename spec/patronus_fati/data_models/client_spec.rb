@@ -32,7 +32,8 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       expect(subject).to receive(:valid?).and_return(true)
       subject.presence.mark_visible
 
-      expect(PatronusFati.event_handler).to receive(:event).with(:client, :new, anything, anything)
+      expect(PatronusFati.event_handler)
+        .to receive(:event).with(:client, :new, anything, anything)
       subject.announce_changes
     end
 
@@ -43,7 +44,8 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       expect(subject).to receive(:dirty?).and_return(true)
       expect(subject).to receive(:valid?).and_return(true)
 
-      expect(PatronusFati.event_handler).to receive(:event).with(:client, :changed, anything, anything)
+      expect(PatronusFati.event_handler)
+        .to receive(:event).with(:client, :changed, anything, anything)
       subject.announce_changes
     end
 
@@ -54,7 +56,8 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       subject.presence.mark_visible
 
       expect(subject).to receive(:valid?).and_return(true)
-      expect(PatronusFati.event_handler).to receive(:event).with(:client, :changed, anything, anything)
+      expect(PatronusFati.event_handler)
+        .to receive(:event).with(:client, :changed, anything, anything)
       subject.announce_changes
     end
 
@@ -66,7 +69,8 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       expect(subject).to receive(:valid?).and_return(true)
       expect(subject).to receive(:active?).and_return(false).exactly(3).times
 
-      expect(PatronusFati.event_handler).to receive(:event).with(:client, :offline, anything, anything)
+      expect(PatronusFati.event_handler)
+        .to receive(:event).with(:client, :offline, anything, anything)
       subject.announce_changes
     end
 
@@ -132,7 +136,8 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       expect(subject).to receive(:valid?).and_return(true)
       expect(subject).to receive(:full_state).and_return(data_sample)
 
-      expect(PatronusFati.event_handler).to receive(:event).with(:client, :changed, data_sample, anything)
+      expect(PatronusFati.event_handler)
+        .to receive(:event).with(:client, :changed, data_sample, anything)
       subject.announce_changes
     end
 
@@ -149,7 +154,8 @@ RSpec.describe(PatronusFati::DataModels::Client) do
         'uptime' => 1234
       }
 
-      expect(PatronusFati.event_handler).to receive(:event).with(:client, :offline, min_data, anything)
+      expect(PatronusFati.event_handler)
+        .to receive(:event).with(:client, :offline, min_data, anything)
       subject.announce_changes
     end
 
@@ -160,13 +166,58 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       expect(subject).to receive(:valid?).and_return(true)
       expect(subject).to receive(:diagnostic_data).and_return(sample_data)
 
-      expect(PatronusFati.event_handler).to receive(:event).with(:client, :offline, anything, sample_data)
+      expect(PatronusFati.event_handler)
+        .to receive(:event).with(:client, :offline, anything, sample_data)
       subject.announce_changes
     end
   end
 
-  context '#add_access_point'
-  context '#cleanup_probes'
+  context '#add_access_point' do
+    it 'should not add an access point more than once' do
+      sample_mac = '33:33:33:44:44:44'
+      subject.access_point_bssids = [ sample_mac ]
+
+      expect { subject.add_access_point(sample_mac) }
+        .to_not change { subject.access_point_bssids }
+    end
+
+    it 'should add an access point if it\'s not presently in the list' do
+      sample_mac = '99:11:22:ff:23:00'
+
+      expect(subject.access_point_bssids).to be_empty
+      expect { subject.add_access_point(sample_mac) }
+        .to change { subject.access_point_bssids }.from([]).to([sample_mac])
+    end
+  end
+
+  context '#cleanup_probes' do
+    let(:probe) { PatronusFati::Presence.new }
+
+    it 'should not modify the children flag when there are no probes' do
+      expect(subject.probes).to be_empty
+      expect { subject.cleanup_probes }.to_not change { subject.sync_status }
+    end
+
+    it 'should not modify the children flag when there is only active probes' do
+      probe.mark_visible
+      subject.probes = { 'probe key' => probe }
+      expect { subject.cleanup_probes }.to_not change { subject.sync_status }
+    end
+
+    it 'should modify the children flag when there is a dead probe' do
+      expect(probe).to be_dead
+      subject.probes = { 'NETGEAR32' => probe }
+      expect { subject.cleanup_probes }
+        .to change { subject.sync_flag?(:dirtyChildren) }.from(false).to(true)
+    end
+
+    it 'should remove all dead probes from the list' do
+      expect(probe).to be_dead
+      subject.probes = { 'linksys' => probe }
+      expect { subject.cleanup_probes }.to change { subject.probes }.to({})
+    end
+  end
+
   context '#full_state'
   context '#initialize'
   context '#remove_access_point'

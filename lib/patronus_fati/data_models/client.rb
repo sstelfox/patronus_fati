@@ -43,10 +43,9 @@ module PatronusFati
       end
 
       def cleanup_probes
-        return if probes.select { |_, v| v.presence.dead? }.empty?
-
+        return if probes.select { |_, pres| pres.dead? }.empty?
         set_sync_flag(:dirtyChildren)
-        probes.reject { |_, v| v.presence.dead? }
+        probes.reject! { |_, pres| pres.dead? }
       end
 
       def full_state
