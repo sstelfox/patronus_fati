@@ -218,11 +218,134 @@ RSpec.describe(PatronusFati::DataModels::Client) do
     end
   end
 
-  context '#full_state'
-  context '#initialize'
-  context '#remove_access_point'
-  context '#track_probe'
-  context '#update'
-  context '#valid?'
-  context '#vendor'
+  context '#full_state' do
+    it 'should return a hash' do
+      expect(subject.full_state).to be_kind_of(Hash)
+    end
+
+    it 'should include the keys expected by pulse' do
+      [:active, :bssid, :channel, :connected_access_points, :probes, :vendor].each do |k|
+        expect(subject.full_state.key?(k)).to be_truthy
+      end
+    end
+  end
+
+  context '#initialize' do
+    it 'should initialize probes to an empty hash' do
+      expect(subject.probes).to eql({})
+    end
+
+    it 'should initialize the local attributes with the client\'s mac' do
+      expect(subject.local_attributes.keys).to eql([:mac])
+      expect(subject.local_attributes[:mac]).to_not be_nil
+    end
+
+    it 'should initialize the APs it\'s connected to, to an empty array' do
+      expect(subject.access_point_bssids).to eql([])
+    end
+  end
+
+  context '#remove_access_point' do
+    it 'should make no change if the the bssid isn\'t present' do
+      subject.access_point_bssids = [ '78:2b:11:ae:00:12' ]
+      expect { subject.remove_access_point('00:11:22:33:44:55') }
+        .to_not change { subject.access_point_bssids }
+    end
+
+    it 'should remove just the bssid provided when it is present' do
+      test_mac = '00:11:22:33:44:55'
+      subject.access_point_bssids = [ '78:2b:11:ae:00:12', test_mac ]
+
+      expect { subject.remove_access_point(test_mac) }
+        .to change { subject.access_point_bssids }
+      expect(subject.access_point_bssids).to_not include(test_mac)
+    end
+  end
+
+  context '#track_probe' do
+    it 'should not change anything when provided a nil value' do
+      expect { subject.track_probe(nil) }.to_not change { subject.probes }
+    end
+
+    it 'should not change anything when provided an empty string' do
+      expect { subject.track_probe('') }.to_not change { subject.probes }
+    end
+
+    it 'should track new probes as a new presence instance' do
+      subject.track_probe('test')
+      expect(subject.probes['test']).to be_instance_of(PatronusFati::Presence)
+      expect(subject.probes['test']).to_not be_dead
+    end
+
+    it 'should mark existing probes as visisble' do
+      dbl = double(PatronusFati::Presence)
+      subject.probes['pineapple'] = dbl
+      expect(dbl).to receive(:mark_visible)
+      subject.track_probe('pineapple')
+    end
+  end
+
+  context '#update' do
+    it 'should not set invalid keys' do
+      expect { subject.update(bad: 'key') }
+        .to_not change { subject.local_attributes }
+    end
+
+    it 'shouldn\'t modify the sync flags on invalid keys' do
+      expect { subject.update(other: 'key') }
+        .to_not change { subject.sync_status }
+    end
+
+    it 'shouldn\'t modify the sync flags if the values haven\'t changed' do
+      expect { subject.update(subject.local_attributes) }
+        .to_not change { subject.sync_status }
+    end
+
+    it 'should set the dirty attribute flag when a value has changed' do
+      expect { subject.update(channel: 5) }
+        .to change { subject.sync_status }
+      expect(subject.sync_flag?(:dirtyAttributes)).to be_truthy
+    end
+  end
+
+  context '#valid?' do
+    it 'should be true when all required attributes are set' do
+      subject.local_attributes = { mac: 'testing' }
+      expect(subject).to be_valid
+    end
+
+    it 'should be false when missing a required attribute' do
+      subject.local_attributes.delete(:mac)
+      expect(subject).to_not be_valid
+    end
+  end
+
+  context '#vendor' do
+    it 'should short circuit if no MAC is available' do
+      expect(Louis).to_not receive(:lookup)
+
+      subject.update(mac: nil)
+      subject.vendor
+    end
+
+    it 'should use the Louis gem to perform it\'s lookup' do
+      inst = 'test string'
+      subject.update(mac: inst)
+
+      expect(Louis).to receive(:lookup).and_return({})
+      subject.vendor
+    end
+
+    it 'should default the long vendor name if it\'s available' do
+      result = { 'long_vendor' => 'correct', 'short_vendor' => 'bad' }
+      expect(Louis).to receive(:lookup).and_return(result)
+      expect(subject.vendor).to eql('correct')
+    end
+
+    it 'should fallback on the short vendor name if long isn\'t available' do
+      result = { 'short_vendor' => 'short' }
+      expect(Louis).to receive(:lookup).and_return(result)
+      expect(subject.vendor).to eql('short')
+    end
+  end
 end
