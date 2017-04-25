@@ -12,7 +12,7 @@ module PatronusFati
       end
 
       def active_ssids
-        ssids.select { |_, v| v.active? }.values
+        ssids.select { |_, v| v.active? }
       end
 
       def add_client(mac)
@@ -64,14 +64,14 @@ module PatronusFati
       end
 
       def diagnostic_data
-        super.merge(ssids: ssids.map { |k, s| [k, s.diagnostic_data] })
+        super.merge(ssids: Hash[ssids.map { |k, s| [k, s.diagnostic_data] }])
       end
 
       def full_state
         local_attributes.merge({
           active: active?,
           connected_clients: client_macs,
-          ssids: active_ssids.map(&:local_attributes),
+          ssids: active_ssids.values.map(&:local_attributes),
           vendor: vendor
         })
       end

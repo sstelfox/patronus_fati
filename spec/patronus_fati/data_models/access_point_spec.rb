@@ -5,15 +5,108 @@ RSpec.describe(PatronusFati::DataModels::AccessPoint) do
 
   it_behaves_like 'a common stateful model'
 
-  context '#active_ssids'
+  context '#active_ssids' do
+    it 'should return a hash' do
+      expect(subject.active_ssids).to be_kind_of(Hash)
+    end
+
+    it 'should not include inactive SSIDs' do
+      ssid = double(PatronusFati::DataModels::Ssid)
+      expect(ssid).to receive(:active?).and_return(false)
+
+      subject.ssids = { tmp: ssid }
+      expect(subject.active_ssids.values).to_not include(ssid)
+    end
+
+    it 'should include active SSIDs' do
+      ssid = double(PatronusFati::DataModels::Ssid)
+      expect(ssid).to receive(:active?).and_return(true)
+
+      subject.ssids = { tmp: ssid }
+      expect(subject.active_ssids.values).to include(ssid)
+    end
+  end
+
   context '#add_client'
   context '#announce_changes'
   context '#cleanup_ssids'
-  context '#diagnostic_data'
-  context '#full_state'
-  context '#initialize'
-  context '#mark_synced'
-  context '#remove_client'
+
+  context '#diagnostic_data' do
+    it 'should include all SSID diagnostic data' do
+      ssid_dbl = double(PatronusFati::DataModels::Ssid)
+      expect(ssid_dbl).to receive(:diagnostic_data).and_return(:datum)
+      subject.ssids = { tmp: ssid_dbl }
+      expect(subject.diagnostic_data[:ssids]).to eql({tmp: :datum})
+    end
+  end
+
+  context '#full_state' do
+    it 'should return a hash' do
+      expect(subject.full_state).to be_kind_of(Hash)
+    end
+
+    it 'should include the keys expected by pulse' do
+      subject.update(channel: 45, type: 'adhoc')
+      [:active, :bssid, :channel, :connected_clients, :ssids, :type, :vendor].each do |k|
+        expect(subject.full_state.key?(k)).to be_truthy
+      end
+    end
+
+    it 'should include the attributes of active ssids' do
+      ssid_dbl = double(PatronusFati::DataModels::Ssid)
+      expect(subject).to receive(:active_ssids).and_return({ pnt: ssid_dbl })
+      expect(ssid_dbl).to receive(:local_attributes).and_return('data')
+      expect(subject.full_state[:ssids]).to eql(['data'])
+    end
+  end
+
+  context '#initialize' do
+    it 'should set the local attributes to an appropriate hash' do
+      subject = described_class.new('12:23:34:45:56:67')
+      expect(subject.local_attributes).to eql(bssid: '12:23:34:45:56:67')
+    end
+
+    it 'should initialize client_macs to an empty array' do
+      expect(subject.client_macs).to be_kind_of(Array)
+      expect(subject.client_macs).to be_empty
+    end
+
+    it 'should initialize ssids to an empty hash' do
+      expect(subject.ssids).to be_kind_of(Hash)
+      expect(subject.ssids).to be_empty
+    end
+  end
+
+  context '#mark_synced' do
+    it 'should clear dirty flags' do
+      subject.update(channel: 8)
+      expect(subject.data_dirty?).to be_truthy
+      expect { subject.mark_synced }
+        .to change { subject.data_dirty? }.from(true).to(false)
+    end
+
+    it 'should call mark_synced on each SSID as well' do
+      dbl = double(PatronusFati::DataModels::Ssid)
+      subject.ssids = { test: dbl }
+
+      expect(dbl).to receive(:mark_synced)
+      subject.mark_synced
+    end
+  end
+
+  context '#remove_client' do
+    it 'should make no changes if the provided mac isn\'t present' do
+      subject.client_macs = [ 'one' ]
+      expect { subject.remove_client('test') }.to_not change { subject.client_macs }
+    end
+
+    it 'should remove only the provided mac if other macs are present' do
+      subject.client_macs = [ 'a', 'b', 'c' ]
+      subject.remove_client('b')
+
+      expect(subject.client_macs).to eql(['a', 'c'])
+    end
+  end
 
   context '#track_ssid' do
     let(:valid_ssid_data) { { essid: 'test' } }

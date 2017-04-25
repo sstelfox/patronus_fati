@@ -5,6 +5,24 @@ RSpec.describe(PatronusFati::DataModels::Client) do
 
   it_behaves_like 'a common stateful model'
 
+  context '#add_access_point' do
+    it 'should not add an access point more than once' do
+      sample_mac = '33:33:33:44:44:44'
+      subject.access_point_bssids = [ sample_mac ]
+
+      expect { subject.add_access_point(sample_mac) }
+        .to_not change { subject.access_point_bssids }
+    end
+
+    it 'should add an access point if it\'s not presently in the list' do
+      sample_mac = '99:11:22:ff:23:00'
+
+      expect(subject.access_point_bssids).to be_empty
+      expect { subject.add_access_point(sample_mac) }
+        .to change { subject.access_point_bssids }.from([]).to([sample_mac])
+    end
+  end
+
   context '#announce_changes' do
     before(:each) do
       PatronusFati::DataModels::AccessPoint.instance_variable_set(:@instances, nil)
@@ -169,24 +187,6 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       expect(PatronusFati.event_handler)
         .to receive(:event).with(:client, :offline, anything, sample_data)
       subject.announce_changes
-    end
-  end
-
-  context '#add_access_point' do
-    it 'should not add an access point more than once' do
-      sample_mac = '33:33:33:44:44:44'
-      subject.access_point_bssids = [ sample_mac ]
-
-      expect { subject.add_access_point(sample_mac) }
-        .to_not change { subject.access_point_bssids }
-    end
-
-    it 'should add an access point if it\'s not presently in the list' do
-      sample_mac = '99:11:22:ff:23:00'
-
-      expect(subject.access_point_bssids).to be_empty
-      expect { subject.add_access_point(sample_mac) }
-        .to change { subject.access_point_bssids }.from([]).to([sample_mac])
     end
   end
 

@@ -11,6 +11,10 @@ module PatronusFati
         Time.now.to_i - CLIENT_EXPIRATION
       end
 
+      def add_access_point(bssid)
+        access_point_bssids << bssid unless access_point_bssids.include?(bssid)
+      end
+
       def announce_changes
         return unless dirty? && valid?
 
@@ -36,10 +40,6 @@ module PatronusFati
         end
 
         mark_synced
-      end
-
-      def add_access_point(bssid)
-        access_point_bssids << bssid unless access_point_bssids.include?(bssid)
       end
 
       # Probes don't have an explicit visibility window so this will only
