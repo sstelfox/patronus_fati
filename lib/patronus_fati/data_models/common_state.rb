@@ -17,6 +17,9 @@ module PatronusFati
 
       def self.included(klass)
         klass.extend(KlassMethods)
+        klass.class_eval do
+          attr_accessor :presence, :sync_status
+        end
       end
 
       def active?

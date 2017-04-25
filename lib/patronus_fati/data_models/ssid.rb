@@ -3,7 +3,7 @@ module PatronusFati
     class Ssid
       include CommonState
 
-      attr_accessor :local_attributes, :presence, :sync_status
+      attr_accessor :local_attributes
 
       LOCAL_ATTRIBUTE_KEYS = [
         :beacon_info, :beacon_rate, :cloaked, :crypt_set, :essid, :max_rate

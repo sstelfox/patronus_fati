@@ -3,7 +3,7 @@ module PatronusFati
     class Connection
       include CommonState
 
-      attr_accessor :bssid, :link_lost, :mac, :presence, :sync_status
+      attr_accessor :bssid, :link_lost, :mac
 
       def self.[](key)
         bssid, mac = key.split('^')

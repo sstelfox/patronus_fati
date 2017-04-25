@@ -3,8 +3,7 @@ module PatronusFati
     class Client
       include CommonState
 
-      attr_accessor :access_point_bssids, :local_attributes, :presence,
-        :probes, :sync_status
+      attr_accessor :access_point_bssids, :local_attributes, :probes
 
       LOCAL_ATTRIBUTE_KEYS = [ :mac, :channel ].freeze
 

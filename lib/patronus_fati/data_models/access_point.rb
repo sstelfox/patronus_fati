@@ -3,8 +3,7 @@ module PatronusFati
     class AccessPoint
       include CommonState
 
-      attr_accessor :client_macs, :local_attributes, :presence, :ssids,
-        :sync_status
+      attr_accessor :client_macs, :local_attributes, :ssids
 
       LOCAL_ATTRIBUTE_KEYS = [ :bssid, :channel, :type ].freeze
 
