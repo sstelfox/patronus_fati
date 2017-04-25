@@ -8,16 +8,8 @@ module PatronusFati
 
       LOCAL_ATTRIBUTE_KEYS = [ :bssid, :channel, :type ].freeze
 
-      def self.[](bssid)
-        instances[bssid] ||= new(bssid)
-      end
-
       def self.current_expiration_threshold
         Time.now.to_i - AP_EXPIRATION
-      end
-
-      def self.instances
-        @instances ||= {}
       end
 
       def active_ssids
@@ -72,12 +64,7 @@ module PatronusFati
       end
 
       def diagnostic_data
-        {
-          sync_status: sync_status,
-          current_presence: presence.current_presence.bits,
-          last_presence: presence.last_presence.bits,
-          ssids: ssids.map { |k, s| [k, s.diagnostic_data] }
-        }
+        super.merge(ssids: ssids.map { |k, s| [k, s.diagnostic_data] })
       end
 
       def full_state
@@ -90,11 +77,10 @@ module PatronusFati
       end
 
       def initialize(bssid)
+        super
         self.local_attributes = { bssid: bssid }
         self.client_macs = []
-        self.presence = Presence.new
         self.ssids = {}
-        self.sync_status = 0
       end
 
       def mark_synced

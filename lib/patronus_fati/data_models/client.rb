@@ -8,20 +8,8 @@ module PatronusFati
 
       LOCAL_ATTRIBUTE_KEYS = [ :mac, :channel ].freeze
 
-      def self.[](mac)
-        instances[mac] ||= new(mac)
-      end
-
       def self.current_expiration_threshold
         Time.now.to_i - CLIENT_EXPIRATION
-      end
-
-      def self.exists?(mac)
-        instances.key?(mac)
-      end
-
-      def self.instances
-        @instances ||= {}
       end
 
       def announce_changes
@@ -62,14 +50,6 @@ module PatronusFati
         probes.reject { |_, v| v.presence.dead? }
       end
 
-      def diagnostic_data
-        {
-          sync_status: sync_status,
-          current_presence: presence.current_presence.bits,
-          last_presence: presence.last_presence.bits
-        }
-      end
-
       def full_state
         {
           active: active?,
@@ -82,11 +62,10 @@ module PatronusFati
       end
 
       def initialize(mac)
+        super
         self.access_point_bssids = []
         self.local_attributes = { mac: mac }
-        self.presence = Presence.new
         self.probes = {}
-        self.sync_status = 0
       end
 
       def remove_access_point(bssid)

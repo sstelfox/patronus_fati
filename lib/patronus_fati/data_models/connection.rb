@@ -7,15 +7,11 @@ module PatronusFati
 
       def self.[](key)
         bssid, mac = key.split('^')
-        instances[key] ||= new(bssid, mac)
+        super(bssid, mac)
       end
 
       def self.current_expiration_threshold
         Time.now.to_i - CONNECTION_EXPIRATION
-      end
-
-      def self.instances
-        @instances ||= {}
       end
 
       def announce_changes
@@ -40,20 +36,11 @@ module PatronusFati
         super && !link_lost
       end
 
-      def diagnostic_data
-        {
-          sync_status: sync_status,
-          current_presence: presence.current_presence.bits,
-          last_presence: presence.last_presence.bits
-        }
-      end
-
       def initialize(bssid, mac)
+        super
         self.bssid = bssid
         self.link_lost = false
         self.mac = mac
-        self.presence = Presence.new
-        self.sync_status = 0
       end
 
       def full_state
