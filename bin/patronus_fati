@@ -39,8 +39,16 @@ exception_logger('process') do
   connection = PatronusFati.setup(options['server'], options['port'])
   connection.connect
 
-  PatronusFati.event_handler.on(:any) do |asset_type, event_type, msg, _|
-    PatronusFati.logger.info(JSON.generate({asset_type: asset_type, event_type: event_type, data: msg, timestamp: Time.now}))
+  PatronusFati.event_handler.on(:any) do |asset_type, event_type, msg, diagnostics|
+    PatronusFati.logger.info(JSON.generate(
+      {
+        asset_type: asset_type,
+        event_type: event_type,
+        data: msg,
+        diagnostics: diagnostics,
+        timestamp: Time.now.to_i
+      }
+    ))
   end
 
   while (line = connection.read_queue.pop)

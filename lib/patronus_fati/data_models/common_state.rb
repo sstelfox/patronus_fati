@@ -1,6 +1,27 @@
 module PatronusFati
   module DataModels
     module CommonState
+      module KlassMethods
+        def [](key)
+          instances[key] ||= new(key)
+        end
+
+        def exists?(mac)
+          instances.key?(mac)
+        end
+
+        def instances
+          @instances ||= {}
+        end
+      end
+
+      def self.included(klass)
+        klass.extend(KlassMethods)
+        klass.class_eval do
+          attr_accessor :presence, :sync_status
+        end
+      end
+
       def active?
         presence.visible_since?(self.class.current_expiration_threshold)
       end
@@ -9,17 +30,31 @@ module PatronusFati
         sync_flag?(:dirtyAttributes) || sync_flag?(:dirtyChildren)
       end
 
+      def diagnostic_data
+        {
+          sync_status: sync_status,
+          presence_bit_offset: presence.current_bit_offset,
+          current_presence: presence.current_presence.bits,
+          last_presence: presence.last_presence.bits
+        }
+      end
+
       def dirty?
         new? || data_dirty? || status_dirty?
       end
 
-      def new?
-        sync_status & (SYNC_FLAGS[:syncedOnline] | SYNC_FLAGS[:syncedOffline]) > 0
+      def initialize(*_args)
+        self.presence = Presence.new
+        self.sync_status = 0
       end
 
       def mark_synced
         flag = active? ? :syncedOnline : :syncedOffline
         self.sync_status = SYNC_FLAGS[flag]
+      end
+
+      def new?
+        !(sync_flag?(:syncedOnline) || sync_flag?(:syncedOffline))
       end
 
       def set_sync_flag(flag)

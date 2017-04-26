@@ -3,7 +3,7 @@ module PatronusFati
     class Ssid
       include CommonState
 
-      attr_accessor :local_attributes, :presence, :sync_status
+      attr_accessor :local_attributes
 
       LOCAL_ATTRIBUTE_KEYS = [
         :beacon_info, :beacon_rate, :cloaked, :crypt_set, :essid, :max_rate
@@ -14,9 +14,11 @@ module PatronusFati
       end
 
       def initialize(essid)
-        self.local_attributes = { essid: essid }
-        self.presence = PatronusFati::Presence.new
-        self.sync_status = 0
+        super
+        self.local_attributes = {
+          cloaked: essid.nil? || essid.empty?,
+          essid: essid
+        }
       end
 
       def update(attrs)

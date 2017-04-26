@@ -34,6 +34,7 @@ module PatronusFati
 
     def self.offline_clients
       DataModels::Client.instances.each do |_, client|
+        client.cleanup_probes
         client.announce_changes
       end
 
@@ -106,13 +107,13 @@ module PatronusFati
 
         PatronusFati::DataModels::AccessPoint.instances.each do |bssid, access_point|
           next unless access_point.active?
-          PatronusFati.event_handler.event(:access_point, :sync, access_point.full_state)
+          PatronusFati.event_handler.event(:access_point, :sync, access_point.full_state, access_point.diagnostic_data)
           access_points << bssid
         end
 
         PatronusFati::DataModels::Client.instances.each do |mac, client|
           next unless client.active?
-          PatronusFati.event_handler.event(:client, :sync, client.full_state)
+          PatronusFati.event_handler.event(:client, :sync, client.full_state, client.diagnostic_data)
           clients << mac
         end
 

@@ -3,25 +3,16 @@ module PatronusFati
     class Client
       include CommonState
 
-      attr_accessor :access_point_bssids, :local_attributes, :presence,
-        :probes, :sync_status
+      attr_accessor :access_point_bssids, :local_attributes, :probes
 
       LOCAL_ATTRIBUTE_KEYS = [ :mac, :channel ].freeze
-
-      def self.[](mac)
-        instances[mac] ||= new(mac)
-      end
 
       def self.current_expiration_threshold
         Time.now.to_i - CLIENT_EXPIRATION
       end
 
-      def self.exists?(mac)
-        instances.key?(mac)
-      end
-
-      def self.instances
-        @instances ||= {}
+      def add_access_point(bssid)
+        access_point_bssids << bssid unless access_point_bssids.include?(bssid)
       end
 
       def announce_changes
@@ -29,13 +20,14 @@ module PatronusFati
 
         if active?
           status = new? ? :new : :changed
-          PatronusFati.event_handler.event(:client, status, full_state)
+          PatronusFati.event_handler.event(:client, status, full_state, diagnostic_data)
         else
           PatronusFati.event_handler.event(
             :client, :offline, {
               'bssid' => local_attributes[:mac],
               'uptime' => presence.visible_time
-            }
+            },
+            diagnostic_data
           )
 
           # We need to reset the first seen so we get fresh duration information
@@ -50,15 +42,13 @@ module PatronusFati
         mark_synced
       end
 
-      def add_access_point(bssid)
-        access_point_bssids << bssid unless access_point_bssids.include?(bssid)
-      end
-
+      # Probes don't have an explicit visibility window so this will only
+      # remove probes that haven't been seen in the entire duration of the time
+      # we track any visibility.
       def cleanup_probes
-        return if probes.select { |_, v| v.presence.dead? }.empty?
-
+        return if probes.select { |_, pres| pres.dead? }.empty?
         set_sync_flag(:dirtyChildren)
-        probes.reject { |_, v| v.presence.dead? }
+        probes.reject! { |_, pres| pres.dead? }
       end
 
       def full_state
@@ -73,11 +63,10 @@ module PatronusFati
       end
 
       def initialize(mac)
+        super
         self.access_point_bssids = []
         self.local_attributes = { mac: mac }
-        self.presence = Presence.new
         self.probes = {}
-        self.sync_status = 0
       end
 
       def remove_access_point(bssid)

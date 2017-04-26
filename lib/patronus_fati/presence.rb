@@ -116,9 +116,13 @@ module PatronusFati
     end
 
     # Returns the duration in seconds of how long the specific object was
-    # absolutely seen.
+    # absolutely seen. One additional interval duration is added to this length
+    # as we consider to have seen the tracked object for the entire duration of
+    # the interval not the length from the start of one interval to the start
+    # of the last interval, which makes logical sense (1 bit set is 1 interval
+    # duration, not zero seconds).
     def visible_time
-      last_visible - first_seen if first_seen
+      (last_visible + INTERVAL_DURATION) - first_seen if first_seen
     end
   end
 end

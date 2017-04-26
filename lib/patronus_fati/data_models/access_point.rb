@@ -3,25 +3,16 @@ module PatronusFati
     class AccessPoint
       include CommonState
 
-      attr_accessor :client_macs, :local_attributes, :presence, :ssids,
-        :sync_status
+      attr_accessor :client_macs, :local_attributes, :ssids
 
       LOCAL_ATTRIBUTE_KEYS = [ :bssid, :channel, :type ].freeze
-
-      def self.[](bssid)
-        instances[bssid] ||= new(bssid)
-      end
 
       def self.current_expiration_threshold
         Time.now.to_i - AP_EXPIRATION
       end
 
-      def self.instances
-        @instances ||= {}
-      end
-
       def active_ssids
-        ssids.select { |_, v| v.active? }.values
+        ssids.select { |_, v| v.active? } if ssids
       end
 
       def add_client(mac)
@@ -37,14 +28,16 @@ module PatronusFati
           PatronusFati.event_handler.event(
             :access_point,
             status,
-            full_state
+            full_state,
+            diagnostic_data
           )
         else
           PatronusFati.event_handler.event(
             :access_point, :offline, {
               'bssid' => local_attributes[:bssid],
               'uptime' => presence.visible_time
-            }
+            },
+            diagnostic_data
           )
 
           # We need to reset the first seen so we get fresh duration
@@ -61,34 +54,40 @@ module PatronusFati
       end
 
       def cleanup_ssids
-        return if ssids.select { |_, v| v.presence.dead? }.empty?
+        return if ssids.nil? || ssids.select { |_, v| v.presence.dead? }.empty?
 
-        # When an AP is offline we don't care about it's SSIDs
-        # expiring
-        set_sync_flag(:dirtyChildren) if active? && !status_dirty?
-        ssids.reject { |_, v| v.presence.dead? }
+        # When an AP is offline we don't care about announcing that it's SSIDs
+        # have expired, but we do want to remove them.
+        set_sync_flag(:dirtyChildren) if active?
+
+        ssids.reject! { |_, v| v.presence.dead? }
+      end
+
+      def diagnostic_data
+        dd = super
+        dd.merge!(ssids: Hash[ssids.map { |k, s| [k, s.diagnostic_data] }]) if ssids
+        dd
       end
 
       def full_state
-        local_attributes.merge({
+        state = local_attributes.merge({
           active: active?,
           connected_clients: client_macs,
-          ssids: active_ssids.map(&:local_attributes),
           vendor: vendor
         })
+        state[:ssids] = active_ssids.values.map(&:local_attributes) if ssids
+        state
       end
 
       def initialize(bssid)
+        super
         self.local_attributes = { bssid: bssid }
         self.client_macs = []
-        self.presence = Presence.new
-        self.ssids = {}
-        self.sync_status = 0
       end
 
       def mark_synced
         super
-        ssids.each { |_, v| v.mark_synced }
+        ssids.each { |_, v| v.mark_synced } if ssids
       end
 
       def remove_client(mac)
@@ -96,6 +95,7 @@ module PatronusFati
       end
 
       def track_ssid(ssid_data)
+        self.ssids ||= {}
         ssids[ssid_data[:essid]] ||= DataModels::Ssid.new(ssid_data[:essid])
 
         ssid = ssids[ssid_data[:essid]]

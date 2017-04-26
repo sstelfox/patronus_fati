@@ -4,6 +4,8 @@ $LOAD_PATH.unshift(base_path) unless $LOAD_PATH.include?(base_path)
 require 'rspec'
 require 'simplecov'
 
+require 'shared_examples/common_model_state'
+
 SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
 SimpleCov.add_filter "/spec/"
 SimpleCov.add_filter do |source_file|
