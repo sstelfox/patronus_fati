@@ -6,7 +6,8 @@ RSpec.describe(PatronusFati::DataModels::AccessPoint) do
   it_behaves_like 'a common stateful model'
 
   context '#active_ssids' do
-    it 'should return a hash' do
+    it 'should return a hash when ssids have been populated' do
+      subject.track_ssid(essid: 'test')
       expect(subject.active_ssids).to be_kind_of(Hash)
     end
 
@@ -106,13 +107,16 @@ RSpec.describe(PatronusFati::DataModels::AccessPoint) do
     end
 
     it 'should include the keys expected by pulse' do
+      subject.track_ssid(essid: 'test')
       subject.update(channel: 45, type: 'adhoc')
+
       [:active, :bssid, :channel, :connected_clients, :ssids, :type, :vendor].each do |k|
         expect(subject.full_state.key?(k)).to be_truthy
       end
     end
 
     it 'should include the attributes of active ssids' do
+      subject.ssids = {}
       ssid_dbl = double(PatronusFati::DataModels::Ssid)
       expect(subject).to receive(:active_ssids).and_return({ pnt: ssid_dbl })
       expect(ssid_dbl).to receive(:local_attributes).and_return('data')
@@ -129,11 +133,6 @@ RSpec.describe(PatronusFati::DataModels::AccessPoint) do
     it 'should initialize client_macs to an empty array' do
       expect(subject.client_macs).to be_kind_of(Array)
       expect(subject.client_macs).to be_empty
-    end
-
-    it 'should initialize ssids to an empty hash' do
-      expect(subject.ssids).to be_kind_of(Hash)
-      expect(subject.ssids).to be_empty
     end
   end
 
@@ -172,7 +171,7 @@ RSpec.describe(PatronusFati::DataModels::AccessPoint) do
     let(:valid_ssid_data) { { essid: 'test' } }
 
     it 'should create a new SSID instance if one doesn\'t already exist' do
-      expect(subject.ssids).to be_empty
+      expect(subject.ssids).to be_nil
       expect { subject.track_ssid(valid_ssid_data) }.to change { subject.ssids }
     end
 

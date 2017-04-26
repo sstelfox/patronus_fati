@@ -12,7 +12,7 @@ module PatronusFati
       end
 
       def active_ssids
-        ssids.select { |_, v| v.active? }
+        ssids.select { |_, v| v.active? } if ssids
       end
 
       def add_client(mac)
@@ -54,7 +54,7 @@ module PatronusFati
       end
 
       def cleanup_ssids
-        return if ssids.select { |_, v| v.presence.dead? }.empty?
+        return if ssids.nil? || ssids.select { |_, v| v.presence.dead? }.empty?
 
         # When an AP is offline we don't care about announcing that it's SSIDs
         # have expired, but we do want to remove them.
@@ -64,28 +64,30 @@ module PatronusFati
       end
 
       def diagnostic_data
-        super.merge(ssids: Hash[ssids.map { |k, s| [k, s.diagnostic_data] }])
+        dd = super
+        dd.merge!(ssids: Hash[ssids.map { |k, s| [k, s.diagnostic_data] }]) if ssids
+        dd
       end
 
       def full_state
-        local_attributes.merge({
+        state = local_attributes.merge({
           active: active?,
           connected_clients: client_macs,
-          ssids: active_ssids.values.map(&:local_attributes),
           vendor: vendor
         })
+        state[:ssids] = active_ssids.values.map(&:local_attributes) if ssids
+        state
       end
 
       def initialize(bssid)
         super
         self.local_attributes = { bssid: bssid }
         self.client_macs = []
-        self.ssids = {}
       end
 
       def mark_synced
         super
-        ssids.each { |_, v| v.mark_synced }
+        ssids.each { |_, v| v.mark_synced } if ssids
       end
 
       def remove_client(mac)
@@ -93,6 +95,7 @@ module PatronusFati
       end
 
       def track_ssid(ssid_data)
+        self.ssids ||= {}
         ssids[ssid_data[:essid]] ||= DataModels::Ssid.new(ssid_data[:essid])
 
         ssid = ssids[ssid_data[:essid]]
