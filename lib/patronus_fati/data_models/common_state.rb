@@ -33,6 +33,7 @@ module PatronusFati
       def diagnostic_data
         {
           sync_status: sync_status,
+          presence_bit_offset: presence.current_bit_offset,
           current_presence: presence.current_presence.bits,
           last_presence: presence.last_presence.bits
         }

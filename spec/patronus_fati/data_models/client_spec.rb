@@ -136,12 +136,11 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       subject.announce_changes
     end
 
-    it 'should mark itself as synced when announced' do
-      expect(subject).to receive(:dirty?).and_return(true)
+    it 'short not be dirty after being synced' do
       expect(subject).to receive(:valid?).and_return(true)
-      expect(subject).to receive(:mark_synced)
+      subject.update(channel: 8)
 
-      subject.announce_changes
+      expect { subject.announce_changes }.to change { subject.dirty? }.from(true).to(false)
     end
 
     it 'should announce the full state of the client with online syncs' do

@@ -49,10 +49,46 @@ RSpec.describe(PatronusFati::DataModels::AccessPoint) do
   context '#announce_changes'
 
   context '#cleanup_ssids' do
-    it 'should not set the dirty children flag if there is nothing to change'
-    it 'should not set the dirty children flag when the AP is offline'
-    it 'should remove dead SSIDs from the SSID list'
-    it 'should set the dirty children flag when SSIDs have been removed while the AP is active'
+    it 'should not set the dirty children flag if there is nothing to change' do
+      subject.track_ssid(essid: 'test')
+
+      expect { subject.cleanup_ssids }.to_not change { subject.sync_status }
+    end
+
+    it 'should not set the dirty children flag when the AP is offline' do
+      allow(subject).to receive(:active?).and_return(false)
+
+      # Create a 'dead' SSID
+      subject.track_ssid(essid: 'test')
+      subject.mark_synced
+      subject.ssids['test'].presence = PatronusFati::Presence.new
+
+      expect { subject.cleanup_ssids }.to_not change { subject.sync_status }
+    end
+
+    it 'should remove dead SSIDs from the SSID list' do
+      allow(subject).to receive(:active?).and_return(true)
+
+      # Create a 'dead' SSID
+      subject.track_ssid(essid: 'test')
+      subject.mark_synced
+      subject.ssids['test'].presence = PatronusFati::Presence.new
+
+      expect(subject.ssids).to_not be_empty
+      subject.cleanup_ssids
+      expect(subject.ssids).to be_empty
+    end
+
+    it 'should set the dirty children flag when SSIDs have been removed while the AP is active' do
+      allow(subject).to receive(:active?).and_return(true)
+
+      # Create a 'dead' SSID
+      subject.track_ssid(essid: 'test')
+      subject.mark_synced
+      subject.ssids['test'].presence = PatronusFati::Presence.new
+
+      expect { subject.cleanup_ssids }.to change { subject.sync_status }
+    end
   end
 
   context '#diagnostic_data' do
