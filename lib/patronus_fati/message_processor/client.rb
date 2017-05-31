@@ -48,12 +48,18 @@ module PatronusFati::MessageProcessor::Client
     return if access_point.nil? ||
       obj[:lasttime] < PatronusFati::DataModels::Connection.current_expiration_threshold
 
+    connection_key = "#{obj[:bssid]}^#{obj[:mac]}"
+
+    # from_ds are leaking wired assets, allow updating of connections but not
+    # creation
+    return obj[:type] == 'from_ds' &&
+      !PatronusFati::DataModels::Connection.exists?(connection_key)
+
     access_point.add_client(obj[:mac])
     access_point.announce_changes
 
     client.add_access_point(obj[:bssid])
 
-    connection_key = "#{obj[:bssid]}^#{obj[:mac]}"
     connection = PatronusFati::DataModels::Connection[connection_key]
     connection.presence.mark_visible
     connection.announce_changes
