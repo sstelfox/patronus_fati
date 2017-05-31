@@ -17,8 +17,10 @@ module PatronusFati::MessageProcessor::Client
     # obj[:mac] is the client's MAC address
     # obj[:bssid] is the AP's MAC address
     unless obj[:bssid].nil? || obj[:bssid].empty? || obj[:bssid] == obj[:mac]
-      access_point = PatronusFati::DataModels::AccessPoint[obj[:bssid]]
-      access_point.presence.mark_visible
+      if PatronusFati::DataModels::AccessPoint.exists?(obj[:bssid])
+        access_point = PatronusFati::DataModels::AccessPoint[obj[:bssid]]
+        access_point.presence.mark_visible
+      end
     end
 
     # Some messages from kismet come in corrupted with partial MACs. We care
