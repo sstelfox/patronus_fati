@@ -52,7 +52,7 @@ module PatronusFati::MessageProcessor::Client
 
     # from_ds are leaking wired assets, allow updating of connections but not
     # creation
-    return unless obj[:type] == 'established' ||
+    return unless %w(established to_ds).include?(obj[:type]) ||
       PatronusFati::DataModels::Connection.exists?(connection_key)
 
     access_point.add_client(obj[:mac])
