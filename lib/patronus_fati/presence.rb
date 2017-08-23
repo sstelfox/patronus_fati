@@ -112,7 +112,7 @@ module PatronusFati
       rotate_presence
 
       return false unless (lv = last_visible)
-      unix_time <= last_visible
+      unix_time <= lv
     end
 
     # Returns the duration in seconds of how long the specific object was
