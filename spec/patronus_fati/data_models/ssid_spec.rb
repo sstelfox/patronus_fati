@@ -5,6 +5,11 @@ RSpec.describe(PatronusFati::DataModels::Ssid) do
 
   it_behaves_like 'a common stateful model'
 
+  context '#full_state' do
+    it 'should include all the local attributes'
+    it 'should include the last time it was seen'
+  end
+
   context '#initialize' do
     it 'should initialize the local attributes with the essid' do
       expect(subject.local_attributes.keys).to include(:essid)
