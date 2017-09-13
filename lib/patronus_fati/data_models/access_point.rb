@@ -81,7 +81,7 @@ module PatronusFati
           connected_clients: client_macs,
           vendor: vendor
         })
-        state[:ssids] = active_ssids.values.map(&:local_attributes) if ssids
+        state[:ssids] = active_ssids.values.map(&:full_state) if ssids
         state
       end
 

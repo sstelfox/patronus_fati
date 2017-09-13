@@ -21,6 +21,10 @@ module PatronusFati
         }
       end
 
+      def full_state
+        local_attributes.merge(last_visible: presence.last_visible)
+      end
+
       def update(attrs)
         attrs.each do |k, v|
           next unless LOCAL_ATTRIBUTE_KEYS.include?(k)
