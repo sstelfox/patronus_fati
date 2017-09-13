@@ -62,6 +62,53 @@ module PatronusFati
         mark_synced
       end
 
+      def broadcasting_multiple?
+        return false unless ssids
+        return false if active_ssids.count == 1
+
+        presences = active_ssids.map(&:presence)
+
+        current_presence_bits = presences.map { |p| p.current_presence.bits }
+        longest_bit_string = current_presence_bits.map do |bits, i|
+          next 0 if current_presence_bits.length == (i + 1)
+          # Build a reference bit string of all the bit fields we haven't
+          # compared this SSID to yet
+          reference = current_presence_bits[i + 1, -1].inject { |ref, bits| ref | bits }
+          # Find the common bits between the reference and this bit string
+          common = reference & bits
+          # Count the longest consecutive string of bits shared between the
+          # values
+          count = 0
+          while common != 0
+            common = (common & (common << 1))
+            count += 1
+          end
+          count
+        end.max
+        return true if longest_bit_string >= 2
+
+        last_presence_bits = presences.map { |p| p.last_presence.bits }
+        longest_bit_string = last_presence_bits.map do |bits, i|
+          next 0 if last_presence_bits.length == (i + 1)
+          # Build a reference bit string of all the bit fields we haven't
+          # compared this SSID to yet
+          reference = last_presence_bits[i + 1, -1].inject { |ref, bits| ref | bits }
+          # Find the common bits between the reference and this bit string
+          common = reference & bits
+          # Count the longest consecutive string of bits shared between the
+          # values
+          count = 0
+          while common != 0
+            common = (common & (common << 1))
+            count += 1
+          end
+          count
+        end.max
+        return true if longest_bit_string >= 2
+
+        false
+      end
+
       def cleanup_ssids
         return if ssids.nil? || ssids.select { |_, v| v.presence.dead? }.empty?
 
@@ -81,6 +128,7 @@ module PatronusFati
       def full_state
         state = local_attributes.merge({
           active: active?,
+          broadcasting_multiple: broadcasting_multiple?,
           connected_clients: client_macs,
           vendor: vendor
         })

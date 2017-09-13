@@ -133,7 +133,7 @@ RSpec.describe(PatronusFati::DataModels::AccessPoint) do
     it 'should include the attributes of active ssids' do
       subject.ssids = {}
       ssid_dbl = double(PatronusFati::DataModels::Ssid)
-      expect(subject).to receive(:active_ssids).and_return({ pnt: ssid_dbl })
+      expect(subject).to receive(:active_ssids).and_return({ pnt: ssid_dbl }).twice
       expect(ssid_dbl).to receive(:full_state).and_return('data')
       expect(subject.full_state[:ssids]).to eql(['data'])
     end
