@@ -22,7 +22,7 @@ RSpec.describe(PatronusFati::DataModels::AccessPoint) do
       expect(subject.active_ssids.values).to_not include(inactive_ssid)
     end
 
-    it 'should include the last inactive SSID when no active SSIDs are present', :focus do
+    it 'should include the last inactive SSID when no active SSIDs are present' do
       presence = double(PatronusFati::Presence)
       expect(presence).to receive(:last_visible).and_return(Time.now.to_i)
 
