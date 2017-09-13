@@ -22,7 +22,7 @@ module PatronusFati
       end
 
       def full_state
-        local_attributes.merge(last_visible: presence.last_visible)
+        { last_visible: presence.last_visible }.merge(local_attributes)
       end
 
       def update(attrs)
