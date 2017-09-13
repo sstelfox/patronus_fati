@@ -12,7 +12,13 @@ module PatronusFati
       end
 
       def active_ssids
-        ssids.select { |_, v| v.active? } if ssids
+        return unless ssids
+        # If there is any active SSIDs return them
+        return ssids.select { |_, v| v.active? } if ssids.any?(&:active?)
+        # If there are no active SSIDs try and find the most recently seen SSID
+        # and report that as still active. Still return an empty set if there
+        # are no SSIDs.
+        [ssids.sort_by { |_, v| v.presence.last_visible || 0 }.last].compact
       end
 
       def add_client(mac)
