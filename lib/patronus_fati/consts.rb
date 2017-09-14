@@ -79,12 +79,11 @@ module PatronusFati
     dirtyChildren: (1 << 3),
   }.freeze
 
-  # This is how many tracked intervals do we need to see overlapping before we
-  # consider an access point as transmitting multiple SSIDs. The length of this
-  # is dependent on the length of presence intervals
+  # This is how many tracked intervals that need to be seen overlapping before
+  # we consider an access point as transmitting multiple SSIDs. The length of
+  # this is dependent on the length of presence intervals. The value of
+  # INTERVAL_DURATION determines the length of one interval.
   #
-  # @see PatronusFati::WINDOW_LENGTH
-  # @see PatronusFati::WINDOW_INTERVALS
   # @see PatronusFati::INTERVAL_DURATION
   SIMULTANEOUS_SSID_THRESHOLD = 2
 
