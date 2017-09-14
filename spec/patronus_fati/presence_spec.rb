@@ -28,7 +28,7 @@ RSpec.describe(PatronusFati::Presence) do
 
   context '#rotate_presence' do
     let(:old_window_start) do
-      subject.current_window_start - (2 * PatronusFati::Presence::WINDOW_LENGTH)
+      subject.current_window_start - (2 * PatronusFati::WINDOW_LENGTH)
     end
 
     it 'should not modify the last_presence if we\'re still in the window' do
@@ -71,14 +71,14 @@ RSpec.describe(PatronusFati::Presence) do
 
     it 'should return the time when the last_visible is in the current window' do
       # Note: bit 1 == minute 0, this which is why these two numbers differ
-      time = subject.current_window_start + (22 * PatronusFati::Presence::INTERVAL_DURATION)
+      time = subject.current_window_start + (22 * PatronusFati::INTERVAL_DURATION)
       subject.current_presence.set_bit(23)
       expect(subject.last_visible).to eql(time)
     end
 
     it 'should return the time when the last_visisble is in the last window' do
       # Note: bit 1 == minute 0, this which is why these two numbers differ
-      time = subject.last_window_start + (1 * PatronusFati::Presence::INTERVAL_DURATION)
+      time = subject.last_window_start + (1 * PatronusFati::INTERVAL_DURATION)
       subject.last_presence.set_bit(2)
       expect(subject.last_visible).to eql(time)
     end

@@ -11,12 +11,27 @@ RSpec.describe(PatronusFati::DataModels::AccessPoint) do
       expect(subject.active_ssids).to be_kind_of(Hash)
     end
 
-    it 'should not include inactive SSIDs' do
+    it 'should not include inactive SSIDs when an active SSID is present' do
+      inactive_ssid = double(PatronusFati::DataModels::Ssid)
+      expect(inactive_ssid).to receive(:active?).and_return(false)
+
+      active_ssid = double(PatronusFati::DataModels::Ssid)
+      expect(active_ssid).to receive(:active?).and_return(true)
+
+      subject.ssids = { tmp: inactive_ssid, tmp2: active_ssid }
+      expect(subject.active_ssids.values).to_not include(inactive_ssid)
+    end
+
+    it 'should include the last inactive SSID when no active SSIDs are present' do
+      presence = double(PatronusFati::Presence)
+      expect(presence).to receive(:last_visible).and_return(Time.now.to_i)
+
       ssid = double(PatronusFati::DataModels::Ssid)
       expect(ssid).to receive(:active?).and_return(false)
+      expect(ssid).to receive(:presence).and_return(presence)
 
       subject.ssids = { tmp: ssid }
-      expect(subject.active_ssids.values).to_not include(ssid)
+      expect(subject.active_ssids.values).to include(ssid)
     end
 
     it 'should include active SSIDs' do
@@ -118,8 +133,8 @@ RSpec.describe(PatronusFati::DataModels::AccessPoint) do
     it 'should include the attributes of active ssids' do
       subject.ssids = {}
       ssid_dbl = double(PatronusFati::DataModels::Ssid)
-      expect(subject).to receive(:active_ssids).and_return({ pnt: ssid_dbl })
-      expect(ssid_dbl).to receive(:local_attributes).and_return('data')
+      expect(subject).to receive(:active_ssids).and_return({ pnt: ssid_dbl }).twice
+      expect(ssid_dbl).to receive(:full_state).and_return('data')
       expect(subject.full_state[:ssids]).to eql(['data'])
     end
   end

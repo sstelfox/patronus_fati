@@ -12,7 +12,16 @@ module PatronusFati
       end
 
       def active_ssids
-        ssids.select { |_, v| v.active? } if ssids
+        return unless ssids
+        # If there is any active SSIDs return them
+        active = ssids.select { |_, v| v.active? }
+        return active unless active.empty?
+
+        # If there are no active SSIDs try and find the most recently seen SSID
+        # and report that as still active. Still return an empty set if there
+        # are no SSIDs.
+        most_recent = ssids.sort_by { |_, v| v.presence.last_visible || 0 }.last
+        most_recent ? Hash[[most_recent]] : {}
       end
 
       def add_client(mac)
@@ -53,6 +62,25 @@ module PatronusFati
         mark_synced
       end
 
+      def broadcasting_multiple?
+        return false unless ssids
+        return false if active_ssids.count == 1
+
+        presences = active_ssids.map(&:presence)
+        # This check becomes very expensive at larger numbers, if we get too
+        # high just short circuit and assume that yes there are simultaneous
+        # SSIDs being transmitted. This is likely a sign of a malicious device.
+        return true if presences.length >= 100
+
+        current_presence_bits = presences.map { |p| p.current_presence.bits }
+        return true if PatronusFati::BitHelper.largest_bit_overlap(current_presence_bits) >= SIMULTANEOUS_SSID_THRESHOLD
+
+        last_presence_bits = presences.map { |p| p.last_presence.bits }
+        return true if PatronusFati::BitHelper.largest_bit_overlap(last_presence_bits) >= SIMULTANEOUS_SSID_THRESHOLD
+
+        false
+      end
+
       def cleanup_ssids
         return if ssids.nil? || ssids.select { |_, v| v.presence.dead? }.empty?
 
@@ -72,10 +100,11 @@ module PatronusFati
       def full_state
         state = local_attributes.merge({
           active: active?,
+          broadcasting_multiple: broadcasting_multiple?,
           connected_clients: client_macs,
           vendor: vendor
         })
-        state[:ssids] = active_ssids.values.map(&:local_attributes) if ssids
+        state[:ssids] = active_ssids.values.map(&:full_state) if ssids
         state
       end
 

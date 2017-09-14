@@ -13,6 +13,7 @@ require 'louis'
 require 'patronus_fati/consts'
 require 'patronus_fati/version'
 
+require 'patronus_fati/bit_helper'
 require 'patronus_fati/cap_struct'
 require 'patronus_fati/connection'
 require 'patronus_fati/event_handler'
