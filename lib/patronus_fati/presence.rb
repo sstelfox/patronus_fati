@@ -122,7 +122,7 @@ module PatronusFati
     # of the last interval, which makes logical sense (1 bit set is 1 interval
     # duration, not zero seconds).
     def visible_time
-      (last_visible + INTERVAL_DURATION) - first_seen if first_seen
+      (last_visible + INTERVAL_DURATION) - first_seen if first_seen && last_visisble
     end
   end
 end
