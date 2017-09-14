@@ -6,8 +6,18 @@ RSpec.describe(PatronusFati::DataModels::Ssid) do
   it_behaves_like 'a common stateful model'
 
   context '#full_state' do
-    it 'should include all the local attributes'
-    it 'should include the last time it was seen'
+    it 'should include all the local attributes' do
+      expect(subject).to receive(:local_attributes).and_return(test: :data)
+      expect(subject.full_state[:test]).to eql(:data)
+    end
+
+    it 'should include the last time it was seen' do
+      presence_dbl = double(PatronusFati::Presence)
+      expect(presence_dbl).to receive(:last_visible).and_return(1234)
+
+      expect(subject).to receive(:presence).and_return(presence_dbl)
+      expect(subject.full_state[:last_visible]).to eql(1234)
+    end
   end
 
   context '#initialize' do
