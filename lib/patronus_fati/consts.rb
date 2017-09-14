@@ -79,6 +79,15 @@ module PatronusFati
     dirtyChildren: (1 << 3),
   }.freeze
 
+  # This is how many tracked intervals do we need to see overlapping before we
+  # consider an access point as transmitting multiple SSIDs. The length of this
+  # is dependent on the length of presence intervals
+  #
+  # @see PatronusFati::WINDOW_LENGTH
+  # @see PatronusFati::WINDOW_INTERVALS
+  # @see PatronusFati::INTERVAL_DURATION
+  SIMULTANEOUS_SSID_THRESHOLD = 2
+
   # Number of seconds before we consider an access point as offline
   AP_EXPIRATION = 300
 
@@ -101,6 +110,16 @@ module PatronusFati
     (1 << 1) => 'WPS_NOT_CONFIGURED',
     (1 << 2) => 'WPS_LOCKED',
   }
+
+  # How many seconds do each of our windows last
+  WINDOW_LENGTH = 3600
+
+  # How many intervals do we break each of our windows into? This must be
+  # less than 64.
+  WINDOW_INTERVALS = 60
+
+  # How long each interval will last in seconds
+  INTERVAL_DURATION = WINDOW_LENGTH / WINDOW_INTERVALS
 
   Error = Class.new(StandardError)
   DisconnectError = Class.new(PatronusFati::Error)

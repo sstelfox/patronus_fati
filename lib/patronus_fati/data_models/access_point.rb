@@ -67,16 +67,16 @@ module PatronusFati
         return false if active_ssids.count == 1
 
         presences = active_ssids.map(&:presence)
-        # This check becomes very expensive at larger numbers, if we get to
+        # This check becomes very expensive at larger numbers, if we get too
         # high just short circuit and assume that yes there are simultaneous
         # SSIDs being transmitted. This is likely a sign of a malicious device.
         return true if presences.length >= 100
 
         current_presence_bits = presences.map { |p| p.current_presence.bits }
-        return true if PatronusFati::BitHelper.largest_bit_overlap(current_presence_bits) >= 2
+        return true if PatronusFati::BitHelper.largest_bit_overlap(current_presence_bits) >= SIMULTANEOUS_SSID_THRESHOLD
 
         last_presence_bits = presences.map { |p| p.last_presence.bits }
-        return true if PatronusFati::BitHelper.largest_bit_overlap(last_presence_bits) >= 2
+        return true if PatronusFati::BitHelper.largest_bit_overlap(last_presence_bits) >= SIMULTANEOUS_SSID_THRESHOLD
 
         false
       end

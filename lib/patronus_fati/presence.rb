@@ -5,16 +5,6 @@ module PatronusFati
   class Presence
     attr_accessor :current_presence, :first_seen, :last_presence, :window_start
 
-    # How many seconds do each of our windows last
-    WINDOW_LENGTH = 3600
-
-    # How many intervals do we break each of our windows into? This must be
-    # less than 64.
-    WINDOW_INTERVALS = 60
-
-    # How long each interval will last in seconds
-    INTERVAL_DURATION = WINDOW_LENGTH / WINDOW_INTERVALS
-
     # Translate a timestamp relative to the provided reference window into an
     # appropriate bit within our bit field.
     def bit_for_time(reference_window, timestamp)
