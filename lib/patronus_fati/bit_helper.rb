@@ -42,12 +42,12 @@ module PatronusFati
     # @param [Array<Fixnum>] bit_list
     # @return [Boolean]
     def self.largest_bit_overlap(bit_list)
-      bit_list.map do |bits, i|
+      bit_list.map.with_index do |bits, i|
         # We're at the end of the list there are no bits to compare
         next 0 if bit_list.length == (i + 1)
         # Build a reference bit string of all the bit fields we haven't
         # compared this SSID to yet
-        reference = bit_list[i + 1, -1].inject { |ref, bits| ref | bits }
+        reference = bit_list[(i + 1)..-1].inject { |ref, bits| ref | bits }
         # Find the common bits between the reference and this bit string
         count_consecutive_bits(reference & bits)
       end.max
