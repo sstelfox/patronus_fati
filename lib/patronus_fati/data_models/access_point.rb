@@ -66,7 +66,7 @@ module PatronusFati
         return false unless ssids
         return false if active_ssids.count == 1
 
-        presences = active_ssids.map(&:presence)
+        presences = active_ssids.values.map(&:presence)
         # This check becomes very expensive at larger numbers, if we get too
         # high just short circuit and assume that yes there are simultaneous
         # SSIDs being transmitted. This is likely a sign of a malicious device.
