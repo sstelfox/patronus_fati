@@ -44,6 +44,17 @@ RSpec.describe(PatronusFati::BitHelper) do
             "0000000000000000"
           ],
           answer: 16
+        },
+        {
+          bit_strings: [],
+          answer: 0
+        },
+        {
+          bit_strings: [
+            "0000000011111111",
+            "1111111100000000"
+          ],
+          answer: 0
         }
       ]
     end

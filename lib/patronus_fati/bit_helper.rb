@@ -39,6 +39,8 @@ module PatronusFati
     # case assuming it's broadcasting multiple is likely fine for these kinds
     # of floods).
     #
+    # In the case that there is no overlap this will return 0.
+    #
     # @param [Array<Fixnum>] bit_list
     # @return [Boolean]
     def self.largest_bit_overlap(bit_list)
@@ -50,7 +52,7 @@ module PatronusFati
         reference = bit_list[(i + 1)..-1].inject { |ref, bits| ref | bits }
         # Find the common bits between the reference and this bit string
         count_consecutive_bits(reference & bits)
-      end.max
+      end.push(0).max
     end
   end
 end
