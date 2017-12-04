@@ -9,13 +9,13 @@ module PatronusFati
     # appropriate bit within our bit field.
     def bit_for_time(reference_window, timestamp)
       offset = timestamp - reference_window
-      raise ArgumentError if offset < 0 || offset > WINDOW_LENGTH
+      raise ArgumentError if offset < 0 || offset >= WINDOW_LENGTH
       (offset / INTERVAL_DURATION) + 1
     end
 
     # Get the bit representing our current interval within the window
     def current_bit_offset
-      bit_for_time(current_window_start, Time.now.to_i)
+      bit_for_time(window_start, Time.now.to_i)
     end
 
     # Returns the unix timestamp of the beginning of the current window.
@@ -38,7 +38,7 @@ module PatronusFati
     end
 
     def last_window_start
-      current_window_start - WINDOW_LENGTH
+      window_start - WINDOW_LENGTH
     end
 
     # Provides the beginning of the last interval when the tracked object was
@@ -50,7 +50,7 @@ module PatronusFati
       return nil if dead?
 
       if (bit = current_presence.highest_bit_set)
-        time_for_bit(current_window_start, bit)
+        time_for_bit(window_start, bit)
       else
         time_for_bit(last_window_start, last_presence.highest_bit_set)
       end
@@ -70,10 +70,11 @@ module PatronusFati
     # a new bit window, this method will move the current window into the old
     # one, and reset the current bit field.
     def rotate_presence
-      return if window_start == current_window_start
+      cws = current_window_start
+      return if window_start == cws
 
       self.last_presence = current_presence
-      self.window_start = current_window_start
+      self.window_start = cws
       self.current_presence = BitField.new(WINDOW_INTERVALS)
     end
 
