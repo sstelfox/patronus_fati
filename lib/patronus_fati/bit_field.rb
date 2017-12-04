@@ -29,7 +29,7 @@ module PatronusFati
     end
 
     def set_bit(bit)
-      raise ArgumentError unless valid_bit?(bit)
+      raise ArgumentError, "Bit #{bit} is out of range of #{tracked_count}" unless valid_bit?(bit)
       self.bits |= (1 << bit - 1)
     end
 
