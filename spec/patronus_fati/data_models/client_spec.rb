@@ -235,7 +235,7 @@ RSpec.describe(PatronusFati::DataModels::Client) do
     end
 
     it 'should initialize the local attributes with the client\'s mac' do
-      expect(subject.local_attributes.keys).to eql([:mac])
+      expect(subject.local_attributes.keys).to eql([:channel, :mac])
       expect(subject.local_attributes[:mac]).to_not be_nil
     end
 

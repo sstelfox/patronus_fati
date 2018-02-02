@@ -65,7 +65,7 @@ module PatronusFati
       def initialize(mac)
         super
         self.access_point_bssids = []
-        self.local_attributes = { mac: mac }
+        self.local_attributes = { channel: 0, mac: mac }
         self.probes = {}
       end
 

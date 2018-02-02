@@ -30,8 +30,9 @@ module PatronusFati
                            :noise_rssi, :minsignal_rssi, :minnoise_rssi,
                            :maxsignal_rssi, :maxnoise_rssi, :bestlat, :bestlon,
                            :bestalt, :atype, :datasize, :maxseenrate,
-                           :encodingset, :carrierset, :decrypted, :channel,
+                           :encodingset, :carrierset, :decrypted,
                            :fragments, :retries, :newpackets) { |val| val.to_i }
+    Client.set_data_filter(:channel) { |val| val.to_i == 0 ? nil : val.to_i }
     Client.set_data_filter(:gpsfixed) { |val| val.to_i == 1 }
 
     Client.set_data_filter(:ip, :gatewayip) { |val| (val == "0.0.0.0") ? nil : val }
