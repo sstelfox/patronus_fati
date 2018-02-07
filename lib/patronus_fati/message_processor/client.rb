@@ -3,8 +3,8 @@ module PatronusFati::MessageProcessor::Client
 
   def self.client_data(attrs)
     {
-      bssid:          attrs[:mac],
-      channel:        attrs[:channel]
+      bssid:   attrs[:mac],
+      channel: attrs[:channel]
     }.reject { |_, v| v.nil? }
   end
 
