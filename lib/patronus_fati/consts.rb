@@ -79,6 +79,10 @@ module PatronusFati
     dirtyChildren: (1 << 3),
   }.freeze
 
+  # The minimum signal threshold we'll use to decide whether or not to track a
+  # new access point or client. This help remove noise in the produced data.
+  SIGNAL_THRESHOLD = -86
+
   # This is how many tracked intervals that need to be seen overlapping before
   # we consider an access point as transmitting multiple SSIDs. The length of
   # this is dependent on the length of presence intervals. The value of

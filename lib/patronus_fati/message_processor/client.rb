@@ -36,6 +36,11 @@ module PatronusFati::MessageProcessor::Client
     return if %w(unknown from_ds).include?(obj[:type]) &&
       (!PatronusFati::DataModels::Client.exists?(obj[:mac]) || access_point.nil?)
 
+    # Only create new clients if we're seeing it at a meaningful detection
+    # strength
+    return unless PatronusFati::DataModels::Client.exists?(obj.bssid) ||
+      obj.signal_dbm > PatronusFati::SIGNAL_THRESHOLD
+
     client_info = client_data(obj.attributes)
 
     client = PatronusFati::DataModels::Client[obj[:mac]]

@@ -23,6 +23,11 @@ module PatronusFati::MessageProcessor::Bssid
     # isn't present and it's coming from a client).
     return unless %w(infrastructure adhoc).include?(obj.type.to_s)
 
+    # Only create new access points if we're seeing it at a meaningful
+    # detection strength
+    return unless PatronusFati::DataModels::AccessPoint.exists?(obj.bssid) ||
+      obj.signal_dbm > PatronusFati::SIGNAL_THRESHOLD
+
     ap_info = ap_data(obj.attributes)
 
     access_point = PatronusFati::DataModels::AccessPoint[obj.bssid]
