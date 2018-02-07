@@ -3,7 +3,7 @@ module PatronusFati
     class Client
       include CommonState
 
-      attr_accessor :access_point_bssids, :local_attributes, :probes
+      attr_accessor :access_point_bssids, :last_dbm, :local_attributes, :probes
 
       LOCAL_ATTRIBUTE_KEYS = [ :mac, :channel ].freeze
 
@@ -49,6 +49,12 @@ module PatronusFati
         return if probes.select { |_, pres| pres.dead? }.empty?
         set_sync_flag(:dirtyChildren)
         probes.reject! { |_, pres| pres.dead? }
+      end
+
+      def diagnostic_data
+        dd = super
+        dd[:last_dbm] = last_dbm if last_dbm
+        dd
       end
 
       def full_state

@@ -40,6 +40,7 @@ module PatronusFati::MessageProcessor::Client
 
     client = PatronusFati::DataModels::Client[obj[:mac]]
     client.update(client_info)
+    client.last_dbm = obj.signal_dbm if obj.signal_dbm
     client.presence.mark_visible
     client.announce_changes
 

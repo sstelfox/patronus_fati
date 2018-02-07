@@ -3,7 +3,7 @@ module PatronusFati
     class AccessPoint
       include CommonState
 
-      attr_accessor :client_macs, :local_attributes, :ssids
+      attr_accessor :client_macs, :last_dbm, :local_attributes, :ssids
 
       LOCAL_ATTRIBUTE_KEYS = [ :bssid, :channel, :type ].freeze
 
@@ -94,6 +94,7 @@ module PatronusFati
       def diagnostic_data
         dd = super
         dd.merge!(ssids: Hash[ssids.map { |k, s| [k, s.diagnostic_data] }]) if ssids
+        dd[:last_dbm] = last_dbm if last_dbm
         dd
       end
 
