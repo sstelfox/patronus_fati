@@ -16,7 +16,7 @@ module PatronusFati
       end
 
       def announce_changes
-        return unless dirty? && valid?
+        return unless dirty? && valid? && worthy_syncing?
 
         if active?
           status = new? ? :new : :changed
@@ -98,6 +98,15 @@ module PatronusFati
         return unless local_attributes[:mac]
         result = Louis.lookup(local_attributes[:mac])
         result['long_vendor'] || result['short_vendor']
+      end
+
+      # This is a safety mechanism to check whether or not a client device is
+      # actually 'present'. This is intended to cut out the one time fake
+      # generated addresses from devices that generate random MAC addresses,
+      # probe quickly and disappear and requires us to either see a client
+      # connect to an access point or be visible for more than one interval.
+      def worth_syncing?
+        access_point_bssids.any? || presence.visible_time > INTERVAL_DURATION
       end
     end
   end
