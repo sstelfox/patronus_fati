@@ -54,6 +54,7 @@ module PatronusFati
       def diagnostic_data
         dd = super
         dd[:last_dbm] = last_dbm if last_dbm
+        dd[:visible_time] = presence.visible_time
         dd
       end
 
