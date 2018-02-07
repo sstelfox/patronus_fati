@@ -38,6 +38,15 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       subject.announce_changes
     end
 
+    it 'should emit no events when the client isn\'t worth sending up' do
+      expect(subject).to receive(:dirty?).and_return(true)
+      expect(subject).to receive(:valid?).and_return(true)
+      expect(subject).to receive(:worth_syncing?).and_return(false)
+
+      expect(PatronusFati.event_handler).to_not receive(:event)
+      subject.announce_changes
+    end
+
     it 'should emit no events when the instance isn\'t dirty' do
       expect(subject).to receive(:dirty?).and_return(false)
 
@@ -45,9 +54,10 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       subject.announce_changes
     end
 
-    it 'should emit a new client event when dirty and unsynced' do
+    it 'should emit a new client event when dirty, unsynced and worth syncing' do
       expect(subject).to receive(:dirty?).and_return(true)
       expect(subject).to receive(:valid?).and_return(true)
+      expect(subject).to receive(:worth_syncing?).and_return(true)
       subject.presence.mark_visible
 
       expect(PatronusFati.event_handler)
@@ -61,6 +71,7 @@ RSpec.describe(PatronusFati::DataModels::Client) do
 
       expect(subject).to receive(:dirty?).and_return(true)
       expect(subject).to receive(:valid?).and_return(true)
+      expect(subject).to receive(:worth_syncing?).and_return(true)
 
       expect(PatronusFati.event_handler)
         .to receive(:event).with(:client, :changed, anything, anything)
@@ -74,6 +85,7 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       subject.presence.mark_visible
 
       expect(subject).to receive(:valid?).and_return(true)
+      expect(subject).to receive(:worth_syncing?).and_return(true)
       expect(PatronusFati.event_handler)
         .to receive(:event).with(:client, :changed, anything, anything)
       subject.announce_changes
@@ -85,6 +97,7 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       expect(subject.active?).to be_truthy
 
       expect(subject).to receive(:valid?).and_return(true)
+      expect(subject).to receive(:worth_syncing?).and_return(true)
       expect(subject).to receive(:active?).and_return(false).exactly(3).times
 
       expect(PatronusFati.event_handler)
@@ -98,6 +111,7 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       expect(subject.active?).to be_truthy
 
       expect(subject).to receive(:valid?).and_return(true)
+      expect(subject).to receive(:worth_syncing?).and_return(true)
       expect(subject).to receive(:active?).and_return(false).exactly(3).times
 
       expect { subject.announce_changes }
@@ -138,6 +152,7 @@ RSpec.describe(PatronusFati::DataModels::Client) do
 
     it 'short not be dirty after being synced' do
       expect(subject).to receive(:valid?).and_return(true)
+      expect(subject).to receive(:worth_syncing?).and_return(true)
       subject.update(channel: 8)
 
       expect { subject.announce_changes }.to change { subject.dirty? }.from(true).to(false)
@@ -151,6 +166,7 @@ RSpec.describe(PatronusFati::DataModels::Client) do
 
       expect(subject).to receive(:dirty?).and_return(true)
       expect(subject).to receive(:valid?).and_return(true)
+      expect(subject).to receive(:worth_syncing?).and_return(true)
       expect(subject).to receive(:full_state).and_return(data_sample)
 
       expect(PatronusFati.event_handler)
@@ -163,6 +179,7 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       subject.mark_synced
 
       expect(subject).to receive(:valid?).and_return(true)
+      expect(subject).to receive(:worth_syncing?).and_return(true)
       expect(subject).to receive(:active?).and_return(false).exactly(3).times
 
       expect(subject.presence).to receive(:visible_time).and_return(1234)
@@ -181,6 +198,7 @@ RSpec.describe(PatronusFati::DataModels::Client) do
 
       expect(subject).to receive(:dirty?).and_return(true)
       expect(subject).to receive(:valid?).and_return(true)
+      expect(subject).to receive(:worth_syncing?).and_return(true)
       expect(subject).to receive(:diagnostic_data).and_return(sample_data)
 
       expect(PatronusFati.event_handler)
