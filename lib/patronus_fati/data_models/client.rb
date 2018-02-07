@@ -16,7 +16,7 @@ module PatronusFati
       end
 
       def announce_changes
-        return unless dirty? && valid? && worthy_syncing?
+        return unless dirty? && valid? && worth_syncing?
 
         if active?
           status = new? ? :new : :changed
