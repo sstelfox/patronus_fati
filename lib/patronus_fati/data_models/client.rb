@@ -114,7 +114,7 @@ module PatronusFati
       # connect to an access point, be visible for more than one interval, or
       # have already been synced.
       def worth_syncing?
-        access_point_bssids.any? || sync_flag?(:syncedOnline) ||
+        access_point_bssids.any? || sync_flag?(:syncedOnline) || probes.any? ||
           (presence && presence.visible_time && presence.visible_time > INTERVAL_DURATION)
       end
     end
