@@ -2,6 +2,19 @@
 
 require 'json'
 
+def deep_diff(a, b)
+  (a.keys | b.keys).each_with_object({}) do |k, diff|
+    if a[k] != b[k]
+      if a[k].is_a?(Hash) && b[k].is_a?(Hash)
+        diff[k] = deep_diff(a[k], b[k])
+      else
+        diff[k] = [a[k], b[k]]
+      end
+    end
+    diff
+  end
+end
+
 unless ARGV[0]
   puts 'Must provide a file as the first argument...'
   exit 1
@@ -25,7 +38,7 @@ stats = {
 file = File.open(ARGV[0])
 file.each_line do |line|
   msg = JSON.parse(line)
-  next if %w(both connection sync).include?(msg['asset_type'])
+  next if %w(alert both connection sync).include?(msg['asset_type'])
   next if msg['event_type'] == 'sync'
 
   stats[:relevant_messages] += 1
@@ -34,7 +47,14 @@ file.each_line do |line|
   data = msg['data']
   data['event_type'] = msg['event_type']
   data['last_dbm'] = msg['diagnostics']['last_dbm']
-  data['timestamp'] = msg['timestamp']
+  #data['timestamp'] = msg['timestamp']
+
+  if data['ssids']
+    ssids = data.delete('ssids')
+    data['ssids'] = ssids.map do |s|
+      s.reject { |k, _| %w(last_visible).include?(k) }
+    end
+  end
 
   bssid = data.delete('bssid')
 
@@ -43,21 +63,29 @@ file.each_line do |line|
 end
 file.close
 
-message_count_breakdown = {}
+changes = []
 
 message_breakdown.each do |type, data|
-  message_count_breakdown[type] = {}
-
   data.each do |bssid, msgs|
     next if msgs.count <= 2
     stats[:abberations] += msgs.count
 
     change_string = msgs.map { |m| m['event_type'][0] }.join
+    info = {
+      bssid: bssid,
+      msgs_count: msgs.count,
+      initial_state: msgs[0],
+      change_string: change_string,
+      deltas: []
+    }
 
-    message_count_breakdown[type][change_string] ||= []
-    message_count_breakdown[type][change_string] << bssid
+    1.upto(msgs.count - 1) do |i|
+      info[:deltas] << deep_diff(msgs[i - 1], msgs[i])
+    end
+
+    changes << info
   end
 end
 
-puts JSON.pretty_generate(message_count_breakdown)
+puts JSON.pretty_generate(changes)
 puts stats.inspect
