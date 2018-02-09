@@ -182,7 +182,7 @@ RSpec.describe(PatronusFati::DataModels::Client) do
       expect(subject).to receive(:worth_syncing?).and_return(true)
       expect(subject).to receive(:active?).and_return(false).exactly(3).times
 
-      expect(subject.presence).to receive(:visible_time).and_return(1234)
+      expect(subject.presence).to receive(:visible_time).and_return(1234).twice
       min_data = {
         'bssid' => subject.local_attributes[:mac],
         'uptime' => 1234
