@@ -35,6 +35,14 @@ require 'patronus_fati/presence'
 module PatronusFati
   @@startup_time = Time.now.to_i
 
+  def self.current_channel
+    @current_channel || 0
+  end
+
+  def self.current_channel=(chan)
+    @current_channel = chan
+  end
+
   def self.event_handler
     @event_handler ||= PatronusFati::EventHandler.new
   end

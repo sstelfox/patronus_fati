@@ -92,7 +92,7 @@ module PatronusFati
 
     def self.ignored_types
       [:ack, :battery, :bssidsrc, :channel, :clisrc, :gps, :info, :kismet,
-       :plugin, :source, :status, :time]
+       :plugin, :status, :time]
     end
 
     def self.periodic_flush
@@ -131,5 +131,6 @@ require 'patronus_fati/message_processor/client'
 require 'patronus_fati/message_processor/critfail'
 require 'patronus_fati/message_processor/error'
 require 'patronus_fati/message_processor/protocols'
+require 'patronus_fati/message_processor/source'
 require 'patronus_fati/message_processor/ssid'
 require 'patronus_fati/message_processor/terminate'
