@@ -42,7 +42,7 @@ module PatronusFati::MessageProcessor::Client
       obj.signal_dbm > PatronusFati::SIGNAL_THRESHOLD
 
     unless obj.channel.nil? || obj.channel == PatronusFati.current_channel
-      puts "WARNING: Received information about Client on channel #{obj.channel} while on #{PatronusFati.current_channel} (actual: #{PatronusFati.real_channel})"
+      puts "WARNING: Received information about Client on channel #{obj.channel} while on #{PatronusFati.current_channel}"
     end
 
     client_info = client_data(obj.attributes)
