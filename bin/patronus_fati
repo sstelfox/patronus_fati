@@ -40,7 +40,7 @@ exception_logger('process') do
   connection.connect
 
   PatronusFati.event_handler.on(:any) do |asset_type, event_type, msg, diagnostics|
-    PatronusFati.logger.info(JSON.generate(
+    STDERR.puts(JSON.generate(
       {
         asset_type: asset_type,
         event_type: event_type,
