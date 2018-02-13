@@ -40,6 +40,7 @@ module PatronusFati
   end
 
   def self.current_channel=(chan)
+    puts "INFO: Changing channel to: #{chan}"
     puts "WARNING: Kismet is lying to us about what channel its on. Real: #{real_channel}, Reported: #{chan}" if chan != real_channel
     @current_channel = chan
   end
