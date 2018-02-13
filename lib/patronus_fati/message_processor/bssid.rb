@@ -29,7 +29,7 @@ module PatronusFati::MessageProcessor::Bssid
       obj.signal_dbm > PatronusFati::SIGNAL_THRESHOLD
 
     unless obj.channel == PatronusFati.current_channel
-      puts "WARNING: Received information about AP on channel #{obj.channel} while on #{PatronusFati.current_channel}"
+      puts "WARNING: Received information about AP on channel #{obj.channel} while on #{PatronusFati.current_channel} (actual: #{PatronusFati.real_channel})"
     end
 
     ap_info = ap_data(obj.attributes)

@@ -40,7 +40,12 @@ module PatronusFati
   end
 
   def self.current_channel=(chan)
+    puts "WARNING: Kismet is lying to us about what channel its on. Real: #{real_channel}, Reported: #{chan}" if chan != real_channel
     @current_channel = chan
+  end
+
+  def self.real_channel
+    `iw wlan0mon info | grep channel | awk '{ print $2 }'`.to_i
   end
 
   def self.event_handler
