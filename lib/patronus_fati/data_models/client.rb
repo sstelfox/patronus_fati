@@ -90,7 +90,7 @@ module PatronusFati
       def update(attrs)
         attrs.each do |k, v|
           next unless LOCAL_ATTRIBUTE_KEYS.include?(k)
-          next if local_attributes[k] == v
+          next if v.nil? || local_attributes[k] == v
 
           set_sync_flag(:dirtyAttributes)
           local_attributes[k] = v
