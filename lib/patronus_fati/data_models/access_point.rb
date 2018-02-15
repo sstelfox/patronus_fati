@@ -126,9 +126,14 @@ module PatronusFati
 
       def track_ssid(ssid_data)
         self.ssids ||= {}
-        ssids[ssid_data[:essid]] ||= DataModels::Ssid.new(ssid_data[:essid])
 
-        ssid = ssids[ssid_data[:essid]]
+        ssid_key = ssid_data[:cloaked] ?
+          Digest::SHA256.hexdigest(ssid_data[:crypt_set].join) :
+          ssid_data[:essid]
+
+        ssids[ssid_data[:essid]] ||= DataModels::Ssid.new(ssid_key)
+
+        ssid = ssids[ssid_key]
         ssid.presence.mark_visible
         ssid.update(ssid_data)
 
