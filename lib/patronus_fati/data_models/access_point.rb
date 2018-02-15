@@ -131,7 +131,7 @@ module PatronusFati
           Digest::SHA256.hexdigest(ssid_data[:crypt_set].join) :
           ssid_data[:essid]
 
-        ssids[ssid_data[:essid]] ||= DataModels::Ssid.new(ssid_key)
+        ssids[ssid_key] ||= DataModels::Ssid.new(ssid_data[:essid])
 
         ssid = ssids[ssid_key]
         ssid.presence.mark_visible
