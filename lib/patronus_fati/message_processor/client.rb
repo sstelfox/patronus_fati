@@ -54,8 +54,8 @@ module PatronusFati::MessageProcessor::Client
     client.announce_changes
 
     # Don't deal in associations that are outside of our connection expiration
-    # time... or if we don't have an access point
-    return if access_point.nil? ||
+    # time... or if we don't have a valid access point
+    return if access_point.nil? || !access_point.valid? ||
       obj[:lasttime] < PatronusFati::DataModels::Connection.current_expiration_threshold
 
     connection_key = "#{obj[:bssid]}^#{obj[:mac]}"

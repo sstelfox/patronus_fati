@@ -79,13 +79,13 @@ module PatronusFati
         clients = []
 
         PatronusFati::DataModels::AccessPoint.instances.each do |bssid, access_point|
-          next unless access_point.active?
+          next unless access_point.sync_flag?(:syncedOnline)
           PatronusFati.event_handler.event(:access_point, :sync, access_point.full_state, access_point.diagnostic_data)
           access_points << bssid
         end
 
         PatronusFati::DataModels::Client.instances.each do |mac, client|
-          next unless client.active?
+          next unless client.sync_flag?(:syncedOnline)
           PatronusFati.event_handler.event(:client, :sync, client.full_state, client.diagnostic_data)
           clients << mac
         end
