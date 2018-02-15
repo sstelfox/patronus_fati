@@ -29,7 +29,7 @@ module PatronusFati
       end
 
       def announce_changes
-        return unless dirty? && valid?
+        return unless dirty? && valid? && worth_syncing?
 
         if active?
           status = new? ? :new : :changed
@@ -154,6 +154,14 @@ module PatronusFati
         return unless local_attributes[:bssid]
         result = Louis.lookup(local_attributes[:bssid])
         result['long_vendor'] || result['short_vendor']
+      end
+
+      # This is a safety mechanism to check whether or not an access point is
+      # actually 'present'. This is intended to assist in cutting out the
+      # access points that are just on the edge of being visible to our sensors.
+      def worth_syncing?
+        client_macs.any? || sync_flag?(:syncedOnline) ||
+          (presence && presence.visible_time && presence.visible_time > INTERVAL_DURATION)
       end
     end
   end
