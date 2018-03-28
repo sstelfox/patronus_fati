@@ -145,8 +145,8 @@ module PatronusFati
           next unless LOCAL_ATTRIBUTE_KEYS.include?(k)
           next if v.nil? || local_attributes[k] == v
           # Disregard channel band updates for a specific BSSID
-          next if k == :channel && local_attributes[k] <= 13 && v > 13
-          next if k == :channel && local_attributes[k] > 13 && v <= 13
+          next if k == :channel && local_attributes[k] && v &&
+            ((local_attributes[k] <= 13 && v > 13) || (local_attributes[k] > 13 && v <= 13))
 
           set_sync_flag(:dirtyAttributes)
           local_attributes[k] = v
